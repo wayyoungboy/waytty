@@ -1,0 +1,15 @@
+name: waytty_l10n
+description: Shared waytty interface translations and language preferences.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.12.0
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  shared_preferences: ^2.3.2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

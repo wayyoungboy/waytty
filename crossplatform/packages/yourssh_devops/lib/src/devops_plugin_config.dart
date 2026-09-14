@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+
+/// Widget slots for DevOps sub-screens that depend on app-level providers
+/// (SessionProvider, SshService, TunnelProvider). Passed from the app so
+/// the yourssh_devops package stays free of circular dependencies.
+class DevOpsPluginConfig {
+  final Widget containersScreen;
+  final Widget networkToolsScreen;
+  final Widget cloudflareScreen;
+  final Widget mailCatcherScreen;
+  final Widget mcpServerScreen;
+  final void Function(String url)? onOpenBrowser;
+
+  const DevOpsPluginConfig({
+    required this.containersScreen,
+    required this.networkToolsScreen,
+    required this.cloudflareScreen,
+    required this.mailCatcherScreen,
+    required this.mcpServerScreen,
+    this.onOpenBrowser,
+  });
+}

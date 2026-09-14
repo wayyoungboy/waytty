@@ -1,0 +1,192 @@
+import 'package:waytty_l10n/waytty_l10n.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:yourssh_snippets/yourssh_snippets.dart';
+import 'workspace_side_panel.dart';
+
+class TerminalSnippetsPanel extends StatefulWidget {
+  final bool canRun;
+  final ValueChanged<Snippet> onRunSnippet;
+  final VoidCallback? onClose;
+
+  const TerminalSnippetsPanel({
+    super.key,
+    required this.canRun,
+    required this.onRunSnippet,
+    this.onClose,
+  });
+
+  @override
+  State<TerminalSnippetsPanel> createState() => _TerminalSnippetsPanelState();
+}
+
+class _TerminalSnippetsPanelState extends State<TerminalSnippetsPanel> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final snippets = context.watch<SnippetProvider>().snippets;
+    final filtered = filterSnippets(snippets, _query);
+
+    return WorkspaceSidePanel(
+      title: 'Snippets',
+      closeTooltip: 'Close snippets panel',
+      onClose: widget.onClose,
+      headerExtra: TextField(
+        onChanged: (value) => setState(() => _query = value),
+        style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13),
+        decoration: InputDecoration(
+          hintText: tr(context, "Search snippets…"),
+          hintStyle: const TextStyle(color: Color(0xFF555555), fontSize: 13),
+          prefixIcon: const Icon(Icons.search, size: 16, color: Color(0xFF555555)),
+          filled: true,
+          fillColor: const Color(0xFF1C1C1C),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF22C55E)),
+          ),
+          isDense: true,
+        ),
+      ),
+      child: Column(
+        children: [
+          if (!widget.canRun)
+            Container(
+              width: double.infinity,
+              color: const Color(0xFF2A1A1A),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: const LText(
+                "No active SSH pane selected",
+                style: TextStyle(color: Color(0xFFFCA5A5), fontSize: 12),
+              ),
+            ),
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(
+                    child: LText(
+                      _query.isEmpty ? "No snippets yet" : LMessage("No snippets match \"{0}\"", [_query]),
+                      style: const TextStyle(color: Color(0xFF555555)),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.all(12),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, index) => const SizedBox(height: 8),
+                    itemBuilder: (_, index) {
+                      final snippet = filtered[index];
+                      return _SnippetRow(
+                        snippet: snippet,
+                        canRun: widget.canRun,
+                        onRun: () => widget.onRunSnippet(snippet),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SnippetRow extends StatelessWidget {
+  final Snippet snippet;
+  final bool canRun;
+  final VoidCallback onRun;
+
+  const _SnippetRow({
+    required this.snippet,
+    required this.canRun,
+    required this.onRun,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1C1C),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF2A2A2A)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  snippet.label,
+                  style: const TextStyle(
+                    color: Color(0xFFE5E5E5),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (snippet.tag.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A2A),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    snippet.tag,
+                    style: const TextStyle(color: Color(0xFF888888), fontSize: 10),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SelectableText(
+            snippet.command,
+            style: const TextStyle(
+              color: Color(0xFF22C55E),
+              fontSize: 12,
+              fontFamily: 'monospace',
+            ),
+          ),
+          if (snippet.description.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              snippet.description,
+              style: const TextStyle(color: Color(0xFF888888), fontSize: 11),
+            ),
+          ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Tooltip(
+                message: tr(context, "Run snippet"),
+                child: TextButton.icon(
+                  onPressed: canRun ? onRun : null,
+                  icon: const Icon(Icons.play_arrow, size: 14),
+                  label: const LText("Run"),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Tooltip(
+                message: tr(context, "Copy snippet"),
+                child: TextButton.icon(
+                  onPressed: () =>
+                      Clipboard.setData(ClipboardData(text: snippet.command)),
+                  icon: const Icon(Icons.copy, size: 14),
+                  label: const LText("Copy"),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

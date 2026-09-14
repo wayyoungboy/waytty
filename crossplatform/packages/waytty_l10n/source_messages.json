@@ -1,0 +1,4226 @@
+{
+  " · {0} cancelled": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "\"{0}\" appears to be a binary file.\nOpen it with an external application instead? Changes saved there are uploaded back automatically.": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "(default context)": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "(no subject)": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "+ Generate Key": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "+ New Host": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "+ New Rule": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "/absolute/remote/path": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "/home/user/project": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "/path/to/docker-compose.yml": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "3–4 octal digits": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "A new code creates a new cloud record. Data tied to the old code becomes unreachable until you re-enter the old code.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "A3K9PX": [
+    "lib/widgets/join_share_dialog.dart"
+  ],
+  "ACTIVE FORWARDS": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "ADD FILES": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "ADD FOLDER": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "AI": [
+    "lib/screens/main_screen.dart"
+  ],
+  "AI PROVIDERS": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "AI 助手": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "AKIAIOSFODNN7EXAMPLE": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "API Key": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "API key value": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "AUDIT LOG": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "AUTH METHOD": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Access Key": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Actions": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Active Local Tunnels": [
+    "lib/widgets/web_tools/port_forward_browser.dart"
+  ],
+  "Add": [
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Add Bucket": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Add Rule": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Add Snippet": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Add Tunnel": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Add a Host": [
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "Add a server to get started": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Add a tunnel to expose a local port via Cloudflare.": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Add custom shell": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Add custom shell…": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Add env variable": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Add forwarding rule": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Add host": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Add path manually": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Add rule": [
+    "lib/widgets/keyword_highlight_settings.dart",
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Add your first SSH host to get started": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Adding a host will route the connection to ": [
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "After 1 min": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Agent forwarding": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Agent forwarding on — the destination uses your local keys": [
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "Alert when a command completes in an unfocused session": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "All namespaces": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "All types": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "Allow selected": [
+    "lib/widgets/plugin_consent_dialog.dart"
+  ],
+  "Anon key": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Apply": [
+    "lib/widgets/terminal_appearance_controls.dart",
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Apply recursively": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Arguments": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Attach to tmux session on connect (requires tmux on server)": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Audit": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Audit log unavailable: {0}": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "Auth Type": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Auto (negotiate)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Auto-lock": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Auto-reconnect": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Auto-record sessions": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Auto-start on launch": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "BACK TO GROUPS": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "BASELINE": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "BUILT-IN PLUGINS": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "Back": [
+    "lib/mobile/screens/mobile_qr_scan_screen.dart",
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Background": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Basic Auth": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Bearer Token": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Biometric unlock": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Body not applicable for this method": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Broadcast": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Browse…": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Bucket": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "CANCEL": [
+    "lib/widgets/bulk/bulk_run_dialog.dart",
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "CERT": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "CLEAR": [
+    "lib/widgets/bulk/bulk_action_bar.dart"
+  ],
+  "CLOSE": [
+    "lib/widgets/bulk/bulk_run_dialog.dart",
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "COMPARE TWO HOSTS": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "CONNECT ALL": [
+    "lib/widgets/bulk/bulk_action_bar.dart"
+  ],
+  "CONNECTION CHAIN": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "CSV": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "Cancel": [
+    "lib/screens/main_screen.dart",
+    "lib/widgets/qr_export_dialog.dart",
+    "lib/widgets/code_editor_screen.dart",
+    "lib/widgets/sftp_transfer_panel.dart",
+    "lib/widgets/keyword_highlight_settings.dart",
+    "lib/widgets/hotkey_settings_screen.dart",
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/recording_library_screen.dart",
+    "lib/widgets/keychain_screen.dart",
+    "lib/widgets/local_file_panel.dart",
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/permissions_dialog.dart",
+    "lib/widgets/confirm_dialog.dart",
+    "lib/widgets/hosts_dashboard.dart",
+    "lib/widgets/sudo_password_dialog.dart",
+    "lib/widgets/kubernetes_panel.dart",
+    "lib/widgets/cloudflare_tunnel_screen.dart",
+    "lib/widgets/qr_import_dialog.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/mobile/screens/mobile_hosts_screen.dart",
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Cancel push": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Cancel push?": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Cancel run": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "Cancel run?": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "Cannot edit in-app": [
+    "lib/widgets/code_editor_screen.dart",
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Case-sensitive": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Change…": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Check for updates": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Choose at least one color.": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Choose file ({0})": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "Choose…": [
+    "lib/widgets/entry_context_menu.dart"
+  ],
+  "Clear": [
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/audit_screen.dart",
+    "lib/widgets/docker_panel.dart",
+    "lib/widgets/compose_panel.dart",
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "Clear all": [
+    "lib/widgets/mail_catcher_screen.dart",
+    "lib/widgets/notification_bell.dart"
+  ],
+  "Clear all tabs": [
+    "lib/widgets/devops_tools_screen.dart"
+  ],
+  "Clear audit log": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Click a shortcut to rebind it. Changes are saved immediately.": [
+    "lib/widgets/hotkey_settings_screen.dart"
+  ],
+  "Close": [
+    "lib/widgets/sftp_screen.dart",
+    "lib/widgets/hosts_dashboard.dart",
+    "lib/widgets/deploy_key_dialog.dart",
+    "lib/widgets/session_tab.dart",
+    "lib/widgets/session_connecting_view.dart"
+  ],
+  "Close AI Chat": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Close logs": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Close search (Escape)": [
+    "lib/widgets/terminal_view.dart"
+  ],
+  "Cloud sync": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Cloudflare Tunnels": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Code copied": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Color tag": [
+    "lib/widgets/session_tab.dart"
+  ],
+  "Command": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Command finish notification": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Command to run on every host…": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "Compose Stacks": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Configure": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Configured": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Configured on desktop — kept unchanged": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Connect": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Connect to a host first.": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Connect to a host to manage tunnels": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Connect to a server to add one.": [
+    "lib/widgets/known_hosts_screen.dart"
+  ],
+  "Connect to host": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/mobile/screens/mobile_terminal_screen.dart"
+  ],
+  "Connected": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Connected · {0}ms": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Connecting…": [
+    "lib/widgets/rdp_workspace.dart",
+    "lib/widgets/vnc_workspace.dart"
+  ],
+  "Connection": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Context": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Control granted": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Copied": [
+    "lib/widgets/tool_result_view.dart",
+    "lib/widgets/containers_screen.dart"
+  ],
+  "Copied to clipboard": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Copy": [
+    "lib/widgets/terminal_context_menu.dart",
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/hosts_dashboard.dart",
+    "lib/widgets/terminal_snippets_panel.dart",
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Copy SQL": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Copy URL": [
+    "lib/widgets/web_tools/port_forward_browser.dart",
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Copy body": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Copy command": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "Copy fingerprint": [
+    "lib/widgets/known_hosts_screen.dart"
+  ],
+  "Copy output": [
+    "lib/widgets/tool_result_view.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "Copy public key": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Copy snippet": [
+    "lib/widgets/terminal_snippets_panel.dart"
+  ],
+  "Copy to target directory": [
+    "lib/widgets/entry_context_menu.dart"
+  ],
+  "Copy transfer code": [
+    "lib/widgets/qr_export_dialog.dart"
+  ],
+  "Copy ←": [
+    "lib/widgets/dual_panel_sftp_screen.dart"
+  ],
+  "Copy →": [
+    "lib/widgets/dual_panel_sftp_screen.dart"
+  ],
+  "Could not read source: {0}": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Create": [
+    "lib/widgets/sftp_panel.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Create file failed: {0}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Create folder failed: {0}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Create local, remote, or SOCKS5 port forwarding rules": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Credential storage": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Current permissions unknown — set them before applying.": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Current version": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Custom command": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Custom…": [
+    "lib/widgets/terminal_appearance_controls.dart"
+  ],
+  "DIFF": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "DISCOVER": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "DONE": [
+    "lib/widgets/bulk/bulk_action_bar.dart"
+  ],
+  "Date Modified": [
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Decode": [
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "Default": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Default local shell": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Delete": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/recording_library_screen.dart",
+    "lib/widgets/local_file_panel.dart",
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Delete \"{0}\"?": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Delete \"{0}\"?\nThis cannot be undone.": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Delete all recorded events now": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Delete audit events older than this on launch": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Delete failed: {0}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Delete group": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Delete object": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Delete recording?": [
+    "lib/widgets/recording_library_screen.dart"
+  ],
+  "Delete rule": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Delete {0} item(s)? This cannot be undone.": [
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Delete {0}?": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Deny": [
+    "lib/widgets/plugin_consent_dialog.dart"
+  ],
+  "Deploy \"{0}\" to host": [
+    "lib/widgets/deploy_key_dialog.dart"
+  ],
+  "Deploy to host…": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Description (optional)": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Destination": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Details": [
+    "lib/widgets/notification_bell.dart",
+    "lib/widgets/update_banner.dart"
+  ],
+  "Detect cwd, command status & exit codes on bash/zsh (cwd in tab, gutter markers, jump-to-prompt, path completion)": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "DevOps": [
+    "../packages/yourssh_devops/lib/src/screens/devops_hub_screen.dart"
+  ],
+  "Direct connection": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Discard": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "Discard changes and close?": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "Disconnect": [
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/rdp_workspace.dart",
+    "lib/widgets/vnc_workspace.dart"
+  ],
+  "Discover Devices": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Dismiss": [
+    "lib/widgets/update_banner.dart"
+  ],
+  "Display Name": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Display name": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Domain (optional)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Done": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Down": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Download & install": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Download URL copied to clipboard": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Drop a plugin folder into ~/.xterminal-native/plugins/\nEach folder needs plugin.json + index.js. Hot-reloaded on change.": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "Dynamic": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Dynamic SOCKS5": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "E2E": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "ECDSA P-256": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "ERR": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Ed25519 (recommended)": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Edit": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Edit Bucket": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Edit Port Forward Rule": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Edit credentials": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Edit host": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Edit rule": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Empty directory": [
+    "lib/widgets/sftp_screen.dart",
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Empty folder": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/mobile/screens/mobile_sftp_screen.dart"
+  ],
+  "Enable": [
+    "lib/widgets/terminal_config_panel.dart"
+  ],
+  "Enable keyword highlighting": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Encode": [
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "Encrypted": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Endpoint": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Enter Bearer token": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Enter a path and press Enter…": [
+    "lib/widgets/path_breadcrumb.dart"
+  ],
+  "Enter a valid 12-character sync code.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Enter your Supabase project URL, anon key, and 12-character sync code.": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Error": [
+    "lib/widgets/tool_result_view.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Exec": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Executable path": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Execute": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Existing remote files will be overwritten.": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Exit fullscreen": [
+    "lib/widgets/rdp_workspace.dart",
+    "lib/widgets/vnc_workspace.dart"
+  ],
+  "Export Host": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Export via QR": [
+    "lib/widgets/qr_export_dialog.dart"
+  ],
+  "Failed ({0})": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "Failed to list interfaces: {0}": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Failed to load firewall: {0}": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "Failed to load stats: {0}": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "Failed to run snippet: {0}": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Failed to start SMTP server. Ensure python3 is installed.": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "File Name": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "File name": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "File not found": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Files": [
+    "lib/mobile/screens/mobile_sftp_screen.dart",
+    "lib/mobile/screens/mobile_terminal_screen.dart"
+  ],
+  "Filter": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Filter by name…": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Folder Name": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Folder Path": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Folder name": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Font: follow global": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Foreground (text color)": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Format": [
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "Forward": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Forward port": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Forwarding": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Forwarding localhost:{0} → pod/{1}:{2}": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "From: {0}": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Fullscreen": [
+    "lib/widgets/rdp_workspace.dart",
+    "lib/widgets/vnc_workspace.dart"
+  ],
+  "GENERATE": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Generate": [
+    "lib/mobile/screens/mobile_keys_screen.dart",
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Generate Key": [
+    "lib/widgets/keychain_screen.dart",
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Generate SSH Key": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Generate a code on this device, or enter one from another device. It is the only key to your data — save it.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Generate a new key or import an existing one": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Generate a share code so others can watch this terminal session in real-time.": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Go to path": [
+    "lib/widgets/path_breadcrumb.dart"
+  ],
+  "Go up": [
+    "lib/widgets/sftp_screen.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Grant": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Grant control": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Group": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Group name": [
+    "lib/widgets/new_group_panel.dart"
+  ],
+  "Groups": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "HTTP CONNECT": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Header": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Hide logs": [
+    "lib/widgets/session_connecting_view.dart"
+  ],
+  "History": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Host A": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "Host B": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "Host key changed": [
+    "lib/mobile/security/tofu_watcher.dart",
+    "lib/screens/main_screen.dart"
+  ],
+  "Host passwords, sudo passwords and key passphrases are kept in the {0}": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Hostname": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Hosts": [
+    "lib/mobile/screens/mobile_hosts_screen.dart",
+    "lib/mobile/screens/mobile_add_host_screen.dart",
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Hosts still in flight will finish; queued hosts will be cancelled.": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "How it works": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "How often to ping the server to keep the connection alive": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "IMPORT": [
+    "lib/widgets/known_hosts_screen.dart",
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "IMPORT {0} HOST{1}": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "IP or Hostname": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Import": [
+    "lib/widgets/qr_import_dialog.dart",
+    "lib/mobile/screens/mobile_keys_screen.dart",
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Import Key": [
+    "lib/widgets/keychain_screen.dart",
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Import via Code": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Import via Transfer Code": [
+    "lib/widgets/qr_import_dialog.dart"
+  ],
+  "Imported {0} hosts from cloud": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Imported {0} host{1}": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "Imported {0} host{1}. All previous hosts replaced.": [
+    "lib/widgets/qr_import_dialog.dart"
+  ],
+  "Insert snippet": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "Install \"{0}\"": [
+    "lib/widgets/plugin_consent_dialog.dart"
+  ],
+  "Installed plugins. Add plugins by editing plugin_registry.dart and rebuilding.": [
+    "lib/widgets/plugin_marketplace_screen.dart"
+  ],
+  "JSON": [
+    "lib/widgets/audit_screen.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Join": [
+    "lib/widgets/join_share_dialog.dart"
+  ],
+  "Join Shared Session": [
+    "lib/widgets/join_share_dialog.dart"
+  ],
+  "KEYWORD HIGHLIGHTING": [
+    "lib/widgets/terminal_config_panel.dart"
+  ],
+  "Keep pushing": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Keep running": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "Keep-alive interval": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Key": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Key generated. Public key:": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Key name": [
+    "lib/widgets/keychain_screen.dart",
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Keyboard": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Keyboard Shortcuts": [
+    "lib/widgets/hotkey_settings_screen.dart",
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Keys": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Keys from ~/.ssh are auto-discovered on startup": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Keyword Highlighting": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Kind": [
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Known Hosts": [
+    "lib/widgets/known_hosts_screen.dart"
+  ],
+  "LOCAL TERMINAL": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Label": [
+    "lib/widgets/keyword_highlight_settings.dart",
+    "lib/widgets/port_forwarding_screen.dart",
+    "lib/widgets/cloudflare_tunnel_screen.dart",
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Label (optional)": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Last sync · {0}": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Layout:": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Leave": [
+    "lib/widgets/split_terminal_view.dart"
+  ],
+  "Leave blank to keep current": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Leave empty for no passphrase": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Leave empty for none": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Leave empty if the key is unencrypted": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Let remote apps (tmux, vim) set your local clipboard. Write-only. Off by default — only enable for hosts you trust.": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Let this host use your local SSH keys for onward connections — git, ssh to other servers (like ssh -A). Applies on next connect.": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Link certificate…": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Listening on :1025": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Live": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "Load from file": [
+    "lib/widgets/qr_import_dialog.dart"
+  ],
+  "Load more": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "Loaded from ~/.xterminal-native/plugins/ — hot-reloaded on change.": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "Local": [
+    "lib/widgets/local_file_panel.dart",
+    "lib/mobile/screens/mobile_port_forward_screen.dart",
+    "lib/widgets/port_forwarding_screen.dart",
+    "lib/widgets/source_picker_dialog.dart"
+  ],
+  "Local Host": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Local Port": [
+    "lib/widgets/mcp_server_screen.dart",
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Local port": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart",
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "LocalShare": [
+    "../packages/yourssh_devops/lib/src/screens/lan_share_screen.dart"
+  ],
+  "Log stream ended": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Logs": [
+    "lib/widgets/kubernetes_panel.dart",
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Logs: {0}": [
+    "lib/widgets/docker_panel.dart",
+    "lib/widgets/compose_panel.dart"
+  ],
+  "MCP Endpoint for AI tools:": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "MCP Server Command": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "MCP Server Gateway": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "MCP Server Running": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "MCP 服务": [
+    "lib/screens/mcp_screen.dart",
+    "lib/screens/main_screen.dart"
+  ],
+  "Mail Catcher": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Manage rules in Settings →": [
+    "lib/widgets/terminal_config_panel.dart"
+  ],
+  "Mask passwords/tokens (AuditRedactor patterns) before writing .cast — replay timing becomes per-line; per-host opt-out in the host panel": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Mask passwords/tokens before writing .cast (requires the global setting)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Max reconnect attempts": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Maximum {0} rules reached.": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Method": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Minify": [
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "Model": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Monitoring": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "More": [
+    "lib/mobile/screens/mobile_sftp_screen.dart",
+    "lib/mobile/screens/mobile_terminal_screen.dart"
+  ],
+  "Move": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Move to Group": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Moved {0} credential(s) into the {1}.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Must be an absolute path": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "NAME": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "NEW HOST": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "NEW RULE": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "NEW SNIPPET": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "NLA (CredSSP)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Name": [
+    "lib/mobile/screens/mobile_sftp_screen.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Namespace": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Network Stats Monitor": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Network interface": [
+    "lib/widgets/qr_export_dialog.dart"
+  ],
+  "New": [
+    "lib/screens/main_screen.dart"
+  ],
+  "New Cloudflare Tunnel": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "New File": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "New Folder": [
+    "lib/widgets/sftp_panel.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "New Group": [
+    "lib/widgets/new_group_panel.dart",
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "New Port Forward Rule": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "New Snippet": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "New Tunnel": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "New host": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "New name": [
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "New plugin: {0}": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "New version v{0} available": [
+    "lib/widgets/update_banner.dart"
+  ],
+  "New: {0}": [
+    "lib/mobile/security/tofu_watcher.dart"
+  ],
+  "Next match (Enter)": [
+    "lib/widgets/terminal_view.dart"
+  ],
+  "Nickname": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "No Auth": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "No Compose stacks found.": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "No account needed. Your hosts, keys & snippets stay end-to-end encrypted across devices.": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "No active SSH pane selected": [
+    "lib/widgets/terminal_snippets_panel.dart"
+  ],
+  "No active SSH session to run this snippet": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "No active local tunnels": [
+    "lib/widgets/web_tools/port_forward_browser.dart"
+  ],
+  "No active network interfaces found.": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "No active session": [
+    "lib/mobile/screens/mobile_snippets_screen.dart"
+  ],
+  "No active session — connect to a host first": [
+    "lib/widgets/devops_tools_screen.dart"
+  ],
+  "No active session — open a terminal first": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "No active sessions": [
+    "lib/widgets/split_terminal_view.dart"
+  ],
+  "No active sessions — connect from Hosts": [
+    "lib/mobile/screens/mobile_terminal_screen.dart"
+  ],
+  "No audit events": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "No body": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "No buckets configured": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "No built-in plugins registered.": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "No command history yet": [
+    "lib/mobile/terminal/terminal_side_panel.dart"
+  ],
+  "No containers found.": [
+    "lib/widgets/docker_panel.dart"
+  ],
+  "No devices found yet…": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "No emails captured": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "No firewall detected": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "No forwarding rules for this host": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "No headers": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "No history yet": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "No hosts": [
+    "lib/widgets/deploy_key_dialog.dart"
+  ],
+  "No hosts configured": [
+    "lib/mobile/screens/mobile_terminal_screen.dart"
+  ],
+  "No hosts found": [
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "No hosts yet": [
+    "lib/widgets/hosts_dashboard.dart",
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "No keys added": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "No keys yet": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "No known hosts yet": [
+    "lib/widgets/known_hosts_screen.dart"
+  ],
+  "No listening ports detected": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "No logs for {0}.": [
+    "lib/widgets/plugin_console_screen.dart"
+  ],
+  "No logs yet": [
+    "lib/widgets/session_connecting_view.dart"
+  ],
+  "No matches": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "No notifications": [
+    "lib/widgets/notification_bell.dart"
+  ],
+  "No permission to use {0}": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "No plugins installed.": [
+    "lib/widgets/plugin_marketplace_screen.dart"
+  ],
+  "No pods. Tap refresh to scan.": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "No recordings yet.\nStart a session and press REC.": [
+    "lib/widgets/recording_library_screen.dart"
+  ],
+  "No results": [
+    "lib/mobile/screens/mobile_hosts_screen.dart",
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "No rules yet": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "No script plugins loaded.": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "No services found.": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "No session": [
+    "lib/widgets/split_terminal_view.dart"
+  ],
+  "No snippets": [
+    "lib/mobile/terminal/terminal_side_panel.dart",
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "No snippets in this category": [
+    "lib/mobile/screens/mobile_snippets_screen.dart"
+  ],
+  "No snippets match \"{0}\"": [
+    "lib/widgets/terminal_snippets_panel.dart"
+  ],
+  "No snippets yet": [
+    "lib/mobile/screens/mobile_snippets_screen.dart",
+    "lib/widgets/terminal_snippets_panel.dart"
+  ],
+  "No successful output to compare.": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "No tunnels yet": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "None": [
+    "lib/widgets/keyword_highlight_settings.dart",
+    "lib/widgets/session_tab.dart",
+    "lib/widgets/host_detail_panel.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Not connected": [
+    "lib/widgets/sftp_screen.dart"
+  ],
+  "Nothing run yet.": [
+    "lib/widgets/bulk/bulk_host_status_list.dart"
+  ],
+  "Notifications": [
+    "lib/widgets/notification_bell.dart"
+  ],
+  "OK": [
+    "lib/widgets/local_file_panel.dart",
+    "lib/widgets/sudo_password_dialog.dart"
+  ],
+  "OSC 52 clipboard": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Octal": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Off": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Old": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Old: {0}": [
+    "lib/mobile/security/tofu_watcher.dart"
+  ],
+  "On": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Open": [
+    "lib/widgets/web_tools/port_forward_browser.dart"
+  ],
+  "Open AI Chat": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Open SQL Editor": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Open all": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Open an SSH session first, then come back to browse containers.": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "Open externally": [
+    "lib/widgets/code_editor_screen.dart",
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Open externally failed: {0}": [
+    "lib/widgets/code_editor_screen.dart",
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Open waytty on another device and scan this": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Open with": [
+    "lib/widgets/entry_context_menu.dart"
+  ],
+  "Open with failed: {0}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Open {0} tabs?": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Open ↗": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Opened {0} tabs": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Opened {0} tabs · {1} already connected": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Opened {0} — watching for changes": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Overwrite": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "PROXY": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "PUSH": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "PUSH FILES": [
+    "lib/widgets/bulk/bulk_action_bar.dart"
+  ],
+  "Pair a new device": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Pair device": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Pair new device": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Parse": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "Passphrase (optional)": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Password": [
+    "lib/screens/main_screen.dart",
+    "lib/widgets/sudo_password_dialog.dart",
+    "lib/mobile/screens/mobile_add_host_screen.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Password for {0}": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Paste": [
+    "lib/widgets/terminal_context_menu.dart"
+  ],
+  "Paste SSH config, JSON, or CSV...": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "Paste the transfer code from the exporting device.": [
+    "lib/widgets/qr_import_dialog.dart"
+  ],
+  "Pattern": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Permissions — {0}": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Pick File to Share": [
+    "../packages/yourssh_devops/lib/src/screens/lan_share_screen.dart"
+  ],
+  "Pick color": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Pick two hosts to compare.": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "Pin": [
+    "lib/widgets/session_tab.dart"
+  ],
+  "Plain text": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Platform default shell": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Play": [
+    "lib/widgets/recording_library_screen.dart"
+  ],
+  "Plugin crashed: {0}": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Plugins": [
+    "lib/widgets/plugin_marketplace_screen.dart"
+  ],
+  "Pod port": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Port": [
+    "lib/widgets/port_forwarding_screen.dart",
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Port Forwarding": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Port forwarding": [
+    "lib/mobile/screens/mobile_terminal_screen.dart"
+  ],
+  "Port must be between 1 and 65535": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "Port-forward failed: {0}": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Port: {0}": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Press a key combo for \"{0}\"  •  Esc to cancel": [
+    "lib/widgets/hotkey_settings_screen.dart"
+  ],
+  "Previous match (Shift+Enter)": [
+    "lib/widgets/terminal_view.dart"
+  ],
+  "Private Key": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Project URL": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Proxy host": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Proxy port": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Proxy username (optional)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Pull from cloud": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Push clipboard to remote": [
+    "lib/widgets/rdp_workspace.dart",
+    "lib/widgets/vnc_workspace.dart"
+  ],
+  "Push files to {0} hosts": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Quad": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Query Param": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "RDP SECURITY": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "RDP certificate changed": [
+    "lib/screens/main_screen.dart"
+  ],
+  "REC": [
+    "lib/widgets/record_button.dart"
+  ],
+  "RESULTS": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "RSA 4096": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "RSA/ECDSA require OpenSSH client (ssh-keygen)": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "RUN": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "RUN COMMAND": [
+    "lib/widgets/bulk/bulk_action_bar.dart"
+  ],
+  "Read": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "Received: {0}": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Reconnect when connection drops": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Recording": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Recording Library": [
+    "lib/widgets/recording_library_screen.dart"
+  ],
+  "Recording path": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Redact secrets in recordings": [
+    "lib/widgets/host_detail_panel.dart",
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Refresh": [
+    "lib/mobile/screens/mobile_sync_screen.dart",
+    "lib/widgets/sftp_screen.dart",
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/recording_library_screen.dart",
+    "lib/widgets/kubernetes_panel.dart",
+    "lib/widgets/docker_panel.dart",
+    "lib/widgets/compose_panel.dart",
+    "lib/mobile/screens/mobile_sftp_screen.dart"
+  ],
+  "Regenerate": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Regenerate sync code?": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Regex": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Region": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Reject": [
+    "lib/mobile/security/tofu_watcher.dart",
+    "lib/screens/main_screen.dart"
+  ],
+  "Remember in system keychain": [
+    "lib/widgets/sudo_password_dialog.dart"
+  ],
+  "Remote": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart",
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Remote Host": [
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Remote host": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Remote port": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "Remove": [
+    "lib/widgets/keychain_screen.dart",
+    "lib/widgets/known_hosts_screen.dart",
+    "lib/widgets/cloudflare_tunnel_screen.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Remove \"{0}\" from keychain?": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Remove \"{0}\"?": [
+    "lib/mobile/screens/mobile_keys_screen.dart",
+    "lib/widgets/cloudflare_tunnel_screen.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Remove Bucket": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Remove Key": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "Remove custom shell": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Remove hop": [
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "Remove key": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "Remove tunnel": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Rename": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/session_tab.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Rename / Move": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Rename failed: {0}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Request history": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Request will be sent without authentication.": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Rescan runtimes": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "Reset Terminal": [
+    "lib/widgets/terminal_context_menu.dart"
+  ],
+  "Restart": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Restart shell": [
+    "lib/widgets/local_terminal_pane.dart"
+  ],
+  "Retention": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Retry": [
+    "lib/widgets/local_file_panel.dart",
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/rdp_workspace.dart",
+    "lib/widgets/vnc_workspace.dart",
+    "lib/widgets/docker_panel.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/widgets/session_connecting_view.dart"
+  ],
+  "Review": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "Revoke": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Root SFTP on {0}@{1} needs the sudo password.": [
+    "lib/widgets/sudo_password_dialog.dart"
+  ],
+  "Run": [
+    "lib/widgets/terminal_snippets_panel.dart"
+  ],
+  "Run a tool to see output": [
+    "lib/widgets/tool_result_view.dart"
+  ],
+  "Run an MCP server on your remote host and expose it locally for AI tools.": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "Run command on {0} hosts": [
+    "lib/widgets/bulk/bulk_run_dialog.dart"
+  ],
+  "Run in terminal": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Run on connect": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Run snippet": [
+    "lib/widgets/terminal_snippets_panel.dart"
+  ],
+  "S": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "S3 Browser": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "SAVE GROUP": [
+    "lib/widgets/new_group_panel.dart"
+  ],
+  "SAVE ONLY": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SCRIPT PLUGINS": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "SELECT": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "SELECT ALL": [
+    "lib/widgets/bulk/bulk_action_bar.dart"
+  ],
+  "SESSION": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SESSION TEMPLATE": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SFTP": [
+    "lib/screens/main_screen.dart"
+  ],
+  "SFTP MODE": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SFTP runs elevated on this host": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "SHA-1": [
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "SHA-256": [
+    "lib/screens/main_screen.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "SHA-512": [
+    "../packages/yourssh_web_tools/lib/src/screens/utility_tools.dart"
+  ],
+  "SOCKS5": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SSH": [
+    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SSH Agent": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SSH Agent auth: your agent's keys log you in to THIS host.\nAgent forwarding: this host can borrow your local keys to reach other places (git pull, ssh to the next hop). Private keys never leave your machine.\nOnly enable for trusted hosts — root on the host can use your keys while you are connected.": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SSH Keys": [
+    "lib/widgets/keychain_screen.dart"
+  ],
+  "SSH TUNNEL": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "SSH key": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "SSH {0}:{1}": [
+    "lib/widgets/session_connecting_view.dart"
+  ],
+  "SYNC": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Save": [
+    "lib/mobile/screens/mobile_sync_screen.dart",
+    "lib/widgets/keyword_highlight_settings.dart",
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart",
+    "lib/mobile/screens/mobile_add_host_screen.dart",
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Save & Test": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Save & connect": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Save (Ctrl+S)": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "Save code": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Save failed: {0}": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "Saved": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "Saved to Downloads/{0}": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Scan": [
+    "lib/widgets/kubernetes_panel.dart",
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Scan QR code": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Scan failed: {0}": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Scan transfer QR": [
+    "lib/mobile/screens/mobile_qr_scan_screen.dart"
+  ],
+  "Scanning… {0} / {1}": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Search (regex)…": [
+    "lib/widgets/terminal_view.dart"
+  ],
+  "Search command or host…": [
+    "lib/widgets/audit_screen.dart"
+  ],
+  "Search hosts, IPs, or tags...": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "Search hosts, actions, snippets...": [
+    "lib/widgets/command_palette.dart"
+  ],
+  "Search hosts, tags, IPs…": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Search hosts…": [
+    "lib/widgets/deploy_key_dialog.dart",
+    "lib/widgets/host_chain_editor.dart"
+  ],
+  "Search snippets": [
+    "lib/mobile/terminal/terminal_side_panel.dart"
+  ],
+  "Search snippets…": [
+    "lib/widgets/terminal_snippets_panel.dart",
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Searching apps…": [
+    "lib/widgets/entry_context_menu.dart"
+  ],
+  "Search…": [
+    "lib/widgets/terminal_view.dart"
+  ],
+  "Secret Key": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Security": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Select All": [
+    "lib/widgets/terminal_context_menu.dart"
+  ],
+  "Select Source": [
+    "lib/widgets/source_picker_dialog.dart"
+  ],
+  "Select an email": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Select container": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Select host": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/port_forwarding_screen.dart"
+  ],
+  "Select key": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Send": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Send Ctrl+Alt+Del": [
+    "lib/widgets/rdp_workspace.dart"
+  ],
+  "Send a request to see the response": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "Sent \"{0}\" to terminal": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Services in {0}": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Session not found.": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "Set as baseline": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "Settings": [
+    "lib/mobile/screens/mobile_sync_screen.dart",
+    "lib/widgets/settings_screen.dart",
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Share Terminal": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Share URL:": [
+    "../packages/yourssh_devops/lib/src/screens/lan_share_screen.dart"
+  ],
+  "Share files on your local network over HTTP.": [
+    "../packages/yourssh_devops/lib/src/screens/lan_share_screen.dart"
+  ],
+  "Share this terminal": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Shared over TLS via your Supabase project.": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Sharing Live": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Sharing active": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Shell Integration": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Shell integration": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Shell used by new local terminals": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Shortcut key bar": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Show QR Code": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Show Rx/Tx overlay on active session": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Show logs": [
+    "lib/widgets/session_connecting_view.dart"
+  ],
+  "Single": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Size": [
+    "lib/mobile/screens/mobile_sftp_screen.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "Skip dup": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "Snippets": [
+    "lib/mobile/screens/mobile_snippets_screen.dart"
+  ],
+  "Space-separated; quoting not supported": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Split Horizontal": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Split Vertical": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Start": [
+    "lib/mobile/widgets/forward_rule_row.dart"
+  ],
+  "Start Forward": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "Start MCP Server": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "Start Sharing": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Start a local port forward in the Port Forwarding section\nto open it here.": [
+    "lib/widgets/web_tools/port_forward_browser.dart"
+  ],
+  "Start by connecting to a saved host\nto manage your files with SFTP.": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Start on port 1025": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Start recording": [
+    "lib/widgets/record_button.dart"
+  ],
+  "Start recording automatically on connect": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Start service": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Start tunnel": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Starting…": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "Startup snippet — typed into the shell after connect. Skipped when tmux is on.": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Status": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Stop": [
+    "lib/mobile/widgets/forward_rule_row.dart",
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Stop MCP Server": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "Stop Sharing": [
+    "lib/widgets/share_session_dialog.dart",
+    "../packages/yourssh_devops/lib/src/screens/lan_share_screen.dart"
+  ],
+  "Stop recording": [
+    "lib/widgets/record_button.dart"
+  ],
+  "Stop service": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Stop tunnel": [
+    "lib/widgets/cloudflare_tunnel_screen.dart"
+  ],
+  "Subject: {0}": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Success ({0}ms)": [
+    "lib/widgets/tool_result_view.dart"
+  ],
+  "Sudo (root)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Sudo password": [
+    "lib/widgets/sudo_password_dialog.dart"
+  ],
+  "Supabase Backend": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Supabase connected": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Supabase credentials": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Supabase not configured": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Supabase sync": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Supabase · end-to-end encrypted": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Sync active": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Sync code": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Sync code copied": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Sync error: {0}": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Sync off": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "Sync settings saved": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Sync with Supabase": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Synced{0}": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Syncing…": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "System Default": [
+    "lib/widgets/terminal_appearance_controls.dart"
+  ],
+  "TERM reported to the server — applies to new SSH connections": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "TERM: follow global": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "TEST CONNECTION": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "TESTING…": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "TLS only": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Table not found. Copy the SQL below and run it in Supabase SQL Editor, then click Save & Test again:": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Tag (optional)": [
+    "../packages/yourssh_snippets/lib/src/screens/snippets_screen.dart"
+  ],
+  "Tap + to add a path manually.": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Tap code to copy": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "Tap refresh to scan for Docker / Kubernetes.": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "Telnet": [
+    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Terminal": [
+    "lib/mobile/screens/mobile_terminal_screen.dart",
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Terminal Theme": [
+    "lib/widgets/theme_picker.dart"
+  ],
+  "Terminal emulation type": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "The host key for {0}:{1} has changed. This could be a server reinstall — or a man-in-the-middle attack.": [
+    "lib/mobile/security/tofu_watcher.dart"
+  ],
+  "The system keychain refused these, so they were written to the app preferences file as readable text — anything that can read your user account can read them.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Theme: follow global": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "This 12-character code is the only key to your synced data. Enter it on another device to join.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "This computer": [
+    "lib/widgets/source_picker_dialog.dart"
+  ],
+  "This plugin requests no special permissions.": [
+    "lib/widgets/plugin_consent_dialog.dart"
+  ],
+  "This plugin requests:": [
+    "lib/widgets/plugin_consent_dialog.dart"
+  ],
+  "This removes the key from the keychain. The file on disk is kept.": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "This removes the saved host and its credentials.": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Tint matching text in all terminal sessions": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "Tmux Integration": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "To: {0}": [
+    "lib/widgets/mail_catcher_screen.dart"
+  ],
+  "Toggle Snippets Panel": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Toggle Terminal Settings": [
+    "lib/widgets/broadcast_toolbar.dart"
+  ],
+  "Transfer all hosts and passwords to another device over LAN or Tailscale. No cloud required.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Transfer code copied": [
+    "lib/widgets/qr_export_dialog.dart"
+  ],
+  "Transferred": [
+    "lib/widgets/sftp_transfer_panel.dart"
+  ],
+  "Transferring": [
+    "lib/widgets/sftp_transfer_panel.dart"
+  ],
+  "Transfers in flight will stop at the next file boundary.": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "Trust": [
+    "lib/mobile/security/tofu_watcher.dart"
+  ],
+  "Trust RDP certificate?": [
+    "lib/screens/main_screen.dart"
+  ],
+  "Try a different search term or tag": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "Type": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Type command… (↑↓ history/suggestions, Tab complete, Esc dismiss)": [
+    "lib/widgets/terminal_input_bar.dart"
+  ],
+  "UPLOAD": [
+    "lib/widgets/sftp_screen.dart"
+  ],
+  "URL Encoded": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "URL copied": [
+    "../packages/yourssh_devops/lib/src/screens/lan_share_screen.dart"
+  ],
+  "URL: {0}": [
+    "lib/mobile/screens/mobile_sync_screen.dart"
+  ],
+  "Unlock": [
+    "lib/mobile/security/app_lock_gate.dart"
+  ],
+  "Unlock with biometrics": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "Unpin": [
+    "lib/widgets/session_tab.dart"
+  ],
+  "Unsaved changes": [
+    "lib/widgets/code_editor_screen.dart"
+  ],
+  "Up": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "Update": [
+    "lib/widgets/notification_bell.dart",
+    "lib/widgets/update_banner.dart"
+  ],
+  "Updates": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Upload": [
+    "lib/mobile/screens/mobile_sftp_screen.dart"
+  ],
+  "Upload of {0} failed: {1}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Uploaded {0}": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "Uploaded {0} to server": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "Use regex": [
+    "lib/widgets/terminal_view.dart"
+  ],
+  "Username": [
+    "lib/mobile/screens/mobile_add_host_screen.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "View logs": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "Waiting for first frame…": [
+    "lib/widgets/vnc_workspace.dart"
+  ],
+  "Web Tools": [
+    "../packages/yourssh_web_tools/lib/src/screens/web_tools_screen.dart"
+  ],
+  "Working directory (bash/zsh only)": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "Write": [
+    "lib/widgets/permissions_dialog.dart"
+  ],
+  "XXXX-XXXX-XXXX": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "bg": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "chmod {0} failed: {1}": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "cwd, command status & path completion on bash/zsh": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "db-server": [
+    "lib/mobile/screens/mobile_port_forward_screen.dart"
+  ],
+  "default": [
+    "lib/widgets/entry_context_menu.dart"
+  ],
+  "default inbound: {0}": [
+    "lib/widgets/server_monitor_sheet.dart"
+  ],
+  "e.g. Error": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "e.g. Hack Nerd Font": [
+    "lib/widgets/terminal_appearance_controls.dart"
+  ],
+  "e.g. Production": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "e.g. X-API-Key": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "e.g. \\berror\\b": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "e.g. error": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "e.g. id_ed25519": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "e.g. tmux attach": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "exit {0}": [
+    "lib/widgets/bulk/bulk_host_status_list.dart",
+    "lib/widgets/audit_screen.dart"
+  ],
+  "fg": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "http://127.0.0.1:{0}/mcp": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "https://api.example.com/endpoint": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "https://example.com/v1/chat/completions": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "https://s3.amazonaws.com": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "images": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "images/2024/": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "key": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "keys": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "literal": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "mDNS: {0} found · TCP scan: {1} found": [
+    "lib/widgets/network_discovery_sheet.dart"
+  ],
+  "my-bucket": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "npx @anthropic-ai/mcp-server": [
+    "lib/widgets/mcp_server_screen.dart"
+  ],
+  "photo.jpg": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "pod/{0}": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "pod/{0}  :{1} → localhost:{2}": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "pod/{0}{1}": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "port": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "production": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "recording...": [
+    "lib/widgets/hotkey_settings_screen.dart"
+  ],
+  "regex": [
+    "lib/widgets/keyword_highlight_settings.dart"
+  ],
+  "root": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "s": [
+    "lib/mobile/screens/mobile_sftp_screen.dart",
+    "lib/widgets/bulk/bulk_diff_view.dart",
+    "lib/widgets/recording_library_screen.dart",
+    "lib/widgets/hosts_dashboard.dart",
+    "lib/widgets/import_panel.dart",
+    "lib/widgets/docker_panel.dart",
+    "lib/widgets/share_session_dialog.dart",
+    "lib/widgets/compose_panel.dart",
+    "lib/widgets/qr_import_dialog.dart"
+  ],
+  "size": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "sudo /usr/lib/openssh/sftp-server": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "tmux: always off": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "tmux: always on": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "tmux: follow global": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "us-east-1": [
+    "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
+  ],
+  "value": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "via {0}": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "v{0}": [
+    "lib/screens/main_screen.dart",
+    "lib/widgets/settings_screen.dart",
+    "lib/widgets/plugin_marketplace_screen.dart"
+  ],
+  "waytty": [
+    "lib/screens/main_screen.dart"
+  ],
+  "waytty is locked": [
+    "lib/mobile/security/app_lock_gate.dart"
+  ],
+  "waytty · Version {0}": [
+    "lib/mobile/screens/mobile_settings_screen.dart"
+  ],
+  "{ \"key\": \"value\" }": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "{\"u\":\"http://...\",\"k\":\"...\"}": [
+    "lib/widgets/qr_import_dialog.dart"
+  ],
+  "{0}\nOpen \"{1}\" with an external application instead? Changes saved there are uploaded back automatically.": [
+    "lib/widgets/sftp_panel.dart"
+  ],
+  "{0}  •  v{1}": [
+    "lib/widgets/plugin_manager_screen.dart"
+  ],
+  "{0}  •  {1}  •  {2} replica{3}": [
+    "lib/widgets/compose_panel.dart"
+  ],
+  "{0} / {1} files": [
+    "lib/widgets/sftp_transfer_panel.dart"
+  ],
+  "{0} URL copied": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "{0} authentication": [
+    "lib/mobile/screens/mobile_add_host_screen.dart"
+  ],
+  "{0} container{1}": [
+    "lib/widgets/docker_panel.dart"
+  ],
+  "{0} credential(s) still could not be stored securely.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "{0} credential(s) stored without encryption": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "{0} distinct output{1}": [
+    "lib/widgets/bulk/bulk_diff_view.dart"
+  ],
+  "{0} host{1}": [
+    "lib/widgets/bulk/bulk_diff_view.dart",
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "{0} host{1} found": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "{0} is not installed on this host": [
+    "lib/widgets/containers_screen.dart"
+  ],
+  "{0} items": [
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "{0} item{1} · {2}": [
+    "lib/mobile/screens/mobile_sftp_screen.dart"
+  ],
+  "{0} ms": [
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "{0} non-SSH host(s) skipped — {1} is SSH-only": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "{0} of {1} hosts": [
+    "lib/widgets/hosts_dashboard.dart"
+  ],
+  "{0} ok · {1} failed{2}": [
+    "lib/widgets/bulk/bulk_push_dialog.dart"
+  ],
+  "{0} online · {1} total": [
+    "lib/mobile/screens/mobile_hosts_screen.dart"
+  ],
+  "{0} recording{1}": [
+    "lib/widgets/recording_library_screen.dart"
+  ],
+  "{0} row{1} skipped — click to expand": [
+    "lib/widgets/import_panel.dart"
+  ],
+  "{0} selected": [
+    "lib/widgets/bulk/bulk_action_bar.dart",
+    "lib/widgets/sftp_panel.dart",
+    "lib/widgets/local_file_panel.dart"
+  ],
+  "{0} themes": [
+    "lib/widgets/theme_picker.dart"
+  ],
+  "{0} viewer{1}": [
+    "lib/widgets/share_session_dialog.dart"
+  ],
+  "{0} {1} / {2} files": [
+    "lib/widgets/sftp_transfer_panel.dart"
+  ],
+  "{0} {1} · {2} in use": [
+    "lib/mobile/screens/mobile_keys_screen.dart"
+  ],
+  "{0} · v{1}": [
+    "lib/widgets/plugin_consent_dialog.dart"
+  ],
+  "{0} 个连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "{0}ms": [
+    "lib/widgets/hosts_dashboard.dart",
+    "../packages/yourssh_web_tools/lib/src/screens/http_client.dart"
+  ],
+  "{0}x": [
+    "lib/widgets/recording_player_widget.dart"
+  ],
+  "~/.ssh/known_hosts not found": [
+    "lib/widgets/known_hosts_screen.dart"
+  ],
+  "■ Stop": [
+    "lib/widgets/kubernetes_panel.dart"
+  ],
+  "✓ {0} — command finished": [
+    "lib/main.dart"
+  ],
+  "不关联分组": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "不关联连接": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "例如：工作 / 生产环境": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "保存": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "保存中…": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "保存失败：{0}": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "停止生成": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "允许执行远程命令": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "允许浏览和读取文件": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "允许覆盖该目录内的已有文件": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "允许访问的远程目录": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "全部分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "关联分组": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "关联连接": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "关闭": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "分组": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "分组侧栏": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "分组操作": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "分组路径": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "切换预览": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "创建笔记，记录命令和运维文档": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "删除": [
+    "lib/screens/notes_screen.dart",
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "删除“{0}”及其保存的凭据？": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "删除“{0}”？": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "删除笔记": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "删除连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "发送": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "取消": [
+    "lib/screens/notes_screen.dart",
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "取消收藏": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "可信主机": [
+    "lib/screens/main_screen.dart"
+  ],
+  "名称": [
+    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "启用本机 MCP": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "命令具有该 SSH 用户的权限，不受下面的文件目录限制。": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "在设置 → AI Providers 中配置服务地址、模型和 API 密钥。": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "地址": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "基本信息": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "备注": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "备注 / 标签": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "复制客户端配置（含访问令牌）": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "复制连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "密码": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "密钥": [
+    "lib/mobile/screens/mobile_home_shell.dart"
+  ],
+  "密钥与凭据": [
+    "lib/screens/main_screen.dart"
+  ],
+  "导入 Markdown": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "导入与导出": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "导入连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "导出 Markdown": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "导出当前列表（不含密码）": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "工具": [
+    "lib/screens/main_screen.dart"
+  ],
+  "已保存": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "已停止": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "快捷命令": [
+    "lib/mobile/screens/mobile_home_shell.dart"
+  ],
+  "扩展工具": [
+    "lib/screens/main_screen.dart"
+  ],
+  "扫描网络中的设备": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "搜索名称、地址、分组或备注": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "搜索笔记": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "操作日志": [
+    "lib/screens/main_screen.dart"
+  ],
+  "支持 Markdown，输入后自动保存": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "收藏": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "新建 SSH 连接": [
+    "lib/screens/main_screen.dart"
+  ],
+  "新建分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "新建本地终端": [
+    "lib/screens/main_screen.dart"
+  ],
+  "新建笔记": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "新建连接": [
+    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "未分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "未命名笔记": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "本地终端": [
+    "lib/screens/main_screen.dart"
+  ],
+  "权限在退出应用后清除；每次启动服务都会生成新的地址和令牌。": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "标签，以逗号分隔": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "没有匹配的连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "添加并连接 SSH 主机后，可在这里授权。": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "添加连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "清空对话": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "生成命令、解释报错、分析故障，或翻译终端输出。": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "用户名": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "移除“{0}”及子分组，其中的连接和凭据将保留为未分组。": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "移除分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "移除分组，保留连接": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "端口转发": [
+    "lib/screens/main_screen.dart"
+  ],
+  "笔记": [
+    "lib/screens/notes_screen.dart",
+    "lib/mobile/screens/mobile_home_shell.dart",
+    "lib/screens/main_screen.dart"
+  ],
+  "笔记标题": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "筛选分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "终端录制": [
+    "lib/screens/main_screen.dart"
+  ],
+  "编辑连接": [
+    "lib/widgets/host_detail_panel.dart",
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "自定义 API 完整地址（回车保存）": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "自定义模型 ID（回车保存）": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "让本机 AI 客户端访问已连接的 SSH 主机。按主机配置权限后，复制客户端配置。": [
+    "lib/screens/mcp_screen.dart"
+  ],
+  "设置": [
+    "lib/screens/main_screen.dart",
+    "lib/mobile/screens/mobile_home_shell.dart"
+  ],
+  "身份验证": [
+    "lib/widgets/host_detail_panel.dart"
+  ],
+  "输入问题…": [
+    "lib/widgets/ai_chat_sidebar.dart"
+  ],
+  "连接": [
+    "lib/screens/main_screen.dart",
+    "lib/widgets/host_detail_panel.dart",
+    "lib/widgets/x_connection_center.dart",
+    "lib/mobile/screens/mobile_home_shell.dart"
+  ],
+  "连接分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "连接所选 ({0})": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "连接操作": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "重命名 / 移动分组": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "重新连接": [
+    "lib/widgets/telnet_terminal_pane.dart"
+  ],
+  "重试": [
+    "lib/screens/notes_screen.dart"
+  ],
+  "隧道": [
+    "lib/widgets/x_connection_center.dart"
+  ],
+  "Interface language": [
+    "manual"
+  ],
+  "全部": [
+    "manual"
+  ],
+  "最近": [
+    "manual"
+  ],
+  "常用": [
+    "manual"
+  ],
+  "WORKSPACE": [
+    "manual"
+  ],
+  "TOOLS": [
+    "manual"
+  ],
+  "SECURITY": [
+    "manual"
+  ],
+  "Required": [
+    "manual"
+  ],
+  "Unlimited": [
+    "manual"
+  ],
+  "Platform default": [
+    "manual"
+  ],
+  "{0} times": [
+    "manual"
+  ],
+  "连接管理": [
+    "manual"
+  ],
+  "文件传输": [
+    "manual"
+  ],
+  "Keep forever": [
+    "manual"
+  ],
+  "{0} days": [
+    "manual"
+  ],
+  "waytty — Command finished": [
+    "manual"
+  ],
+  "About waytty": [
+    "manual"
+  ],
+  "Preferences…": [
+    "manual"
+  ],
+  "Services": [
+    "manual"
+  ],
+  "Hide waytty": [
+    "manual"
+  ],
+  "Hide Others": [
+    "manual"
+  ],
+  "Show All": [
+    "manual"
+  ],
+  "Quit waytty": [
+    "manual"
+  ],
+  "Undo": [
+    "manual"
+  ],
+  "Redo": [
+    "manual"
+  ],
+  "Cut": [
+    "manual"
+  ],
+  "Paste and Match Style": [
+    "manual"
+  ],
+  "Find": [
+    "manual"
+  ],
+  "Find…": [
+    "manual"
+  ],
+  "Find and Replace…": [
+    "manual"
+  ],
+  "Find Next": [
+    "manual"
+  ],
+  "Find Previous": [
+    "manual"
+  ],
+  "Use Selection for Find": [
+    "manual"
+  ],
+  "Jump to Selection": [
+    "manual"
+  ],
+  "Spelling and Grammar": [
+    "manual"
+  ],
+  "Spelling": [
+    "manual"
+  ],
+  "Show Spelling and Grammar": [
+    "manual"
+  ],
+  "Check Document Now": [
+    "manual"
+  ],
+  "Check Spelling While Typing": [
+    "manual"
+  ],
+  "Check Grammar With Spelling": [
+    "manual"
+  ],
+  "Correct Spelling Automatically": [
+    "manual"
+  ],
+  "Substitutions": [
+    "manual"
+  ],
+  "Show Substitutions": [
+    "manual"
+  ],
+  "Smart Copy/Paste": [
+    "manual"
+  ],
+  "Smart Quotes": [
+    "manual"
+  ],
+  "Smart Dashes": [
+    "manual"
+  ],
+  "Smart Links": [
+    "manual"
+  ],
+  "Data Detectors": [
+    "manual"
+  ],
+  "Text Replacement": [
+    "manual"
+  ],
+  "Transformations": [
+    "manual"
+  ],
+  "Make Upper Case": [
+    "manual"
+  ],
+  "Make Lower Case": [
+    "manual"
+  ],
+  "Capitalize": [
+    "manual"
+  ],
+  "Speech": [
+    "manual"
+  ],
+  "Start Speaking": [
+    "manual"
+  ],
+  "Stop Speaking": [
+    "manual"
+  ],
+  "View": [
+    "manual"
+  ],
+  "Enter Full Screen": [
+    "manual"
+  ],
+  "Exit Full Screen": [
+    "manual"
+  ],
+  "Window": [
+    "manual"
+  ],
+  "Minimize": [
+    "manual"
+  ],
+  "Zoom": [
+    "manual"
+  ],
+  "Bring All to Front": [
+    "manual"
+  ],
+  "Help": [
+    "manual"
+  ],
+  "Keyboard & Sync": [
+    "manual"
+  ],
+  "Color theme": [
+    "manual"
+  ],
+  "Font size: {0}pt": [
+    "manual"
+  ],
+  "Terminal font": [
+    "manual"
+  ],
+  "Custom font name": [
+    "manual"
+  ],
+  "还没有连接": [
+    "manual"
+  ],
+  "“{0}”中还没有连接": [
+    "manual"
+  ],
+  "暂无{0}连接": [
+    "manual"
+  ],
+  "Cloud Sync": [
+    "manual"
+  ],
+  "P2P Transfer": [
+    "manual"
+  ],
+  "The MCP server command runs on your remote SSH host": [
+    "manual"
+  ],
+  "A port-forward tunnel exposes it on localhost": [
+    "manual"
+  ],
+  "Point AI tools (Claude, Cursor, etc.) to the endpoint": [
+    "manual"
+  ],
+  "Hash": [
+    "manual"
+  ],
+  "Serial": [
+    "manual"
+  ],
+  "Serial debugger": [
+    "manual"
+  ],
+  "Connect a serial adapter, select its port and configure the connection.": [
+    "manual"
+  ],
+  "Serial device": [
+    "manual"
+  ],
+  "No serial devices found. Connect an adapter and refresh. Android requires USB OTG.": [
+    "manual"
+  ],
+  "Baud rate": [
+    "manual"
+  ],
+  "Data bits": [
+    "manual"
+  ],
+  "Parity": [
+    "manual"
+  ],
+  "Stop bits": [
+    "manual"
+  ],
+  "Flow control": [
+    "manual"
+  ],
+  "Odd": [
+    "manual"
+  ],
+  "Even": [
+    "manual"
+  ],
+  "Opening a port may change control lines. Unsupported parameters are reported by the driver.": [
+    "manual"
+  ],
+  "Connect serial port": [
+    "manual"
+  ],
+  "Serial profiles": [
+    "manual"
+  ],
+  "Load profile": [
+    "manual"
+  ],
+  "Profile name": [
+    "manual"
+  ],
+  "Save profile": [
+    "manual"
+  ],
+  "New profile": [
+    "manual"
+  ],
+  "Delete profile": [
+    "manual"
+  ],
+  "Serial port is not connected": [
+    "manual"
+  ],
+  "Serial send is busy": [
+    "manual"
+  ],
+  "Serial send exceeds 64 KiB": [
+    "manual"
+  ],
+  "Serial write outcome is unknown": [
+    "manual"
+  ],
+  "Serial connection lost": [
+    "manual"
+  ],
+  "Cannot open serial port": [
+    "manual"
+  ],
+  "Serial signal control failed": [
+    "manual"
+  ],
+  "RTS is managed by hardware flow control": [
+    "manual"
+  ],
+  "Serial close failed": [
+    "manual"
+  ],
+  "Invalid serial parameters": [
+    "manual"
+  ],
+  "Invalid HEX input": [
+    "manual"
+  ],
+  "Saved serial profiles are damaged": [
+    "manual"
+  ],
+  "Invalid serial profile name": [
+    "manual"
+  ],
+  "Cannot save serial profiles": [
+    "manual"
+  ],
+  "Cannot list serial devices": [
+    "manual"
+  ],
+  "Serial device changed; refresh and select again": [
+    "manual"
+  ],
+  "Serial driver error": [
+    "manual"
+  ],
+  "Serial workspace is closed": [
+    "manual"
+  ],
+  "Serial port is already open in another tab": [
+    "manual"
+  ],
+  "Serial operation failed": [
+    "manual"
+  ],
+  "Repeat interval must be 100–3600000 ms": [
+    "manual"
+  ],
+  "Serial file exceeds 16 MiB": [
+    "manual"
+  ],
+  "Cannot read selected file": [
+    "manual"
+  ],
+  "Export serial capture": [
+    "manual"
+  ],
+  "TX/RX log": [
+    "manual"
+  ],
+  "Resume display": [
+    "manual"
+  ],
+  "Pause display": [
+    "manual"
+  ],
+  "Auto scroll": [
+    "manual"
+  ],
+  "Clear display": [
+    "manual"
+  ],
+  "Export raw RX bytes": [
+    "manual"
+  ],
+  "Export TX/RX log": [
+    "manual"
+  ],
+  "RX {0} B · TX {1} B · discarded {2} B": [
+    "manual"
+  ],
+  "Display: latest 64 KiB / 256 log entries. Export includes the retained capture.": [
+    "manual"
+  ],
+  "HEX bytes, e.g. 00 FF 41": [
+    "manual"
+  ],
+  "Text to send": [
+    "manual"
+  ],
+  "Send HEX": [
+    "manual"
+  ],
+  "No newline": [
+    "manual"
+  ],
+  "Send history": [
+    "manual"
+  ],
+  "Send file": [
+    "manual"
+  ],
+  "Repeat send": [
+    "manual"
+  ],
+  "Stop sending": [
+    "manual"
+  ],
+  "Ready": [
+    "manual"
+  ],
+  "Closed": [
+    "manual"
+  ],
+  "Serial send stopped; submitted bytes cannot be recalled": [
+    "manual"
+  ],
+  "DevOps Hub": [
+    "manual"
+  ],
+  "Save and recall reusable shell commands.": [
+    "manual"
+  ],
+  "Network tools, S3 browser, LAN share, Mail catcher, MCP server, Cloudflare tunnels": [
+    "manual"
+  ],
+  "Embedded browser, HTTP client, and port-forward browser.": [
+    "manual"
+  ],
+  "Close snippets panel": [
+    "manual"
+  ],
+  "Close terminal settings": [
+    "manual"
+  ],
+  "New Host": [
+    "manual"
+  ],
+  "Add a new SSH connection": [
+    "manual"
+  ],
+  "Import SSH Config": [
+    "manual"
+  ],
+  "Import from ~/.ssh/config": [
+    "manual"
+  ],
+  "Watch a colleague's terminal using a share code": [
+    "manual"
+  ],
+  "Manage SSH connections": [
+    "manual"
+  ],
+  "File transfer": [
+    "manual"
+  ],
+  "SSH keys": [
+    "manual"
+  ],
+  "Tunnel rules": [
+    "manual"
+  ],
+  "Local shell": [
+    "manual"
+  ],
+  "Session recordings": [
+    "manual"
+  ],
+  "Host key verification": [
+    "manual"
+  ],
+  "App preferences": [
+    "manual"
+  ],
+  "Plugin marketplace": [
+    "manual"
+  ],
+  "This could indicate a man-in-the-middle attack. Only trust the new key if you know the server key changed.": [
+    "manual"
+  ],
+  "Trust new key": [
+    "manual"
+  ],
+  "The server certificate has changed since you last connected. This could indicate a man-in-the-middle attack. The connection was aborted before your credentials were sent.": [
+    "manual"
+  ],
+  "This server's certificate is not yet trusted. Verify the fingerprint above before accepting.": [
+    "manual"
+  ],
+  "Trust new cert": [
+    "manual"
+  ],
+  "No hosts in transfer": [
+    "manual"
+  ],
+  "SSH agent": [
+    "manual"
+  ],
+  "Local port must be between 1 and 65535.": [
+    "manual"
+  ],
+  "Remote host must not be empty.": [
+    "manual"
+  ],
+  "Remote port must be between 1 and 65535.": [
+    "manual"
+  ],
+  "Select SSH Private Key": [
+    "manual"
+  ],
+  "Enter a key name": [
+    "manual"
+  ],
+  "Widely compatible": [
+    "manual"
+  ],
+  "Elliptic curve": [
+    "manual"
+  ],
+  "Supabase URL is required.": [
+    "manual"
+  ],
+  "URL must start with https:// (or http://).": [
+    "manual"
+  ],
+  "Anon key is required.": [
+    "manual"
+  ],
+  "Nothing new to pull": [
+    "manual"
+  ],
+  "No network interface found": [
+    "manual"
+  ],
+  "No network interface found.": [
+    "manual"
+  ],
+  "Code expired — tap Refresh": [
+    "manual"
+  ],
+  "Just now": [
+    "manual"
+  ],
+  "just now": [
+    "manual"
+  ],
+  "Supabase URL": [
+    "manual"
+  ],
+  "Sync code (12 chars)": [
+    "manual"
+  ],
+  "Sync error": [
+    "manual"
+  ],
+  "Group name is required": [
+    "manual"
+  ],
+  "Preparing data...": [
+    "manual"
+  ],
+  "Session expired.": [
+    "manual"
+  ],
+  "Waiting for device to scan...": [
+    "manual"
+  ],
+  "Agent forwarding ready — no key requests from this host yet": [
+    "manual"
+  ],
+  "Agent forwarding active — serving keys from your system agent": [
+    "manual"
+  ],
+  "Agent forwarding active — serving app Keychain keys (no system agent found)": [
+    "manual"
+  ],
+  "Agent forwarding refused by server (AllowAgentForwarding no)": [
+    "manual"
+  ],
+  "Save to folder": [
+    "manual"
+  ],
+  "(empty output)": [
+    "manual"
+  ],
+  "Copy rejected": [
+    "manual"
+  ],
+  "Source and destination folders are the same": [
+    "manual"
+  ],
+  "No target panel": [
+    "manual"
+  ],
+  "Folders not supported between two remote hosts": [
+    "manual"
+  ],
+  "Both panels show this folder": [
+    "manual"
+  ],
+  "Command Palette": [
+    "manual"
+  ],
+  "New Session": [
+    "manual"
+  ],
+  "Close Session": [
+    "manual"
+  ],
+  "Next Session": [
+    "manual"
+  ],
+  "Previous Session": [
+    "manual"
+  ],
+  "Toggle Input Bar": [
+    "manual"
+  ],
+  "This looks like a binary file.": [
+    "manual"
+  ],
+  "This file is too large for the in-app editor.": [
+    "manual"
+  ],
+  "Public key copied": [
+    "manual"
+  ],
+  "Select Certificate File (*-cert.pub)": [
+    "manual"
+  ],
+  "this host": [
+    "manual"
+  ],
+  "SSH on": [
+    "manual"
+  ],
+  "Telnet on": [
+    "manual"
+  ],
+  "RDP on": [
+    "manual"
+  ],
+  "VNC on": [
+    "manual"
+  ],
+  "Duplicate name": [
+    "manual"
+  ],
+  "Choose recordings folder": [
+    "manual"
+  ],
+  "You are on the latest version": [
+    "manual"
+  ],
+  "Installer opened — complete it to finish updating": [
+    "manual"
+  ],
+  "Could not check for updates": [
+    "manual"
+  ],
+  "Click \"Check for updates\" to look for a new version": [
+    "manual"
+  ],
+  "Clear audit log?": [
+    "manual"
+  ],
+  "All recorded events will be deleted.": [
+    "manual"
+  ],
+  "URL and Anon key are required": [
+    "manual"
+  ],
+  "Connection failed": [
+    "manual"
+  ],
+  " · just now": [
+    "manual"
+  ],
+  "macOS Keychain": [
+    "manual"
+  ],
+  "Windows Credential Manager": [
+    "manual"
+  ],
+  "system keyring": [
+    "manual"
+  ],
+  "No new entries found": [
+    "manual"
+  ],
+  "Edit Permissions": [
+    "manual"
+  ],
+  "Copy path": [
+    "manual"
+  ],
+  "Run command": [
+    "manual"
+  ],
+  "Push files": [
+    "manual"
+  ],
+  "Grid view": [
+    "manual"
+  ],
+  "List view": [
+    "manual"
+  ],
+  "Test Connection": [
+    "manual"
+  ],
+  "No group": [
+    "manual"
+  ],
+  "Paste your ~/.ssh/config content or pick the file.": [
+    "manual"
+  ],
+  "Export from PuTTY: Connection → SSH → Export all settings.": [
+    "manual"
+  ],
+  "Export from MobaXterm: Tools → Export all sessions.": [
+    "manual"
+  ],
+  "Export from SecureCRT: Tools → Export Sessions as XML.": [
+    "manual"
+  ],
+  "Paste your Ansible INI inventory file.": [
+    "manual"
+  ],
+  "Export from WinSCP: Tools → Export/Backup Configuration.": [
+    "manual"
+  ],
+  "Export from Termius: Settings → Export Hosts.": [
+    "manual"
+  ],
+  "One URI per line: ssh://user@host:port": [
+    "manual"
+  ],
+  "No hosts found or unrecognized format": [
+    "manual"
+  ],
+  "All rows were skipped": [
+    "manual"
+  ],
+  "Import Hosts": [
+    "manual"
+  ],
+  "From file": [
+    "manual"
+  ],
+  "Paste text": [
+    "manual"
+  ],
+  "Empty file": [
+    "manual"
+  ],
+  "Enter a 6-character share code": [
+    "manual"
+  ],
+  "Configure Supabase first (Settings → Sync)": [
+    "manual"
+  ],
+  "not initialized": [
+    "manual"
+  ],
+  "Connection error": [
+    "manual"
+  ],
+  "— connection closed —": [
+    "manual"
+  ],
+  "Invalid regex": [
+    "manual"
+  ],
+  "DNS Lookup": [
+    "manual"
+  ],
+  "Port Scan": [
+    "manual"
+  ],
+  "Disk Usage": [
+    "manual"
+  ],
+  "Top Processes": [
+    "manual"
+  ],
+  "Memory Info": [
+    "manual"
+  ],
+  "HTTP Headers": [
+    "manual"
+  ],
+  "SSL Certificate": [
+    "manual"
+  ],
+  "Hostname or IP (e.g. 8.8.8.8)": [
+    "manual"
+  ],
+  "SSH Host (optional)": [
+    "manual"
+  ],
+  "Failed to start shell": [
+    "manual"
+  ],
+  "Shell exited": [
+    "manual"
+  ],
+  "My Service": [
+    "manual"
+  ],
+  "Session ended by host": [
+    "manual"
+  ],
+  "You have control": [
+    "manual"
+  ],
+  "Checking SSH agent…": [
+    "manual"
+  ],
+  "No agent and no usable Keychain keys — forwarding will offer nothing. Run \"ssh-add <key>\" or add a key in Keychain.": [
+    "manual"
+  ],
+  "Enter an absolute path to a compose file": [
+    "manual"
+  ],
+  "missing fields": [
+    "manual"
+  ],
+  "No hosts found in transfer": [
+    "manual"
+  ],
+  "Invalid transfer code.": [
+    "manual"
+  ],
+  "Cannot reach device. Make sure both are on the same network.": [
+    "manual"
+  ],
+  "Any file on your Mac — image, archive, document": [
+    "manual"
+  ],
+  "A local HTTP link is generated instantly": [
+    "manual"
+  ],
+  "Share it": [
+    "manual"
+  ],
+  "Anyone on the same Wi-Fi can download via browser": [
+    "manual"
+  ],
+  "Folder name must not be empty or contain \"/\"": [
+    "manual"
+  ],
+  "Invalid destination path": [
+    "manual"
+  ],
+  "Network Tools": [
+    "manual"
+  ],
+  "LAN Share": [
+    "manual"
+  ],
+  "MCP Server": [
+    "manual"
+  ],
+  "Containers": [
+    "manual"
+  ],
+  "HTTP Client": [
+    "manual"
+  ],
+  "Port Tunnels": [
+    "manual"
+  ],
+  "Key Name": [
+    "manual"
+  ],
+  "Key Value": [
+    "manual"
+  ],
+  "Add to": [
+    "manual"
+  ],
+  "Invalid Base64": [
+    "manual"
+  ],
+  "Invalid URL encoding": [
+    "manual"
+  ],
+  "Invalid JSON": [
+    "manual"
+  ],
+  "HASH OUTPUT": [
+    "manual"
+  ],
+  "Themes": [
+    "manual"
+  ],
+  "Name A→Z": [
+    "manual"
+  ],
+  "Name Z→A": [
+    "manual"
+  ],
+  "Newest first": [
+    "manual"
+  ],
+  "Oldest first": [
+    "manual"
+  ],
+  "Host A→Z": [
+    "manual"
+  ],
+  "Host Z→A": [
+    "manual"
+  ],
+  "Local terminal": [
+    "manual"
+  ],
+  "Folder": [
+    "manual"
+  ],
+  "File": [
+    "manual"
+  ],
+  "Symlink": [
+    "manual"
+  ],
+  "connect": [
+    "manual"
+  ],
+  "disconnect": [
+    "manual"
+  ],
+  "exec": [
+    "manual"
+  ],
+  "input": [
+    "manual"
+  ],
+  "BREAK 200 ms": [
+    "manual"
+  ],
+  "System agent connected — {0} identities": [
+    "manual"
+  ],
+  "No system agent — {0} app Keychain keys will be offered instead": [
+    "manual"
+  ],
+  "SSH agent error: {0}": [
+    "manual"
+  ],
+  "{0}m ago": [
+    "manual"
+  ],
+  "{0}h ago": [
+    "manual"
+  ],
+  "{0}d ago": [
+    "manual"
+  ],
+  "Expires in {0}s": [
+    "manual"
+  ],
+  "Connected ({0})": [
+    "manual"
+  ],
+  "Receiving ({0})": [
+    "manual"
+  ],
+  "Done ({0})": [
+    "manual"
+  ],
+  "Disconnected": [
+    "manual"
+  ],
+  "Connection closed": [
+    "manual"
+  ],
+  "[Image]": [
+    "manual"
+  ],
+  "Params{0}": [
+    "manual"
+  ],
+  "Auth{0}": [
+    "manual"
+  ],
+  "Headers{0}": [
+    "manual"
+  ],
+  "Body": [
+    "manual"
+  ],
+  "Headers": [
+    "manual"
+  ],
+  "done": [
+    "manual"
+  ],
+  "skipped": [
+    "manual"
+  ],
+  "error": [
+    "manual"
+  ],
+  "pending": [
+    "manual"
+  ],
+  "Preparing…": [
+    "manual"
+  ],
+  "Initializing...": [
+    "manual"
+  ],
+  "Downloading {0}…": [
+    "manual"
+  ],
+  "Downloaded to {0}": [
+    "manual"
+  ],
+  "Uploading {0}…": [
+    "manual"
+  ],
+  "Transfer error: {0}": [
+    "manual"
+  ],
+  " · {0}m ago": [
+    "manual"
+  ],
+  " · {0}h ago": [
+    "manual"
+  ],
+  "{0} ok · {1} failed": [
+    "manual"
+  ],
+  "Hostname (e.g. example.com)": [
+    "manual"
+  ],
+  "Path (e.g. /)": [
+    "manual"
+  ],
+  "URL (e.g. https://example.com)": [
+    "manual"
+  ],
+  "Expand": [
+    "manual"
+  ],
+  "Collapse": [
+    "manual"
+  ],
+  "Error: {0}": [
+    "manual"
+  ],
+  "Never": [
+    "manual"
+  ],
+  "A–Z, 0–9, _ only": [
+    "manual"
+  ],
+  "System agent connected — {0} identity": [
+    "manual"
+  ],
+  "No system agent — {0} app Keychain key will be offered instead": [
+    "manual"
+  ],
+  "Watching": [
+    "manual"
+  ],
+  "Accept": [
+    "manual"
+  ],
+  "Other": [
+    "manual"
+  ],
+  "All": [
+    "manual"
+  ],
+  "General": [
+    "manual"
+  ],
+  "Authentication": [
+    "manual"
+  ],
+  "Advanced": [
+    "manual"
+  ],
+  "Certificate": [
+    "manual"
+  ],
+  "Synced": [
+    "manual"
+  ],
+  "Idle": [
+    "manual"
+  ],
+  "LOCAL": [
+    "manual"
+  ],
+  "REMOTE": [
+    "manual"
+  ],
+  "DYNAMIC": [
+    "manual"
+  ],
+  "Algorithm": [
+    "manual"
+  ],
+  "Failed": [
+    "manual"
+  ],
+  "Owner": [
+    "manual"
+  ],
+  "Others": [
+    "manual"
+  ],
+  "DEFAULT": [
+    "manual"
+  ],
+  "Monitor": [
+    "manual"
+  ],
+  "Duplicate": [
+    "manual"
+  ],
+  "Export": [
+    "manual"
+  ],
+  "Invalid": [
+    "manual"
+  ],
+  "SYSTEM": [
+    "manual"
+  ],
+  "PORTS": [
+    "manual"
+  ],
+  "FIREWALL": [
+    "manual"
+  ],
+  "Uptime": [
+    "manual"
+  ],
+  "Memory": [
+    "manual"
+  ],
+  "Pick a file": [
+    "manual"
+  ],
+  "Get a URL": [
+    "manual"
+  ],
+  "Download": [
+    "manual"
+  ],
+  "Value": [
+    "manual"
+  ],
+  "Token": [
+    "manual"
+  ],
+  "Browser": [
+    "manual"
+  ],
+  "Utilities": [
+    "manual"
+  ],
+  "INPUT": [
+    "manual"
+  ],
+  "OUTPUT": [
+    "manual"
+  ],
+  "Recording failed for {0}: {1}": [
+    "manual"
+  ],
+  "{0} host(s) from last session no longer exist": [
+    "manual"
+  ],
+  "MCP start failed: {0}": [
+    "manual"
+  ],
+  "Exported to {0}": [
+    "manual"
+  ],
+  "Export failed: {0}": [
+    "manual"
+  ],
+  "Public key added to {0}": [
+    "manual"
+  ],
+  "Key already deployed on {0}": [
+    "manual"
+  ],
+  "Could not delete recording: {0}": [
+    "manual"
+  ],
+  "Key generation failed: {0}": [
+    "manual"
+  ],
+  "Network": [
+    "manual"
+  ],
+  "Paused": [
+    "manual"
+  ],
+  "Swap": [
+    "manual"
+  ],
+  "Loading…": [
+    "manual"
+  ],
+  "Update failed": [
+    "manual"
+  ],
+  "Close monitor": [
+    "manual"
+  ],
+  "Pause monitoring": [
+    "manual"
+  ],
+  "Resume monitoring": [
+    "manual"
+  ],
+  "Load (1/5/15m)": [
+    "manual"
+  ],
+  "Select a connected SSH session to monitor": [
+    "manual"
+  ],
+  "Updated {0} · every 5 seconds": [
+    "manual"
+  ],
+  "Monitoring requires a Linux host with /proc access": [
+    "manual"
+  ],
+  "Network counters unavailable": [
+    "manual"
+  ],
+  "Per-interface traffic · virtual interfaces shown separately": [
+    "manual"
+  ],
+  "↓ Receive {0}": [
+    "manual"
+  ],
+  "↑ Send {0}": [
+    "manual"
+  ],
+  "Waiting for next sample": [
+    "manual"
+  ],
+  "Overall": [
+    "manual"
+  ],
+  "All cores": [
+    "manual"
+  ],
+  "Core {0}": [
+    "manual"
+  ],
+  "Logical cores: {0}": [
+    "manual"
+  ],
+  "Per-core data unavailable": [
+    "manual"
+  ],
+  "Waiting for valid sample": [
+    "manual"
+  ],
+  "CPU": [
+    "manual"
+  ]
+}

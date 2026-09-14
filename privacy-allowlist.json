@@ -1,0 +1,221 @@
+{
+  "entries": [
+    {
+      "path": "crossplatform/app/test/fixtures/keys/id_ed25519",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "eb79e3f4cdf31acf967991a52a212cabbbc4ce23049eef73dc674e0fd3494649",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/app/test/fixtures/keys/id_ed25519_enc",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "edd46ed39ba9453b23a63ffdcfc0fac509428447803e789ea803c9edb7f831c8",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/app/test/services/sync_service_test.dart",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "f9a474f0c0bc0416c70b25a24a22a24088c1723d75d0d4303a0f962eec6f8d65",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ecdsa-sha2-nistp256/ssh_host_ecdsa_key",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "c9e306c2bfb0a2d94e41b3c66256161a418573c610b53752afed510efdc215f1",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ecdsa-sha2-nistp384/ssh_host_ecdsa_key",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "4305c8269e4c8bda1e2718872a66f36e809e7dd78b896dc8198ba6a52f07b3cd",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ecdsa-sha2-nistp521/id_ecdsa",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "aa18c5bcc496989ee8c6190c82731d709830abfc3f3f68bb43cbf1a6d7e3d533",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-rsa/id_rsa.openssh",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "dc7cead57cb886b38a04c175243b848b0a7df255f7191fc89a5d7cf58e3c8513",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-ed25519/id_ed25519",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "f8b7e952e3d18cce01f2cf67a78eee8f9a7928249dc71f2b7ebe21e889ce61ed",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-ed25519/ssh_host_ed25519_key",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "f246a8f4e49cf4b114500034c35328cd6a792c26d74ed8332b3ea54524e82ef3",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-ed25519-passphrase/id_ed25519",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "247bb9a73f929a4fdc7e2b9f29b791263fc85b86ca32802003ec4f18614e1917",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ecdsa-sha2-nistp521/ssh_host_ecdsa_key",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "0e40c97abdfb6ddbb832c015f0c41e1b44a176b5bec0e9116599095ce58f0eb1",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/src/ssh_pem_test.dart",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "9f2fdb8e01556ec84d2ec70844c9b267e4d218ee6b5ade9a5cdb642025ffe07b",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-rsa/id_rsa",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "b3ef6c2b8ab736dcd533f56d8db7a94a3db4cb64736d73844c6f575e06444898",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-rsa-passphrase/id_rsa",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "c6b3364c42f5c5c80d1816ae134a023402143c74dd25e06c0cdda6c76d613b76",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ecdsa-sha2-nistp384/id_ecdsa",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "ad72e46065fc667acd7a74924a0cdd4d7e6e85488d6759aae000a939b86a0925",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ecdsa-sha2-nistp256/id_ecdsa",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "5e8ad284b31d64bc1236d1f65bb925a801ad2d460a280d3b23901f80596c5adf",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/fixtures/ssh-rsa/ssh_host_rsa_key",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "d93b11aad57a722c57c0407f60b462f8d103ac72d45308f788a7e6771b12708e",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/dartssh2/test/src/ssh_key_pair_test.dart",
+      "rule": "private-key",
+      "scope": "file",
+      "sha256": "ec441637383204b71e84427109a38ef6d29d24fadbaf8a031b41aef2074ab2ca",
+      "reason": "Byte-identical public upstream SSH test fixture at 832c44b8e7d76ff77b32159e547d281c18be24b1"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "7c47561aa8593ca9a9ba70faaf4478e784df8f9c05994f606e1dde02b84f205d",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "97ebd416afd2ec49c254a9909d67596730adf55db42b0fd8a90716c28f1e8437",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "547373a1870c58f89fbb032e694065cbec9ea296437392e94f618ae295df6943",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "bd6d9be6a864b0de310f708472138a03944b1230adecaca084493b50142a833a",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "93368d8afa0701cd01828587cddba561b0b467b874c4aa6cfbff070799ee8068",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "b5ff4e9c22cc9e38d13ee25cde0b8bd5d39d37d1aca1482cd7b75b76da77ae62",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "b0116a009f1c7a8892ba6dbffa7f919b9fdc254ff8c2b61ea8eca3cbe356cf15",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "d66d98514ea43c821c697abdce481bd2c54b76c9b0310e87e3f83173407ae0e4",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "a71defe3b85f94262bf945ad20a842b8be487df4217be7e7aec6a69a8375e5b9",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "5af20144e5be3359414418f5e1f9a497240ca044fbdd06c033ed521508e18072",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "315920bee94a72fb0f7697fbd6bbb747566a16f66f600f51941df7414ac79230",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "c92fe09bafaa119233f95800b2c6b0ab6513c6b50c1ae2d648da4bdd742e219a",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "a9493fc70ffe048fa497d7e1c8ddd98e409a35c5e2d5b368798d0af932a6fc7f",
+      "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    }
+  ]
+}

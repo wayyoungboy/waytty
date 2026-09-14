@@ -1,0 +1,114 @@
+import 'package:uuid/uuid.dart';
+import 'package:xterm/xterm.dart';
+import 'agent_forwarding_state.dart';
+import 'connection_log.dart';
+import 'host.dart';
+import 'terminal_session.dart';
+
+enum SessionStatus { connecting, connected, disconnected, error }
+
+class SshSession implements TerminalSession {
+  @override
+  final String id;
+  final Host host;
+  @override
+  final Terminal terminal;
+  SessionStatus status;
+  String? errorMessage;
+  DateTime connectedAt;
+  final String? initialCommand;
+  final bool isWatch;
+  final String? watchedTitle;
+  @override
+  String? customLabel;
+  @override
+  String? colorTag;
+  @override
+  bool isPinned;
+
+  /// Number of reconnect attempts scheduled during this session's lifetime.
+  /// Shown in the tab health tooltip.
+  int reconnectCount = 0;
+
+  /// Live forwarding status shown on the session tab; updated by
+  /// SessionProvider.handleAgentForwardingEvent.
+  AgentForwardingState agentForwardingState = AgentForwardingState.off;
+
+  /// Human-readable trace of the connect attempt, shown by the "Show logs"
+  /// panel on the connecting screen. Bounded to [kMaxConnectionLogLines].
+  final List<ConnectionLogLine> connectionLog = [];
+
+  /// Appends a connection-log line, trimming the oldest entries past the cap.
+  void logConnection(ConnectionLogLevel level, String message, {DateTime? at}) {
+    connectionLog.add(ConnectionLogLine(
+      time: at ?? DateTime.now(),
+      level: level,
+      message: message,
+    ));
+    if (connectionLog.length > kMaxConnectionLogLines) {
+      connectionLog.removeRange(0, connectionLog.length - kMaxConnectionLogLines);
+    }
+  }
+
+  void clearConnectionLog() => connectionLog.clear();
+
+  SshSession({
+    String? id,
+    required this.host,
+    this.status = SessionStatus.connecting,
+    this.errorMessage,
+    DateTime? connectedAt,
+    this.initialCommand,
+    this.isWatch = false,
+    this.watchedTitle,
+    this.customLabel,
+    this.colorTag,
+    this.isPinned = false,
+  })  : id = id ?? const Uuid().v4(),
+        terminal = Terminal(maxLines: 10000),
+        connectedAt = connectedAt ?? DateTime.now() {
+    if (host.agentForwarding) {
+      agentForwardingState = AgentForwardingState.ready;
+    }
+  }
+
+  factory SshSession.watch({required String watchedTitle}) {
+    return SshSession(
+      host: Host(
+        id: const Uuid().v4(),
+        label: '[WATCH] $watchedTitle',
+        host: '',
+        port: 22,
+        username: '',
+      ),
+      status: SessionStatus.connected,
+      isWatch: true,
+      watchedTitle: watchedTitle,
+    );
+  }
+
+  String get title =>
+      customLabel ??
+      (isWatch ? '[WATCH] ${watchedTitle ?? host.host}' : '${host.username}@${host.host}');
+
+  /// Label shown on the session tab: the user's custom rename, falling back to
+  /// the host's display label (the watch factory stores '[WATCH] …' there).
+  @override
+  String get tabLabel => customLabel ?? host.label;
+
+  @override
+  bool get isLocal => false;
+
+  @override
+  String get recordingFolder => '${host.username}@${host.host}';
+
+  @override
+  String get recordingTitle => '${host.username}@${host.host}';
+
+  String get statusLabel => switch (status) {
+        SessionStatus.connecting => 'Connecting...',
+        SessionStatus.connected => isWatch ? 'Watching' : 'Connected',
+        SessionStatus.disconnected => 'Disconnected',
+        SessionStatus.error => errorMessage ?? 'Error',
+      };
+}
