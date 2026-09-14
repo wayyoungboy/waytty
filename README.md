@@ -2,6 +2,10 @@
 
 [源码](https://github.com/wayyoungboy/waytty) · [问题反馈](https://github.com/wayyoungboy/waytty/issues) · [功能进展](docs/PARITY.md) · [官网部署](website/README.md)
 
+**[下载 v0.0.1 开发版](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.1)** · [官网](https://wayyoungboy.github.io/waytty/)
+
+macOS 12 及以上，Universal 安装包同时支持 Apple Silicon 和 Intel。当前使用 ad-hoc 签名，尚未做 Developer ID 签名或 Apple 公证；系统可能阻止首次打开，请先核对来源与 SHA-256。Release 同时提供源码、串口依赖对应源码及校验文件。
+
 参考 XTerminal 交互和布局开发的跨平台终端客户端，采用 **Flutter 界面 + Dart 共享协议与业务核心**。当前优先交付 macOS，工程同时保留 Windows 和 Android 平板入口。**RDP 不在范围内，VNC 暂不启用。**
 
 首次启动默认简体中文，设置中的「界面语言」可切换 English，选择会保存并在重启后恢复。界面、工具插件及 macOS 菜单共用翻译资源；主机名、文件名、笔记、命令和服务器输出保持原文。
