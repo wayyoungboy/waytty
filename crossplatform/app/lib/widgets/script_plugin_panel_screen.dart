@@ -42,7 +42,7 @@ class _ScriptPluginPanelScreenState extends State<ScriptPluginPanelScreen> {
         ? Platform.environment['USERPROFILE']!
         : Platform.environment['HOME']!;
     final htmlPath =
-        '$home/.xterminal-native/plugins/${widget.panel.pluginId}/${widget.panel.webviewEntry}';
+        '$home/.waytty/plugins/${widget.panel.pluginId}/${widget.panel.webviewEntry}';
     final file = File(htmlPath);
     if (!file.existsSync()) {
       setState(() => _error = 'Panel file not found:\n$htmlPath');

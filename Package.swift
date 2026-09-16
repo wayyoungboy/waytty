@@ -2,17 +2,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "XTerminalNative",
+    name: "WayttyPrototype",
     platforms: [.macOS(.v14)],
-    products: [.executable(name: "XTerminalNative", targets: ["XTerminalNative"])],
+    products: [.executable(name: "WayttyPrototype", targets: ["WayttyPrototype"])],
     dependencies: [
         .package(url: "https://github.com/migueldeicaza/SwiftTerm.git", exact: "1.20.0")
     ],
     targets: [
         .target(name: "TerminalCore"),
-        .executableTarget(name: "XTerminalNative", dependencies: ["TerminalCore", "SwiftTerm"]),
+        .executableTarget(name: "WayttyPrototype", dependencies: ["TerminalCore", "SwiftTerm"]),
         .testTarget(name: "TerminalCoreTests", dependencies: ["TerminalCore"]),
-        .testTarget(name: "AppIntegrationTests", dependencies: ["XTerminalNative", "TerminalCore"])
+        .testTarget(name: "AppIntegrationTests", dependencies: ["WayttyPrototype", "TerminalCore"])
     ],
     swiftLanguageModes: [.v5]
 )

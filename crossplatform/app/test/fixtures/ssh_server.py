@@ -14,29 +14,35 @@ class FixtureServer(asyncssh.SSHServer):
         return True
 
     def validate_password(self, username, password):
-        return username == "fixture" and password == "fixture-only-password"
+        return (username in {"fixture", "fixture-fast-shell"}
+                and password == "fixture-only-password")
 
     def connection_requested(self, dest_host, dest_port, orig_host, orig_port):
         return dest_host == "127.0.0.1"
 
 
 async def session(process):
+    if (not process.command
+            and process.get_extra_info("username") == "fixture-fast-shell"):
+        process.stdout.write("short shell\n")
+        process.exit(13)
+        return
     if process.command:
-        if process.command == "xtn-utf8-check":
+        if process.command == "waytty-utf8-check":
             process.stdout.write("中文 SSH ✓\n")
             process.stderr.write("诊断信息\n")
             process.exit(7)
-        elif process.command == "xtn-large-output":
+        elif process.command == "waytty-large-output":
             process.stdout.write("x" * (2 * 1024 * 1024))
             process.exit(0)
-        elif process.command == "xtn-wait":
+        elif process.command == "waytty-wait":
             await process.stdin.read()
             process.exit(0)
         else:
-            process.stderr.write("Fixture accepts only xtn-utf8-check\n")
+            process.stderr.write("Fixture accepts only waytty-utf8-check\n")
             process.exit(127)
         return
-    process.stdout.write("XTerminal Native · SSH 测试服务\r\nfixture$ ")
+    process.stdout.write("waytty · SSH 测试服务\r\nfixture$ ")
     async for line in process.stdin:
         if line.strip() == "exit":
             break

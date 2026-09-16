@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waytty_l10n/waytty_l10n.dart';
 import 'package:yourssh/providers/host_provider.dart';
 import 'package:yourssh/services/storage_service.dart';
-import 'package:yourssh/widgets/x_connection_center.dart';
+import 'package:yourssh/widgets/connection_center.dart';
 
 void main() {
   testWidgets('empty states translate while user group names remain verbatim', (
@@ -30,7 +30,7 @@ void main() {
             localizationsDelegates: WayttyStrings.delegates,
             supportedLocales: WayttyStrings.supportedLocales,
             home: Scaffold(
-              body: XConnectionCenter(
+              body: ConnectionCenter(
                 onAdd: (_, _) {},
                 onEdit: (_) {},
                 onConnect: (_) async {},

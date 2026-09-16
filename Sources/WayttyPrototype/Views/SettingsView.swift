@@ -27,7 +27,7 @@ struct SettingsView: View {
                     Text("仓库保存在本机，含主机、密钥路径、隧道、笔记和命令。密码在终端交互输入，不保存到仓库。").font(.caption).foregroundStyle(.secondary)
                 }
                 Section("关于") {
-                    LabeledContent("XTerminal Native", value: "0.1.0")
+                    LabeledContent("waytty", value: "0.1.0")
                     LabeledContent("界面", value: "SwiftUI + AppKit")
                     LabeledContent("终端", value: "SwiftTerm 1.20.0 · MIT")
                     LabeledContent("连接", value: "系统 OpenSSH / SFTP")

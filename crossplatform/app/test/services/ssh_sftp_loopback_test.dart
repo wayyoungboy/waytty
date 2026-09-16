@@ -12,14 +12,14 @@ import 'package:yourssh/services/bounded_ssh_exec.dart';
 import '../helpers/secure_store.dart';
 
 void main() {
-  final python = Platform.environment['WAYTTY_SSH_FIXTURE_PYTHON'] ?? Platform.environment['XTN_SSH_FIXTURE_PYTHON'];
+  final python = Platform.environment['WAYTTY_SSH_FIXTURE_PYTHON'];
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
     'real SSH authentication, UTF-8 exec, SFTP Unicode names and binary resume',
     () async {
       installSecureStoreMock();
       SharedPreferences.setMockInitialValues({});
-      final root = await Directory.systemTemp.createTemp('xtn-sftp-fixture-');
+      final root = await Directory.systemTemp.createTemp('waytty-sftp-fixture-');
       final server = await Process.start(python!, [
         'test/fixtures/ssh_server.py',
         root.path,
@@ -49,26 +49,26 @@ void main() {
         ssh = SshService(storage)
           ..defaultHostKeyVerifier = (_, p, type, fp) async =>
               p == port && type == 'ssh-ed25519' && fp.isNotEmpty;
-        final result = await ssh.exec(host, 'xtn-utf8-check');
+        final result = await ssh.exec(host, 'waytty-utf8-check');
         expect(result.stdout, '中文 SSH ✓\n');
         expect(result.stderr, '诊断信息\n');
         expect(result.exitCode, 7);
-        final mcpResult = await ssh.execForMcp(host, 'xtn-utf8-check');
+        final mcpResult = await ssh.execForMcp(host, 'waytty-utf8-check');
         expect(mcpResult.stdout, result.stdout);
         expect(mcpResult.stderr, result.stderr);
         expect(mcpResult.exitCode, 7);
-        final monitorResult = await ssh.execForMonitoring(host, 'xtn-utf8-check');
+        final monitorResult = await ssh.execForMonitoring(host, 'waytty-utf8-check');
         expect(monitorResult, result);
         await expectLater(
-          ssh.execForMonitoring(host, 'xtn-large-output'),
+          ssh.execForMonitoring(host, 'waytty-large-output'),
           throwsStateError,
         );
-        expect((await ssh.execForMonitoring(host, 'xtn-utf8-check')).exitCode, 7);
+        expect((await ssh.execForMonitoring(host, 'waytty-utf8-check')).exitCode, 7);
         await expectLater(
-          ssh.execForMcp(host, 'xtn-large-output'),
+          ssh.execForMcp(host, 'waytty-large-output'),
           throwsStateError,
         );
-        expect((await ssh.execForMcp(host, 'xtn-utf8-check')).exitCode, 7);
+        expect((await ssh.execForMcp(host, 'waytty-utf8-check')).exitCode, 7);
         final timeoutClient = SSHClient(
           await SSHSocket.connect(host.host, port),
           username: 'fixture',
@@ -80,17 +80,47 @@ void main() {
           await expectLater(
             boundedSshExec(
               timeoutClient,
-              'xtn-wait',
+              'waytty-wait',
               timeout: const Duration(milliseconds: 100),
             ),
             throwsA(isA<TimeoutException>()),
           );
           expect(
-            (await boundedSshExec(timeoutClient, 'xtn-utf8-check')).exitCode,
+            (await boundedSshExec(timeoutClient, 'waytty-utf8-check')).exitCode,
             7,
           );
+          // Exercise fast exits repeatedly: status packets can arrive with the
+          // exec acknowledgement, before execute() returns to its caller.
+          for (var i = 0; i < 20; i++) {
+            final fast = await boundedSshExec(timeoutClient, 'waytty-utf8-check');
+            expect(fast.exitCode, 7, reason: 'fast exec $i');
+            expect(utf8.decode(fast.stdout), '中文 SSH ✓\n');
+            expect(utf8.decode(fast.stderr), '诊断信息\n');
+          }
         } finally {
           timeoutClient.close();
+        }
+        final shellClient = SSHClient(
+          await SSHSocket.connect(host.host, port),
+          username: 'fixture-fast-shell',
+          onPasswordRequest: () => 'fixture-only-password',
+          onVerifyHostKey: (type, fp) => type == 'ssh-ed25519' && fp.isNotEmpty,
+        );
+        try {
+          await shellClient.authenticated;
+          for (var i = 0; i < 10; i++) {
+            final session = await shellClient.shell(pty: null);
+            final output = <int>[];
+            await Future.wait([
+              session.stdout.forEach(output.addAll),
+              session.stderr.drain<void>(),
+              session.done,
+            ]);
+            expect(session.exitCode, 13, reason: 'fast shell $i');
+            expect(utf8.decode(output), 'short shell\n');
+          }
+        } finally {
+          shellClient.close();
         }
         final sftp = await ssh.openSftp(host);
         try {
@@ -147,7 +177,7 @@ void main() {
       }
     },
     skip: python == null
-        ? 'Set XTN_SSH_FIXTURE_PYTHON to a Python with asyncssh installed'
+        ? 'Set WAYTTY_SSH_FIXTURE_PYTHON to a Python with asyncssh installed'
         : false,
     timeout: const Timeout(Duration(seconds: 40)),
   );

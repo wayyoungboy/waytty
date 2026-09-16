@@ -109,7 +109,7 @@ class PluginLoader {
     final home = Platform.isWindows
         ? Platform.environment['USERPROFILE']!
         : Platform.environment['HOME']!;
-    return Directory('$home/.xterminal-native/plugins');
+    return Directory('$home/.waytty/plugins');
   }
 
   void dispose() {

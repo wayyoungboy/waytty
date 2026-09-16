@@ -12,8 +12,8 @@ import '../services/serial/serial_backend.dart';
 import 'serial/serial_connection_panel.dart';
 
 /// Shared desktop/tablet connection browser. No desktop-only protocol code.
-class XConnectionCenter extends StatefulWidget {
-  const XConnectionCenter({
+class ConnectionCenter extends StatefulWidget {
+  const ConnectionCenter({
     super.key,
     required this.onAdd,
     required this.onEdit,
@@ -28,10 +28,10 @@ class XConnectionCenter extends StatefulWidget {
   final VoidCallback onImport, onNewGroup;
   final Future<void> Function(SerialDeviceInfo, SerialConfig, SerialBackend)? onSerialConnect;
   @override
-  State<XConnectionCenter> createState() => _XConnectionCenterState();
+  State<ConnectionCenter> createState() => _ConnectionCenterState();
 }
 
-class _XConnectionCenterState extends State<XConnectionCenter> {
+class _ConnectionCenterState extends State<ConnectionCenter> {
   HostProtocol? _protocol = HostProtocol.ssh;
   String _filter = '全部', _query = '';
   String? _group;

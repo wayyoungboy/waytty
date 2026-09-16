@@ -20,7 +20,7 @@ import '../providers/recording_provider.dart';
 import '../main.dart' show kAppVersion;
 import '../theme/app_theme.dart';
 import '../widgets/host_detail_panel.dart';
-import '../widgets/x_connection_center.dart';
+import '../widgets/connection_center.dart';
 import 'notes_screen.dart';
 import 'mcp_screen.dart';
 import '../widgets/keychain_screen.dart';
@@ -805,7 +805,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return Stack(
       fit: StackFit.expand,
       children: [
-        KeepAliveOffstage(active: showHosts, child: XConnectionCenter(
+        KeepAliveOffstage(active: showHosts, child: ConnectionCenter(
           onSerialConnect: (device, config, backend) async {
             final provider = context.read<SessionProvider>();
             final previous = provider.activeSession;

@@ -36,8 +36,6 @@ known_hosts
 authorized_keys
 .ssh/
 .waytty/
-.xterminal/
-.xterminal-native/
 /screenshots/
 /crossplatform/app/screenshots/
 node_modules/

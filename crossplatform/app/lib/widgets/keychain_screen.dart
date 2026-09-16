@@ -545,7 +545,7 @@ class _GenerateKeyPanelState extends State<_GenerateKeyPanel> {
 
     try {
       final docsDir = await getApplicationDocumentsDirectory();
-      final sshDir = Directory(p.join(docsDir.path, 'XTerminalNative', 'keys'));
+      final sshDir = Directory(p.join(docsDir.path, 'waytty', 'keys'));
       await sshDir.create(recursive: true);
 
       final name = _label.text.trim();

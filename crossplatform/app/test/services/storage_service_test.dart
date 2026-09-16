@@ -171,7 +171,7 @@ void main() {
         'false',
       );
       expect(StorageService.macOsKeychainOptions.params['accountName'],
-          'dev.local.xterminal');
+          'io.github.wayyoungboy.waytty');
     });
   });
 

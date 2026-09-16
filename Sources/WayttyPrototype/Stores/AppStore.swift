@@ -27,8 +27,8 @@ final class AppStore: ObservableObject {
 
     init(storageURL: URL? = nil) {
         self.storageURL = storageURL ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("XTerminalNative/workspace.json")
-        socketDirectory = URL(fileURLWithPath: "/tmp/xtn-\(getuid())-\(UUID().uuidString.prefix(8))")
+            .appendingPathComponent("WayttyPrototype/workspace.json")
+        socketDirectory = URL(fileURLWithPath: "/tmp/waytty-\(getuid())-\(UUID().uuidString.prefix(8))")
         do {
             try FileManager.default.createDirectory(at: socketDirectory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
             if FileManager.default.fileExists(atPath: self.storageURL.path) {
@@ -174,7 +174,7 @@ final class AppStore: ObservableObject {
         } catch { self.error = "导入失败：\(error.localizedDescription)" }
     }
     func exportWorkspace() {
-        let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "XTerminalNative-backup.json"
+        let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "WayttyPrototype-backup.json"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

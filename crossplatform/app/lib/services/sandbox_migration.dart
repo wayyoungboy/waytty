@@ -60,7 +60,7 @@ class SandboxMigrationService {
         Directory(p.join(container.path, 'Library', 'Application Support', bundleId)),
         Directory(p.join(homeRoot, 'Library', 'Application Support', bundleId)),
       ),
-      // Disk-loaded JS plugins (`~/.xterminal-native/plugins`).
+      // Disk-loaded JS plugins from sandboxed upstream builds.
       ..._copyMissing(
         Directory(p.join(container.path, '.yourssh', 'plugins')),
         Directory(p.join(homeRoot, '.yourssh', 'plugins')),

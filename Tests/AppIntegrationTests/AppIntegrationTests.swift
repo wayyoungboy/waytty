@@ -1,12 +1,12 @@
 import XCTest
 import Foundation
 import TerminalCore
-@testable import XTerminalNative
+@testable import WayttyPrototype
 
 final class AppIntegrationTests: XCTestCase {
     @MainActor
     func testPersistenceRestoresGroupsNotesAndFavorites() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("xtn-test-\(UUID())")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("waytty-test-\(UUID())")
         defer { try? FileManager.default.removeItem(at: root) }
         let url = root.appendingPathComponent("workspace.json")
         let store = AppStore(storageURL: url)
@@ -27,7 +27,7 @@ final class AppIntegrationTests: XCTestCase {
 
     @MainActor
     func testCorruptRepositoryIsNeverOverwritten() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("xtn-corrupt-\(UUID())")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("waytty-corrupt-\(UUID())")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
         let url = root.appendingPathComponent("workspace.json")
@@ -45,7 +45,7 @@ final class AppIntegrationTests: XCTestCase {
     }
 
     func testRealSFTPLiteralFilenamesAndTransfers() async throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("xtn-sftp-\(UUID())")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("waytty-sftp-\(UUID())")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: root) }
         let original = root.appendingPathComponent("source [1]*? 中文.txt")

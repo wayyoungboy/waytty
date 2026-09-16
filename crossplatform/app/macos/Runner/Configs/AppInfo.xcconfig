@@ -8,7 +8,7 @@
 PRODUCT_NAME = waytty
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = dev.local.xterminal
+PRODUCT_BUNDLE_IDENTIFIER = io.github.wayyoungboy.waytty
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = waytty contributors; upstream MIT attribution in LICENSE

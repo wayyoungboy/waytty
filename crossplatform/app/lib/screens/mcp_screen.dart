@@ -28,7 +28,7 @@ class McpScreen extends StatelessWidget {
       if (mcp.running) Align(alignment: Alignment.centerLeft, child: OutlinedButton.icon(
         icon: const Icon(Icons.copy, size: 16), label: const LText("复制客户端配置（含访问令牌）"),
         onPressed: () => Clipboard.setData(ClipboardData(text: const JsonEncoder.withIndent('  ').convert({
-          'mcpServers': {'xterminal': {'type': 'http', 'url': 'http://127.0.0.1:${mcp.port}/mcp',
+          'mcpServers': {'waytty': {'type': 'http', 'url': 'http://127.0.0.1:${mcp.port}/mcp',
             'headers': {'Authorization': 'Bearer ${mcp.token}'}}}}))))),
       const SizedBox(height: 16),
       const LText("权限在退出应用后清除；每次启动服务都会生成新的地址和令牌。", style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),

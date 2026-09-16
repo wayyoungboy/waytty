@@ -124,7 +124,7 @@ final class FileBrowserStore: ObservableObject {
         guard panel.runModal() == .OK, let url = panel.url else { return }
         busy = true; error = nil; operation = "下载 \(file.name)…"; defer { busy = false; operation = "" }
         // Download to a sibling temporary file before replacing a user-approved destination.
-        let temporary = url.deletingLastPathComponent().appendingPathComponent(".xtn-download-\(UUID().uuidString)")
+        let temporary = url.deletingLastPathComponent().appendingPathComponent(".waytty-download-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: temporary) }
         do {
             _ = try await batch(["get \(SFTP.quote(SFTP.joined(path, file.name))) \(SFTP.quote(temporary.path))"], timeout: 600)

@@ -477,13 +477,16 @@ class SSHClient {
       }
     }
 
+    // Install the exit-status handler before the request: a short command can
+    // send success, exit-status and close in the same transport read.
+    final session = SSHSession(channelController.channel);
     final success = await channelController.sendExec(command);
     if (!success) {
       channelController.close();
       throw SSHChannelRequestError('Failed to execute');
     }
 
-    return SSHSession(channelController.channel);
+    return session;
   }
 
   /// Start a shell on the remote side. Returns a [SSHSession] that can be
@@ -549,15 +552,16 @@ class SSHClient {
       }
     }
 
+    final session = SSHSession(
+      channelController.channel,
+      agentForwardingRefused: agentForwardingRefused,
+    );
     if (!await channelController.sendShell()) {
       channelController.close();
       throw SSHChannelRequestError('Failed to start shell');
     }
 
-    return SSHSession(
-      channelController.channel,
-      agentForwardingRefused: agentForwardingRefused,
-    );
+    return session;
   }
 
   Future<void> subsystem(String subsystem) async {

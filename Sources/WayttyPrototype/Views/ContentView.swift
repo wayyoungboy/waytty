@@ -52,7 +52,7 @@ struct ContentView: View {
                 }.buttonStyle(.plain).help(page.rawValue).accessibilityLabel(page.rawValue)
             }
             Spacer()
-            Text("XTerminal").font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
+            Text("waytty").font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
             Text("NATIVE").font(.system(size: 8, weight: .bold, design: .monospaced)).tracking(1.4).foregroundStyle(Theme.accent)
                 .padding(.horizontal, 6).padding(.vertical, 3).background(Theme.accent.opacity(0.08), in: Capsule())
             Spacer()

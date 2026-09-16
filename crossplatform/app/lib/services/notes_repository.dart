@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/workspace_note.dart';
 
 class NotesRepository {
-  static const storageKey = 'xterminal.notes.v1';
+  static const storageKey = 'waytty.notes.v1';
   Future<void> _pending = Future.value();
 
   Future<List<WorkspaceNote>> load() async {

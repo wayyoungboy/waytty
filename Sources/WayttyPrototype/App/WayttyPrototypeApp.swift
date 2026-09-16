@@ -2,12 +2,12 @@ import SwiftUI
 import AppKit
 
 @main
-struct XTerminalNativeApp: App {
+struct WayttyPrototypeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var store = AppStore()
 
     var body: some Scene {
-        Window("XTerminal Native", id: "main") {
+        Window("waytty", id: "main") {
             ContentView().environmentObject(store).preferredColorScheme(.dark)
                 .onAppear { delegate.store = store }
         }

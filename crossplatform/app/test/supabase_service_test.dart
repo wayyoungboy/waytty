@@ -35,15 +35,15 @@ void main() {
           requests.add(request);
           final endpoint = request.url.pathSegments.last;
           return http.Response(
-            endpoint == 'xtn_sync_get'
+            endpoint == 'waytty_sync_get'
                 ? jsonEncode({
                     'payload': 'v1:encrypted-fixture',
                     'updated_at': '2026-09-13T00:00:00Z',
                   })
-                : endpoint == 'xtn_sync_ping'
+                : endpoint == 'waytty_sync_ping'
                 ? '1'
                 : '',
-            endpoint == 'xtn_sync_put' || endpoint == 'xtn_sync_delete'
+            endpoint == 'waytty_sync_put' || endpoint == 'waytty_sync_delete'
                 ? 204
                 : 200,
             headers: {'content-type': 'application/json'},
@@ -62,11 +62,11 @@ void main() {
       expect(await service.fetchUpdatedAt(), DateTime.utc(2026, 9, 13));
       await service.deleteRow();
       expect(requests.map((r) => r.url.path), [
-        '/rest/v1/rpc/xtn_sync_ping',
-        '/rest/v1/rpc/xtn_sync_put',
-        '/rest/v1/rpc/xtn_sync_get',
-        '/rest/v1/rpc/xtn_sync_get',
-        '/rest/v1/rpc/xtn_sync_delete',
+        '/rest/v1/rpc/waytty_sync_ping',
+        '/rest/v1/rpc/waytty_sync_put',
+        '/rest/v1/rpc/waytty_sync_get',
+        '/rest/v1/rpc/waytty_sync_get',
+        '/rest/v1/rpc/waytty_sync_delete',
       ]);
       final tokens = <String>{};
       for (final request in requests.skip(1)) {

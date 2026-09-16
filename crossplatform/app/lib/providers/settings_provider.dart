@@ -118,8 +118,8 @@ class SettingsProvider extends ChangeNotifier {
         prefs.getInt('auditRetentionDays') ?? kDefaultAuditRetentionDays;
     final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
     final defaultPath = home != null
-        ? p.join(home, 'Documents', 'XTerminalNative', 'Recordings')
-        : p.join(Directory.current.path, 'XTerminalNative', 'Recordings');
+        ? p.join(home, 'Documents', 'waytty', 'Recordings')
+        : p.join(Directory.current.path, 'waytty', 'Recordings');
     recordingPath = prefs.getString('recordingPath') ?? defaultPath;
     dashboardViewMode = prefs.getString('dashboardViewMode') ?? 'grid';
     dashboardSort = prefs.getString('dashboardSort') ?? 'name_asc';

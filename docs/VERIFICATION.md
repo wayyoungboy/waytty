@@ -1,5 +1,14 @@
 # 本机构建与验收记录
 
+## 应用身份统一（2026-09-17）
+
+- 全部 1,217 个源码文件完成命名检查；文件名、产品文案、原生应用标识、存储路径、插件提示、同步接口和 Swift 原型使用 waytty 命名。中英文 1,348 条资源校验通过，307 个 Dart 界面文件的本地化检查无发现。
+- `script/check_crossplatform.sh`（启用隔离 SSH fixture）：1,889 项测试全部通过，Flutter 静态分析无问题。Swift 原型 14 项测试通过，临时 PostgreSQL 中的同步 RPC 权限与令牌隔离测试通过。
+- 全量测试发现并修复已有 SSH 时序问题：在发送 exec / shell 请求前注册会话的退出状态监听，避免快速结束的命令在请求确认到达时丢失退出码。回环回归包含连续 20 次快速 exec 与 10 次快速结束的 shell。监控测试改为精确匹配 CPU 百分比，避免时间字符串造成误报。
+- macOS 版本为 `0.0.1+2`，应用标识为 `io.github.wayyoungboy.waytty`。构建不会替换或重启正在运行的应用；早期开发包的数据需要按照[升级说明](UPGRADING.md)迁移。Windows、Android 及实际串口硬件的验收边界保持不变。
+
+## 初始检查
+
 环境：2026-09-13，macOS 26.6.2，Apple Silicon，Xcode 26.6，Flutter 3.47.2 / Dart 3.13.2。
 
 - `flutter analyze --no-pub`：无问题。
@@ -19,7 +28,7 @@
 
 ## 串口接入后的复验（2026-09-13）
 
-- `WAYTTY_SSH_FIXTURE_PYTHON=/tmp/xtn-ssh-fixture-env/bin/python ./script/check_crossplatform.sh`：1,773 项测试全部通过（没有跳过），Flutter 静态分析无问题；包含原有真实 SSH/SFTP 回环测试。
+- `WAYTTY_SSH_FIXTURE_PYTHON=/tmp/waytty-ssh-fixture-env/bin/python ./script/check_crossplatform.sh`：1,773 项测试全部通过（没有跳过），Flutter 静态分析无问题；包含原有真实 SSH/SFTP 回环测试。
 - 其中新增串口专项 19 项：会话与设备独占、字节/中文/HEX、部分写入及停止、迟到打开/断线、缓存、配置损坏保留、中英文 UI，以及模拟 Android 原生通道的身份/权限取消/写入结果。
 - 专项覆盖率记录：串口会话 121/142 行，Android Dart 通道 58/67 行，配置仓库 34/35 行。原生 Kotlin 和桌面 FFI 的硬件行为不计入这组模拟测试结论；UI 与其他原生分支未达到同样的覆盖率。
 - 1,063 条中英文资源校验通过。串口入口默认中文，420 像素宽的英文配置页未出现溢出。

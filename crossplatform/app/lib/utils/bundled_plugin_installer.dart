@@ -10,13 +10,13 @@ class BundledPluginInstaller {
     ],
   };
 
-  /// Copies bundled plugin assets to `~/.xterminal-native/plugins/<name>/` if not already present.
+  /// Copies bundled plugin assets to `~/.waytty/plugins/<name>/` if not already present.
   /// Never overwrites an existing installation.
   static Future<void> ensureInstalled(String pluginName) async {
     final home = Platform.isWindows
         ? Platform.environment['USERPROFILE']!
         : Platform.environment['HOME']!;
-    final target = Directory('$home/.xterminal-native/plugins/$pluginName');
+    final target = Directory('$home/.waytty/plugins/$pluginName');
     if (target.existsSync()) return;
 
     target.createSync(recursive: true);

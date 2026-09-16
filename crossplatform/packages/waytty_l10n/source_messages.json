@@ -630,7 +630,7 @@
   "Download URL copied to clipboard": [
     "../packages/yourssh_devops/lib/src/screens/s3_browser_screen.dart"
   ],
-  "Drop a plugin folder into ~/.xterminal-native/plugins/\nEach folder needs plugin.json + index.js. Hot-reloaded on change.": [
+  "Drop a plugin folder into ~/.waytty/plugins/\nEach folder needs plugin.json + index.js. Hot-reloaded on change.": [
     "lib/widgets/plugin_manager_screen.dart"
   ],
   "Dynamic": [
@@ -1046,7 +1046,7 @@
   "Load more": [
     "lib/widgets/audit_screen.dart"
   ],
-  "Loaded from ~/.xterminal-native/plugins/ — hot-reloaded on change.": [
+  "Loaded from ~/.waytty/plugins/ — hot-reloaded on change.": [
     "lib/widgets/plugin_manager_screen.dart"
   ],
   "Local": [
@@ -1839,7 +1839,7 @@
     "lib/widgets/host_detail_panel.dart"
   ],
   "SSH": [
-    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/connection_center.dart",
     "lib/widgets/host_detail_panel.dart"
   ],
   "SSH Agent": [
@@ -2207,7 +2207,7 @@
     "lib/widgets/containers_screen.dart"
   ],
   "Telnet": [
-    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/connection_center.dart",
     "lib/widgets/host_detail_panel.dart"
   ],
   "Terminal": [
@@ -2619,7 +2619,7 @@
     "lib/widgets/plugin_consent_dialog.dart"
   ],
   "{0} 个连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "{0}ms": [
     "lib/widgets/hosts_dashboard.dart",
@@ -2644,10 +2644,10 @@
     "lib/screens/notes_screen.dart"
   ],
   "例如：工作 / 生产环境": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "保存": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "保存中…": [
     "lib/screens/notes_screen.dart"
@@ -2671,7 +2671,7 @@
     "lib/screens/mcp_screen.dart"
   ],
   "全部分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "关联分组": [
     "lib/screens/notes_screen.dart"
@@ -2680,19 +2680,19 @@
     "lib/screens/notes_screen.dart"
   ],
   "关闭": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "分组": [
     "lib/widgets/host_detail_panel.dart"
   ],
   "分组侧栏": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "分组操作": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "分组路径": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "切换预览": [
     "lib/screens/notes_screen.dart"
@@ -2702,10 +2702,10 @@
   ],
   "删除": [
     "lib/screens/notes_screen.dart",
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "删除“{0}”及其保存的凭据？": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "删除“{0}”？": [
     "lib/screens/notes_screen.dart"
@@ -2714,23 +2714,23 @@
     "lib/screens/notes_screen.dart"
   ],
   "删除连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "发送": [
     "lib/widgets/ai_chat_sidebar.dart"
   ],
   "取消": [
     "lib/screens/notes_screen.dart",
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "取消收藏": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "可信主机": [
     "lib/screens/main_screen.dart"
   ],
   "名称": [
-    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/connection_center.dart",
     "lib/widgets/host_detail_panel.dart"
   ],
   "启用本机 MCP": [
@@ -2743,7 +2743,7 @@
     "lib/widgets/ai_chat_sidebar.dart"
   ],
   "地址": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "基本信息": [
     "lib/widgets/host_detail_panel.dart"
@@ -2752,13 +2752,13 @@
     "lib/widgets/host_detail_panel.dart"
   ],
   "备注 / 标签": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "复制客户端配置（含访问令牌）": [
     "lib/screens/mcp_screen.dart"
   ],
   "复制连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "密码": [
     "lib/widgets/host_detail_panel.dart"
@@ -2773,16 +2773,16 @@
     "lib/screens/notes_screen.dart"
   ],
   "导入与导出": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "导入连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "导出 Markdown": [
     "lib/screens/notes_screen.dart"
   ],
   "导出当前列表（不含密码）": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "工具": [
     "lib/screens/main_screen.dart"
@@ -2803,7 +2803,7 @@
     "lib/widgets/host_detail_panel.dart"
   ],
   "搜索名称、地址、分组或备注": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "搜索笔记": [
     "lib/screens/notes_screen.dart"
@@ -2815,13 +2815,13 @@
     "lib/screens/notes_screen.dart"
   ],
   "收藏": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "新建 SSH 连接": [
     "lib/screens/main_screen.dart"
   ],
   "新建分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "新建本地终端": [
     "lib/screens/main_screen.dart"
@@ -2830,11 +2830,11 @@
     "lib/screens/notes_screen.dart"
   ],
   "新建连接": [
-    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/connection_center.dart",
     "lib/widgets/host_detail_panel.dart"
   ],
   "未分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "未命名笔记": [
     "lib/screens/notes_screen.dart"
@@ -2849,13 +2849,13 @@
     "lib/widgets/host_detail_panel.dart"
   ],
   "没有匹配的连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "添加并连接 SSH 主机后，可在这里授权。": [
     "lib/screens/mcp_screen.dart"
   ],
   "添加连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "清空对话": [
     "lib/widgets/ai_chat_sidebar.dart"
@@ -2867,13 +2867,13 @@
     "lib/widgets/host_detail_panel.dart"
   ],
   "移除“{0}”及子分组，其中的连接和凭据将保留为未分组。": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "移除分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "移除分组，保留连接": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "端口转发": [
     "lib/screens/main_screen.dart"
@@ -2887,14 +2887,14 @@
     "lib/screens/notes_screen.dart"
   ],
   "筛选分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "终端录制": [
     "lib/screens/main_screen.dart"
   ],
   "编辑连接": [
     "lib/widgets/host_detail_panel.dart",
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "自定义 API 完整地址（回车保存）": [
     "lib/widgets/settings_screen.dart"
@@ -2918,20 +2918,20 @@
   "连接": [
     "lib/screens/main_screen.dart",
     "lib/widgets/host_detail_panel.dart",
-    "lib/widgets/x_connection_center.dart",
+    "lib/widgets/connection_center.dart",
     "lib/mobile/screens/mobile_home_shell.dart"
   ],
   "连接分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "连接所选 ({0})": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "连接操作": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "重命名 / 移动分组": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "重新连接": [
     "lib/widgets/telnet_terminal_pane.dart"
@@ -2940,7 +2940,7 @@
     "lib/screens/notes_screen.dart"
   ],
   "隧道": [
-    "lib/widgets/x_connection_center.dart"
+    "lib/widgets/connection_center.dart"
   ],
   "Interface language": [
     "manual"

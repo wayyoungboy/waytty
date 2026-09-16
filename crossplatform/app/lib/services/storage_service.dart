@@ -19,7 +19,7 @@ class StorageService {
   /// unsandboxed build. Changing the ad-hoc signature between versions can
   /// make macOS re-prompt for access to items the previous build wrote.
   static const macOsKeychainOptions = MacOsOptions(
-    accountName: 'dev.local.xterminal',
+    accountName: 'io.github.wayyoungboy.waytty',
     useDataProtectionKeyChain: false,
   );
 

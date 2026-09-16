@@ -76,10 +76,10 @@ void main() {
               localPort: 22,
               process: 'sshd'),
         ],
-        timestamp: DateTime.now(),
+        timestamp: DateTime(2026, 9, 17, 12, 42, 42),
       ));
       await tester.pump();
-      expect(find.textContaining('42'), findsOneWidget);
+      expect(find.text('42.5%'), findsOneWidget);
       await tester.drag(find.byType(ListView), const Offset(0, -300));
       await tester.pump();
       expect(find.textContaining('sshd'), findsOneWidget);

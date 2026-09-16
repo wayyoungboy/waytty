@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FLUTTER_BIN="${WAYTTY_FLUTTER:-${XTN_FLUTTER:-$HOME/.local/share/xtn-toolchains/flutter/bin/flutter}}"
+FLUTTER_BIN="${WAYTTY_FLUTTER:-$(command -v flutter)}"
 MODE="${1:---verify}"
 case "$MODE" in run|--build|--verify|--release) ;; *) echo "Usage: $0 [run|--build|--verify|--release]" >&2; exit 2 ;; esac
 if [[ ! -x "$FLUTTER_BIN" ]]; then FLUTTER_BIN="$(command -v flutter)"; fi

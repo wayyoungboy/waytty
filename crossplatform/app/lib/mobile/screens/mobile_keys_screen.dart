@@ -314,7 +314,7 @@ class _GenerateSheetState extends State<_GenerateSheet> {
 
   Future<String> _keysDir() async {
     final docs = await getApplicationDocumentsDirectory();
-    final dir = Directory('${docs.path}/XTerminalNative/keys');
+    final dir = Directory('${docs.path}/waytty/keys');
     if (!dir.existsSync()) dir.createSync(recursive: true);
     return dir.path;
   }

@@ -10,7 +10,7 @@ WAYTTY_FLUTTER=/path/to/flutter/bin/flutter ./script/package_macos_release.sh
 
 脚本只构建和打包，不会停止或启动已有 waytty。安装包是 macOS 开发版，ad-hoc 签名，未做 Developer ID 签名或 Apple 公证。
 
-`waytty-0.0.1-macos-universal.zip` 适用于 macOS 12 及以上，包含 Apple Silicon 和 Intel 两种架构。应用版本为 `0.0.1`，构建号为 `1`。Release 的 `SHA256SUMS.txt` 可用于校验下载；解压后将 `waytty.app` 放入 Applications。
+`waytty-0.0.1-macos-universal.zip` 适用于 macOS 12 及以上，包含 Apple Silicon 和 Intel 两种架构。应用版本为 `0.0.1`，构建号为 `2`。Release 的 `SHA256SUMS.txt` 可用于校验下载；解压后将 `waytty.app` 放入 Applications。从早期开发包升级前，请先阅读[数据迁移说明](UPGRADING.md)。
 
 在公开发布前，使用中性路径下的源码、Flutter SDK 和 `PUB_CACHE` 构建，再检查所有二进制和资源的字符串，避免绝对路径泄露个人目录。不要上传本地 `dist/updates/` 中的旧开发包。
 

@@ -1,6 +1,6 @@
 # Third-party notices for waytty
 
-waytty is an independently modified application based on YourSSH, not an official XTerminal or YourSSH release. No XTerminal code, proprietary assets or saved user data is included.
+waytty is an independently maintained application based on the MIT-licensed YourSSH project. The upstream authors' copyright and license notices are preserved below and in the source tree. No saved user data is included.
 
 ## YourSSH
 

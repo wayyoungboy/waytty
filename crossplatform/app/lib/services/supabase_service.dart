@@ -8,18 +8,18 @@ class SupabaseService {
   static const migrationSql = r'''
 -- waytty sync v1. Only capability-bearing RPCs can access ciphertext.
 -- The sync code / encryption key is never sent to the database.
-create table if not exists public.xtn_sync_data (
+create table if not exists public.waytty_sync_data (
   token_hash text primary key,
   payload text not null,
   updated_at timestamptz not null default now()
 );
-alter table public.xtn_sync_data enable row level security;
-revoke all on public.xtn_sync_data from public, anon, authenticated;
+alter table public.waytty_sync_data enable row level security;
+revoke all on public.waytty_sync_data from public, anon, authenticated;
 
-create or replace function public.xtn_sync_ping()
+create or replace function public.waytty_sync_ping()
 returns integer language sql immutable set search_path = '' as $$ select 1 $$;
 
-create or replace function public.xtn_sync_get(access_token text)
+create or replace function public.waytty_sync_get(access_token text)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare result jsonb;
 begin
@@ -27,12 +27,12 @@ begin
     raise exception 'Invalid access token' using errcode = '22023';
   end if;
   select pg_catalog.jsonb_build_object('payload', s.payload, 'updated_at', s.updated_at)
-    into result from public.xtn_sync_data s
+    into result from public.waytty_sync_data s
     where s.token_hash = pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(access_token, 'UTF8')), 'hex');
   return result;
 end $$;
 
-create or replace function public.xtn_sync_put(access_token text, encrypted_payload text)
+create or replace function public.waytty_sync_put(access_token text, encrypted_payload text)
 returns void language plpgsql security definer set search_path = '' as $$
 begin
   if access_token is null or access_token !~ '^[a-f0-9]{64}$' then
@@ -42,29 +42,29 @@ begin
       or pg_catalog.octet_length(encrypted_payload) > 16777216 then
     raise exception 'Invalid ciphertext' using errcode = '22023';
   end if;
-  insert into public.xtn_sync_data(token_hash, payload, updated_at)
+  insert into public.waytty_sync_data(token_hash, payload, updated_at)
     values(pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(access_token, 'UTF8')), 'hex'), encrypted_payload, pg_catalog.now())
     on conflict(token_hash) do update set payload = excluded.payload, updated_at = excluded.updated_at;
 end $$;
 
-create or replace function public.xtn_sync_delete(access_token text)
+create or replace function public.waytty_sync_delete(access_token text)
 returns void language plpgsql security definer set search_path = '' as $$
 begin
   if access_token is null or access_token !~ '^[a-f0-9]{64}$' then
     raise exception 'Invalid access token' using errcode = '22023';
   end if;
-  delete from public.xtn_sync_data s
+  delete from public.waytty_sync_data s
     where s.token_hash = pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(access_token, 'UTF8')), 'hex');
 end $$;
 
-revoke all on function public.xtn_sync_ping() from public;
-revoke all on function public.xtn_sync_get(text) from public;
-revoke all on function public.xtn_sync_put(text, text) from public;
-revoke all on function public.xtn_sync_delete(text) from public;
-grant execute on function public.xtn_sync_ping() to anon, authenticated;
-grant execute on function public.xtn_sync_get(text) to anon, authenticated;
-grant execute on function public.xtn_sync_put(text, text) to anon, authenticated;
-grant execute on function public.xtn_sync_delete(text) to anon, authenticated;
+revoke all on function public.waytty_sync_ping() from public;
+revoke all on function public.waytty_sync_get(text) from public;
+revoke all on function public.waytty_sync_put(text, text) from public;
+revoke all on function public.waytty_sync_delete(text) from public;
+grant execute on function public.waytty_sync_ping() to anon, authenticated;
+grant execute on function public.waytty_sync_get(text) to anon, authenticated;
+grant execute on function public.waytty_sync_put(text, text) to anon, authenticated;
+grant execute on function public.waytty_sync_delete(text) to anon, authenticated;
 ''';
 
   final String _url;
@@ -90,7 +90,7 @@ grant execute on function public.xtn_sync_delete(text) to anon, authenticated;
           bits: 256,
         ).deriveKey(
           secretKey: SecretKey(utf8.encode(code)),
-          nonce: utf8.encode('xterminal-access-v1'),
+          nonce: utf8.encode('waytty-access-v1'),
         );
     return (await key.extractBytes())
         .map((b) => b.toRadixString(16).padLeft(2, '0'))
@@ -107,7 +107,7 @@ grant execute on function public.xtn_sync_delete(text) to anon, authenticated;
   /// Returns (TestConnectionOutcome, errorMessage).
   Future<(TestConnectionOutcome, String?)> testConnection() async {
     try {
-      await _client.rpc('xtn_sync_ping');
+      await _client.rpc('waytty_sync_ping');
       return (TestConnectionOutcome.connected, null);
     } on PostgrestException catch (e) {
       if (e.code == '42P01' || e.message.contains('schema cache')) {
@@ -121,7 +121,7 @@ grant execute on function public.xtn_sync_delete(text) to anon, authenticated;
 
   Future<Map<String, dynamic>?> _fetch() async {
     final value = await _client.rpc(
-      'xtn_sync_get',
+      'waytty_sync_get',
       params: {'access_token': await _accessToken},
     );
     return value == null ? null : Map<String, dynamic>.from(value as Map);
@@ -137,7 +137,7 @@ grant execute on function public.xtn_sync_delete(text) to anon, authenticated;
 
   Future<void> upsertPayload(String payload) async {
     await _client.rpc(
-      'xtn_sync_put',
+      'waytty_sync_put',
       params: {
         'access_token': await _accessToken,
         'encrypted_payload': payload,
@@ -147,7 +147,7 @@ grant execute on function public.xtn_sync_delete(text) to anon, authenticated;
 
   Future<void> deleteRow() async {
     await _client.rpc(
-      'xtn_sync_delete',
+      'waytty_sync_delete',
       params: {'access_token': await _accessToken},
     );
   }

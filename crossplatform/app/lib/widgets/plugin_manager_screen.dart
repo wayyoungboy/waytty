@@ -119,7 +119,7 @@ class PluginManagerScreen extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             const LText(
-              "Drop a plugin folder into ~/.xterminal-native/plugins/\nEach folder needs plugin.json + index.js. Hot-reloaded on change.",
+              "Drop a plugin folder into ~/.waytty/plugins/\nEach folder needs plugin.json + index.js. Hot-reloaded on change.",
               style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
             ),
           ] else ...[
@@ -157,7 +157,7 @@ class PluginManagerScreen extends StatelessWidget {
               ),
             const SizedBox(height: 6),
             const LText(
-              "Loaded from ~/.xterminal-native/plugins/ — hot-reloaded on change.",
+              "Loaded from ~/.waytty/plugins/ — hot-reloaded on change.",
               style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
             ),
           ],

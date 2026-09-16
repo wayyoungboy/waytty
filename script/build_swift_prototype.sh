@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 MODE="${1:-run}"
-APP_NAME="XTerminalNative"
-BUNDLE_ID="dev.local.XTerminalNative"
+APP_NAME="WayttyPrototype"
+BUNDLE_ID="io.github.wayyoungboy.waytty.prototype"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 case "$MODE" in run|--verify|--debug|--logs|--telemetry|--build) ;; *) echo "Usage: $0 [--verify|--debug|--logs|--telemetry|--build]" >&2; exit 2;; esac
 
-# Only terminate our exact executable; never touch XTerminal or other terminals.
+# Only terminate our exact executable; never touch waytty or other terminals.
 if [[ "$MODE" != "--build" ]]; then pkill -x "$APP_NAME" >/dev/null 2>&1 || true; fi
 swift build --product "$APP_NAME"
 BUILD_DIR="$(swift build --show-bin-path)"
@@ -24,10 +24,10 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>CFBundleExecutable</key><string>XTerminalNative</string>
-<key>CFBundleIdentifier</key><string>dev.local.XTerminalNative</string>
-<key>CFBundleName</key><string>XTerminal Native</string>
-<key>CFBundleDisplayName</key><string>XTerminal Native</string>
+<key>CFBundleExecutable</key><string>WayttyPrototype</string>
+<key>CFBundleIdentifier</key><string>io.github.wayyoungboy.waytty.prototype</string>
+<key>CFBundleName</key><string>waytty</string>
+<key>CFBundleDisplayName</key><string>waytty</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>0.1.0</string>
 <key>CFBundleVersion</key><string>1</string>
