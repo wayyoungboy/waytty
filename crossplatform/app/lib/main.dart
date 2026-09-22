@@ -371,7 +371,7 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     _syncProvider = SyncProvider();
     _shareProvider = ShareProvider();
     _updateService = UpdateService();
-    _updateProvider = UpdateProvider(_updateService, currentVersion: kAppVersion, enabled: false);
+    _updateProvider = UpdateProvider(_updateService, currentVersion: kAppVersion);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateProvider.checkForUpdates();
     });

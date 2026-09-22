@@ -1453,5 +1453,11 @@
   "m_37cf68ac71fc": "Save private key",
   "m_8b5ef968b275": "Delete saved private key",
   "m_98c78695aae9": "Lock saved private keys",
-  "m_ed8c3f12494e": "Paste the private key when connecting and choose whether to save it with this connection."
+  "m_ed8c3f12494e": "Paste the private key when connecting and choose whether to save it with this connection.",
+  "m_f366f2924246": "Search name, address, user, group or tags",
+  "m_10afa98480f2": "Reset filters",
+  "m_4f494b22379b": "Download update",
+  "m_1cb7b834dba5": "Update downloaded — open the package and move waytty to Applications",
+  "m_fb075977f752": "Checks run only when you request them.",
+  "m_3b7ea51793e9": "Clear search"
 }

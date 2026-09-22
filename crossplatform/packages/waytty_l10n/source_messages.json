@@ -4541,5 +4541,23 @@
   ],
   "Paste the private key when connecting and choose whether to save it with this connection.": [
     "lib/widgets/host_detail_panel.dart"
+  ],
+  "Checks run only when you request them.": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Clear search": [
+    "lib/widgets/connection_center.dart"
+  ],
+  "Download update": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "Reset filters": [
+    "lib/widgets/connection_center.dart"
+  ],
+  "Update downloaded — open the package and move waytty to Applications": [
+    "lib/widgets/settings_screen.dart"
+  ],
+  "搜索名称、地址、用户名、分组或标签": [
+    "lib/widgets/connection_center.dart"
   ]
 }

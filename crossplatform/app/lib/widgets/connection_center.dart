@@ -26,7 +26,8 @@ class ConnectionCenter extends StatefulWidget {
   final ValueChanged<Host> onEdit;
   final Future<void> Function(Host) onConnect;
   final VoidCallback onImport, onNewGroup;
-  final Future<void> Function(SerialDeviceInfo, SerialConfig, SerialBackend)? onSerialConnect;
+  final Future<void> Function(SerialDeviceInfo, SerialConfig, SerialBackend)?
+  onSerialConnect;
   @override
   State<ConnectionCenter> createState() => _ConnectionCenterState();
 }
@@ -39,9 +40,34 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
   bool _showGroups = true;
   bool _serial = false;
   String? _error;
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() => _query = '');
+  }
+
+  void _resetFilters() {
+    _searchController.clear();
+    setState(() {
+      _query = '';
+      _group = null;
+      _filter = '全部';
+    });
+  }
 
   List<Host> _filtered(HostProvider provider) {
-    final q = _query.toLowerCase();
+    final terms = _query
+        .toLowerCase()
+        .split(RegExp(r'\s+'))
+        .where((term) => term.isNotEmpty)
+        .toList();
     final hosts = provider.allHosts
         .where(
           (h) =>
@@ -52,13 +78,16 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
               (_filter != '收藏' || h.favorite) &&
               (_filter != '最近' || h.lastUsedAt != null) &&
               (_filter != '常用' || h.connectionCount > 0) &&
-              [
-                h.label,
-                h.host,
-                h.group,
-                h.note,
-                ...h.tags,
-              ].any((s) => s.toLowerCase().contains(q)),
+              terms.every(
+                (term) => [
+                  h.label,
+                  h.host,
+                  h.username,
+                  h.group,
+                  h.note,
+                  ...h.tags,
+                ].any((s) => s.toLowerCase().contains(term)),
+              ),
         )
         .toList();
     if (_filter == '最近') {
@@ -88,6 +117,9 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
   Widget build(BuildContext context) {
     final provider = context.watch<HostProvider>();
     final hosts = _filtered(provider);
+    final selectedHosts = hosts
+        .where((host) => _selected.contains(host.id))
+        .toList();
     final groups = {
       ...provider.pinnedGroups,
       ...provider.allHosts.map((h) => h.group),
@@ -119,9 +151,22 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                 HostProtocol.telnet,
               ),
               if (widget.onSerialConnect != null)
-                TextButton.icon(onPressed: () => setState(() => _serial = true),
-                  icon: Icon(Icons.cable, size: 15, color: _serial ? AppColors.accent : AppColors.textSecondary),
-                  label: LText('Serial', style: TextStyle(color: _serial ? AppColors.accent : AppColors.textSecondary))),
+                TextButton.icon(
+                  onPressed: () => setState(() => _serial = true),
+                  icon: Icon(
+                    Icons.cable,
+                    size: 15,
+                    color: _serial ? AppColors.accent : AppColors.textSecondary,
+                  ),
+                  label: LText(
+                    'Serial',
+                    style: TextStyle(
+                      color: _serial
+                          ? AppColors.accent
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
               _protocolTab('隧道', Icons.alt_route, null),
               const Spacer(),
               if (_protocol != null && !_serial)
@@ -134,14 +179,16 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
           ),
         ),
         if (_serial)
-          Expanded(child: SerialConnectionPanel(onConnect: widget.onSerialConnect!))
+          Expanded(
+            child: SerialConnectionPanel(onConnect: widget.onSerialConnect!),
+          )
         else if (_protocol == null)
           const Expanded(child: PortForwardingScreen())
         else
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final wide = constraints.maxWidth >= 750;
+                final wide = constraints.maxWidth >= 960;
                 return Row(
                   children: [
                     if (wide && _showGroups)
@@ -159,15 +206,17 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                               padding: const EdgeInsets.fromLTRB(16, 14, 8, 10),
                               child: Row(
                                 children: [
-                                  const Expanded(child: LText(
-                                    "连接分组",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 12,
+                                  const Expanded(
+                                    child: LText(
+                                      "连接分组",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 12,
+                                      ),
                                     ),
-                                  )),
+                                  ),
                                   IconButton(
                                     onPressed: widget.onNewGroup,
                                     tooltip: tr(context, "新建分组"),
@@ -226,7 +275,11 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                             Padding(
                               padding: const EdgeInsets.all(14),
                               child: LText(
-                                LMessage("{0} 个连接", [provider.allHosts.where((h) => h.protocol == _protocol).length]),
+                                LMessage("{0} 个连接", [
+                                  provider.allHosts
+                                      .where((h) => h.protocol == _protocol)
+                                      .length,
+                                ]),
                                 style: const TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: 11,
@@ -272,10 +325,14 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                                   child: SizedBox(
                                     height: 34,
                                     child: TextField(
+                                      controller: _searchController,
                                       onChanged: (s) =>
                                           setState(() => _query = s),
-                                      decoration:  InputDecoration(
-                                        hintText: tr(context, "搜索名称、地址、分组或备注"),
+                                      decoration: InputDecoration(
+                                        hintText: tr(
+                                          context,
+                                          "搜索名称、地址、用户名、分组或标签",
+                                        ),
                                         filled: true,
                                         fillColor: Color(0xFF1E1E1E),
                                         border: OutlineInputBorder(
@@ -288,22 +345,38 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                                           Icons.search,
                                           size: 17,
                                         ),
+                                        suffixIcon: _query.isEmpty
+                                            ? null
+                                            : IconButton(
+                                                tooltip: tr(
+                                                  context,
+                                                  'Clear search',
+                                                ),
+                                                onPressed: _clearSearch,
+                                                icon: const Icon(
+                                                  Icons.close,
+                                                  size: 16,
+                                                ),
+                                              ),
                                         contentPadding: EdgeInsets.zero,
                                       ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                if (_selected.isNotEmpty)
+                                if (selectedHosts.isNotEmpty)
                                   TextButton(
                                     onPressed: () async {
-                                      for (final h in hosts.where(
-                                        (h) => _selected.contains(h.id),
-                                      )) {
+                                      for (final h in selectedHosts) {
+                                        if (!mounted) break;
                                         await _connect(h);
                                       }
                                     },
-                                    child: LText(LMessage("连接所选 ({0})", [_selected.length])),
+                                    child: LText(
+                                      LMessage("连接所选 ({0})", [
+                                        selectedHosts.length,
+                                      ]),
+                                    ),
                                   ),
                                 PopupMenuButton<String>(
                                   tooltip: tr(context, "导入与导出"),
@@ -360,7 +433,7 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                                   flex: 2,
                                   child: LText("备注 / 标签", style: _caption),
                                 ),
-                                SizedBox(width: 112),
+                                SizedBox(width: 160),
                               ],
                             ),
                           ),
@@ -377,23 +450,62 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                                         ),
                                         const SizedBox(height: 16),
                                         LText(
-                                          _query.isNotEmpty
+                                          _query.trim().isNotEmpty
                                               ? '没有匹配的连接'
                                               : _group != null
-                                                  ? LMessage('“{0}”中还没有连接', [_group])
-                                                  : _filter == '全部'
-                                                      ? '还没有连接'
-                                                      : LMessage('暂无{0}连接', [LMessage(_filter, const [])]),
+                                              ? LMessage('“{0}”中还没有连接', [
+                                                  _group,
+                                                ])
+                                              : _filter == '全部'
+                                              ? '还没有连接'
+                                              : LMessage('暂无{0}连接', [
+                                                  LMessage(_filter, const []),
+                                                ]),
                                           style: const TextStyle(
                                             color: AppColors.textSecondary,
                                           ),
                                         ),
                                         const SizedBox(height: 12),
-                                        TextButton.icon(
-                                          onPressed: () =>
-                                              widget.onAdd(_protocol!, _group),
-                                          icon: const Icon(Icons.add, size: 16),
-                                          label: const LText("添加连接"),
+                                        Wrap(
+                                          alignment: WrapAlignment.center,
+                                          spacing: 8,
+                                          children: [
+                                            if (_query.trim().isNotEmpty ||
+                                                _group != null ||
+                                                _filter != '全部')
+                                              TextButton.icon(
+                                                onPressed: _resetFilters,
+                                                icon: const Icon(
+                                                  Icons.filter_alt_off_outlined,
+                                                  size: 16,
+                                                ),
+                                                label: const LText(
+                                                  'Reset filters',
+                                                ),
+                                              ),
+                                            TextButton.icon(
+                                              onPressed: () => widget.onAdd(
+                                                _protocol!,
+                                                _group,
+                                              ),
+                                              icon: const Icon(
+                                                Icons.add,
+                                                size: 16,
+                                              ),
+                                              label: const LText("添加连接"),
+                                            ),
+                                            if (_query.trim().isEmpty &&
+                                                _group == null &&
+                                                _filter == '全部')
+                                              TextButton.icon(
+                                                onPressed: widget.onImport,
+                                                icon: const Icon(
+                                                  Icons.file_download_outlined,
+                                                  size: 16,
+                                                ),
+                                                label: const LText('导入连接'),
+                                              ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -505,7 +617,10 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                     icon: const Icon(Icons.more_horiz, size: 15),
                     onSelected: (action) => _groupAction(groupPath, action),
                     itemBuilder: (_) => const [
-                      PopupMenuItem(value: 'rename', child: LText("重命名 / 移动分组")),
+                      PopupMenuItem(
+                        value: 'rename',
+                        child: LText("重命名 / 移动分组"),
+                      ),
                       PopupMenuItem(
                         value: 'dissolve',
                         child: LText("移除分组，保留连接"),
@@ -599,20 +714,29 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
             Expanded(
               flex: 2,
               child: LText(
-                host.note.isNotEmpty ? LRaw(host.note) : LRaw(host.tags.join(' · ')),
+                host.note.isNotEmpty
+                    ? LRaw(host.note)
+                    : LRaw(host.tags.join(' · ')),
                 style: _caption,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             SizedBox(
-              width: 112,
+              width: 160,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
-                    onPressed: () => _connect(host),
-                    child: const LText("连接"),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => _connect(host),
+                      child: const LText(
+                        "Connect",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
                   ),
                   PopupMenuButton<String>(
                     tooltip: tr(context, "连接操作"),
@@ -630,7 +754,9 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const LText("删除连接"),
-                            content: LText(LMessage("删除“{0}”及其保存的凭据？", [host.label])),
+                            content: LText(
+                              LMessage("删除“{0}”及其保存的凭据？", [host.label]),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
@@ -685,7 +811,7 @@ class _ConnectionCenterState extends State<ConnectionCenter> {
           content: TextFormField(
             initialValue: group,
             autofocus: true,
-            decoration:  InputDecoration(
+            decoration: InputDecoration(
               labelText: tr(context, "分组路径"),
               hintText: tr(context, "例如：工作 / 生产环境"),
             ),

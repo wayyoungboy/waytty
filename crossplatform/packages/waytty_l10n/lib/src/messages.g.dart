@@ -1454,7 +1454,13 @@ const wayttyMessages = <String, Map<String, String>>{
     "Save private key": "保存私钥",
     "Delete saved private key": "删除已保存的私钥",
     "Lock saved private keys": "锁定已保存的私钥",
-    "Paste the private key when connecting and choose whether to save it with this connection.": "连接时粘贴私钥，并选择是否随此连接保存。"
+    "Paste the private key when connecting and choose whether to save it with this connection.": "连接时粘贴私钥，并选择是否随此连接保存。",
+    "Checks run only when you request them.": "仅在你主动检查时联网。",
+    "Clear search": "清空搜索",
+    "Download update": "下载更新",
+    "Reset filters": "重置筛选",
+    "Update downloaded — open the package and move waytty to Applications": "更新已下载，请打开安装包并将 waytty 移入“应用程序”",
+    "搜索名称、地址、用户名、分组或标签": "搜索名称、地址、用户名、分组或标签"
   },
   "en": {
     " · {0} cancelled": " · {0} cancelled",
@@ -2910,6 +2916,12 @@ const wayttyMessages = <String, Map<String, String>>{
     "Save private key": "Save private key",
     "Delete saved private key": "Delete saved private key",
     "Lock saved private keys": "Lock saved private keys",
-    "Paste the private key when connecting and choose whether to save it with this connection.": "Paste the private key when connecting and choose whether to save it with this connection."
+    "Paste the private key when connecting and choose whether to save it with this connection.": "Paste the private key when connecting and choose whether to save it with this connection.",
+    "Checks run only when you request them.": "Checks run only when you request them.",
+    "Clear search": "Clear search",
+    "Download update": "Download update",
+    "Reset filters": "Reset filters",
+    "Update downloaded — open the package and move waytty to Applications": "Update downloaded — open the package and move waytty to Applications",
+    "搜索名称、地址、用户名、分组或标签": "Search name, address, user, group or tags"
   }
 };

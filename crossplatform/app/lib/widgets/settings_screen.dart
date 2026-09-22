@@ -277,6 +277,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (update.enabled) _Section(title: tr(context, "Updates"), children: [
                   _Row(
                     label: tr(context, "Current version"),
+                    subtitle: tr(context, 'Checks run only when you request them.'),
                     trailing: LText(
                       LMessage("v{0}", [update.currentVersion]),
                       style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
@@ -303,7 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     textStyle: const TextStyle(fontSize: 12),
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   ),
-                                  child: const LText("Download & install"),
+                                  child: const LText("Download update"),
                                 ),
                                 const SizedBox(width: 8),
                               ],
@@ -356,7 +357,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case UpdateStatus.downloading:
         return 'Downloading…';
       case UpdateStatus.readyToInstall:
-        return 'Installer opened — complete it to finish updating';
+        return 'Update downloaded — open the package and move waytty to Applications';
       case UpdateStatus.error:
         return u.errorMessage ?? 'Could not check for updates';
       case UpdateStatus.idle:

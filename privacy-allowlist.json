@@ -251,6 +251,13 @@
       "scope": "lines",
       "sha256": "05a5930538b64f51f02002d92cb4d78d199736f39b65a480faf309a474f00589",
       "reason": "Reviewed saved-key locking and manual key-pasting UI translations; the detected value is a generated message identifier"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "4b4724d3e52480ffa6aa43602899e55f3934499040c172dc5bdb032a9546d21a",
+      "reason": "Reviewed saved-key help and search UI labels; the detected value is a generated translation identifier, not a credential"
     }
   ]
 }

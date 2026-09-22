@@ -19,15 +19,17 @@ class UpdateException implements Exception {
 class UpdateService {
   UpdateService({
     http.Client? client,
-    this.repo = 'YoursshLabs/yourssh',
+    this.repo = 'wayyoungboy/waytty',
+    this.requestTimeout = const Duration(seconds: 20),
     Directory? downloadDir,
-  })  : _client = client ?? http.Client(),
-        // ignore: prefer_initializing_formals
-        _downloadDir = downloadDir;
+  }) : _client = client ?? http.Client(),
+       // ignore: prefer_initializing_formals
+       _downloadDir = downloadDir;
 
   final http.Client _client;
   final Directory? _downloadDir;
   final String repo;
+  final Duration requestTimeout;
 
   static final RegExp _versionSuffix = RegExp(r'[-+]');
 
@@ -40,6 +42,7 @@ class UpdateService {
     if (current.trim().isEmpty) return false;
     final a = _parse(current);
     final b = _parse(latest);
+    if (a == null || b == null) return false;
     for (var i = 0; i < 3; i++) {
       if (b[i] > a[i]) return true;
       if (b[i] < a[i]) return false;
@@ -48,13 +51,18 @@ class UpdateService {
   }
 
   /// Parses `major.minor.patch` into a 3-int list. Strips a leading `v` and
-  /// drops anything from the first `-` or `+`. Missing/garbage segments -> 0.
-  List<int> _parse(String raw) {
+  /// drops anything from the first `-` or `+`. Missing segments -> 0;
+  /// malformed numeric versions are rejected.
+  List<int>? _parse(String raw) {
     var s = raw.trim();
     if (s.startsWith('v') || s.startsWith('V')) s = s.substring(1);
     final cut = s.indexOf(_versionSuffix);
     if (cut != -1) s = s.substring(0, cut);
     final parts = s.split('.');
+    if (parts.length > 3 ||
+        parts.any((part) => !RegExp(r'^\d+$').hasMatch(part))) {
+      return null;
+    }
     final out = <int>[0, 0, 0];
     for (var i = 0; i < 3 && i < parts.length; i++) {
       out[i] = int.tryParse(parts[i]) ?? 0;
@@ -80,8 +88,13 @@ class UpdateService {
           // arm64-only name older releases shipped. Intel must not — an
           // arm64-only DMG would install but never launch there.
           return arch == 'arm64'
-              ? const ['macOS-universal.dmg', 'macOS-arm64.dmg']
-              : const ['macOS-universal.dmg'];
+              ? const [
+                  'macos-universal.dmg',
+                  'macos-universal.zip',
+                  'macos-arm64.dmg',
+                  'macos-arm64.zip',
+                ]
+              : const ['macos-universal.dmg', 'macos-universal.zip'];
         case 'linux':
           return arch == 'arm64'
               ? const ['_arm64.deb', 'Linux-arm64.tar.gz']
@@ -111,7 +124,7 @@ class UpdateService {
 
     for (final frag in candidates()) {
       for (final a in release.assets) {
-        if (a.name.contains(frag)) return a;
+        if (a.name.toLowerCase().endsWith(frag.toLowerCase())) return a;
       }
     }
     return null;
@@ -123,10 +136,15 @@ class UpdateService {
   Future<AppRelease> fetchLatestRelease() async {
     final uri = Uri.parse('https://api.github.com/repos/$repo/releases/latest');
     try {
-      final res = await _client.get(uri, headers: const {
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-      });
+      final res = await _client
+          .get(
+            uri,
+            headers: const {
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+            },
+          )
+          .timeout(requestTimeout);
       if (res.statusCode != 200) {
         throw UpdateException('GitHub responded ${res.statusCode}');
       }
@@ -151,19 +169,24 @@ class UpdateService {
       // against a pre-universal (arm64-only) release they fall back to the
       // browser rather than being handed a DMG that can't launch.
       try {
-        final m = Process.runSync('uname', const ['-m']).stdout.toString().trim();
+        final m = Process.runSync('uname', const [
+          '-m',
+        ]).stdout.toString().trim();
         return (m == 'arm64' || m == 'aarch64') ? 'arm64' : 'x64';
       } catch (_) {
         return 'arm64';
       }
     }
     if (Platform.isWindows) {
-      final p = (Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '').toUpperCase();
+      final p = (Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '')
+          .toUpperCase();
       return p.contains('ARM64') ? 'arm64' : 'x64';
     }
     if (Platform.isLinux) {
       try {
-        final m = Process.runSync('uname', const ['-m']).stdout.toString().trim();
+        final m = Process.runSync('uname', const [
+          '-m',
+        ]).stdout.toString().trim();
         return (m == 'aarch64' || m == 'arm64') ? 'arm64' : 'amd64';
       } catch (_) {
         return 'amd64';
@@ -192,72 +215,87 @@ class UpdateService {
     if (uri == null || uri.scheme != 'https') {
       throw UpdateException('Download URL must use HTTPS: $rawUrl');
     }
-    final dir = _downloadDir ?? await getDownloadsDirectory() ?? await getTemporaryDirectory();
-    final file = File('${dir.path}/${asset.name}');
-    final req = http.Request('GET', uri);
-    final res = await _client.send(req);
-    if (res.statusCode != 200) {
-      throw UpdateException('Download failed (${res.statusCode})');
+    if (asset.name.isEmpty ||
+        asset.name == '.' ||
+        asset.name == '..' ||
+        asset.name.contains(RegExp(r'[\\/\x00-\x1f:]'))) {
+      throw UpdateException('Invalid download filename');
     }
-    final total = res.contentLength ?? asset.size;
-    var received = 0;
-    final sink = file.openWrite();
+    Directory? staging;
+    IOSink? sink;
     final digestOutput = AccumulatorSink<Digest>();
     final digestInput = sha256.startChunkedConversion(digestOutput);
     try {
-      await for (final chunk in res.stream) {
+      final dir =
+          _downloadDir ??
+          await getDownloadsDirectory() ??
+          await getTemporaryDirectory();
+      // Each attempt owns its directory; retries never truncate an existing file.
+      staging = await dir.createTemp('waytty-update-');
+      final file = File('${staging.path}/${asset.name}');
+      final req = http.Request('GET', uri);
+      final res = await _client.send(req).timeout(requestTimeout);
+      if (res.statusCode != 200) {
+        await res.stream.listen((_) {}).cancel();
+        throw UpdateException('Download failed (${res.statusCode})');
+      }
+      final total = asset.size > 0 ? asset.size : res.contentLength ?? 0;
+      var received = 0;
+      sink = file.openWrite();
+      // Observe asynchronous disk errors immediately, including during networking.
+      final sinkDone = sink.done.then<Object?>(
+        (_) => null,
+        onError: (Object e) => e,
+      );
+      await for (final chunk in res.stream.timeout(requestTimeout)) {
         received += chunk.length;
+        if (total > 0 && received > total) {
+          throw UpdateException('Download size exceeds expected length');
+        }
         sink.add(chunk);
         digestInput.add(chunk);
-        if (total > 0) onProgress((received / total).clamp(0.0, 1.0));
+        if (total > 0) onProgress((received / total).clamp(0.0, 0.99));
+      }
+      if (received == 0 || (total > 0 && received != total)) {
+        throw UpdateException(
+          'Incomplete download: expected $total bytes, got $received',
+        );
       }
       await sink.flush();
-    } catch (e) {
-      // Close the sink before deleting so the partial file is releasable
-      // (notably on Windows, where an open handle blocks deletion).
-      await sink.close().catchError((_) {});
-      if (await file.exists()) {
-        try {
-          await file.delete();
-        } catch (_) {}
+      await sink.close();
+      final diskError = await sinkDone;
+      if (diskError != null) throw diskError;
+      sink = null;
+      digestInput.close();
+
+      final assetDigest = asset.digest;
+      if (assetDigest != null && assetDigest.isNotEmpty) {
+        final expected = assetDigest
+            .replaceFirst(RegExp(r'^sha256:'), '')
+            .toLowerCase();
+        if (digestOutput.events.single.toString() != expected) {
+          throw UpdateException('Download SHA-256 verification failed');
+        }
       }
+      onProgress(1.0);
+      return file;
+    } catch (e) {
+      await sink?.close().catchError((_) {});
+      try {
+        await staging?.delete(recursive: true);
+      } catch (_) {}
       if (e is UpdateException) rethrow;
       throw UpdateException('Download failed: $e');
-    } finally {
-      digestInput.close();
     }
-    await sink.close();
-
-    // Verify SHA-256 digest when the GitHub API provided one.
-    final assetDigest = asset.digest;
-    if (assetDigest != null && assetDigest.isNotEmpty) {
-      final expected = assetDigest.startsWith('sha256:')
-          ? assetDigest.substring(7)
-          : assetDigest;
-      final computed = digestOutput.events.single.toString();
-      if (computed != expected) {
-        try {
-          await file.delete();
-        } catch (_) {}
-        throw UpdateException(
-            'Digest mismatch: expected $expected, got $computed');
-      }
-    }
-
-    onProgress(1.0);
-    return file;
   }
 
-  /// Hands [file] off to the OS installer. macOS strips quarantine then opens
-  /// the DMG; Windows runs the installer exe; Linux opens with the desktop
+  /// Hands [file] off to the OS installer/archive handler. macOS opens
+  /// the package; Windows runs the installer exe; Linux opens with the desktop
   /// handler. Throws [UpdateException] on failure.
   Future<void> launchInstaller(File file) async {
     final path = file.path;
     try {
       if (Platform.isMacOS) {
-        // Best-effort: our own download usually carries no quarantine xattr,
-        // but strip it anyway so Gatekeeper does not block the new build.
-        await Process.run('xattr', ['-dr', 'com.apple.quarantine', path]);
         final r = await Process.run('open', [path]);
         if (r.exitCode != 0) throw UpdateException('open failed: ${r.stderr}');
       } else if (Platform.isWindows) {
@@ -265,7 +303,9 @@ class UpdateService {
         await Process.start(path, const [], mode: ProcessStartMode.detached);
       } else {
         final r = await Process.run('xdg-open', [path]);
-        if (r.exitCode != 0) throw UpdateException('xdg-open failed: ${r.stderr}');
+        if (r.exitCode != 0) {
+          throw UpdateException('xdg-open failed: ${r.stderr}');
+        }
       }
     } catch (e) {
       if (e is UpdateException) rethrow;

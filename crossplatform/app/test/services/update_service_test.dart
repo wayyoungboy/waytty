@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -46,8 +47,11 @@ void main() {
     });
 
     test('ReleaseAsset tolerates a null browser_download_url', () {
-      final asset = ReleaseAsset.fromJson(
-          {'name': 'source.zip', 'browser_download_url': null, 'size': 0});
+      final asset = ReleaseAsset.fromJson({
+        'name': 'source.zip',
+        'browser_download_url': null,
+        'size': 0,
+      });
       expect(asset.downloadUrl, '');
       expect(asset.name, 'source.zip');
     });
@@ -94,93 +98,192 @@ void main() {
   group('assetForPlatform', () {
     final svc = UpdateService();
     AppRelease release() => AppRelease.fromJson({
-          'tag_name': 'v0.2.0',
-          'assets': [
-            {'name': 'YourSSH-0.2.0-macOS-arm64.dmg', 'browser_download_url': 'u/mac', 'size': 1},
-            {'name': 'YourSSH.Setup.0.2.0-Windows-x64.exe', 'browser_download_url': 'u/winsetup', 'size': 1},
-            {'name': 'YourSSH-0.2.0-Windows-x64.exe', 'browser_download_url': 'u/winportable', 'size': 1},
-            {'name': 'YourSSH.Setup.0.2.0-Windows-arm64.exe', 'browser_download_url': 'u/winarmsetup', 'size': 1},
-            {'name': 'yourssh_0.2.0_amd64.deb', 'browser_download_url': 'u/deb64', 'size': 1},
-            {'name': 'YourSSH-0.2.0-Linux-x86_64.tar.gz', 'browser_download_url': 'u/tgz64', 'size': 1},
-            {'name': 'yourssh_0.2.0_arm64.deb', 'browser_download_url': 'u/debarm', 'size': 1},
-          ],
-        });
+      'tag_name': 'v0.2.0',
+      'assets': [
+        {
+          'name': 'YourSSH-0.2.0-macOS-arm64.dmg',
+          'browser_download_url': 'u/mac',
+          'size': 1,
+        },
+        {
+          'name': 'YourSSH.Setup.0.2.0-Windows-x64.exe',
+          'browser_download_url': 'u/winsetup',
+          'size': 1,
+        },
+        {
+          'name': 'YourSSH-0.2.0-Windows-x64.exe',
+          'browser_download_url': 'u/winportable',
+          'size': 1,
+        },
+        {
+          'name': 'YourSSH.Setup.0.2.0-Windows-arm64.exe',
+          'browser_download_url': 'u/winarmsetup',
+          'size': 1,
+        },
+        {
+          'name': 'yourssh_0.2.0_amd64.deb',
+          'browser_download_url': 'u/deb64',
+          'size': 1,
+        },
+        {
+          'name': 'YourSSH-0.2.0-Linux-x86_64.tar.gz',
+          'browser_download_url': 'u/tgz64',
+          'size': 1,
+        },
+        {
+          'name': 'yourssh_0.2.0_arm64.deb',
+          'browser_download_url': 'u/debarm',
+          'size': 1,
+        },
+      ],
+    });
 
     AppRelease universalRelease() => AppRelease.fromJson({
-          'tag_name': 'v0.2.0',
-          'assets': [
-            {'name': 'YourSSH-0.2.0-macOS-universal.dmg', 'browser_download_url': 'u/macuni', 'size': 1},
-            {'name': 'YourSSH-0.2.0-macOS-universal.zip', 'browser_download_url': 'u/maczip', 'size': 1},
-          ],
-        });
+      'tag_name': 'v0.2.0',
+      'assets': [
+        {
+          'name': 'YourSSH-0.2.0-macOS-universal.dmg',
+          'browser_download_url': 'u/macuni',
+          'size': 1,
+        },
+        {
+          'name': 'YourSSH-0.2.0-macOS-universal.zip',
+          'browser_download_url': 'u/maczip',
+          'size': 1,
+        },
+      ],
+    });
 
     test('macOS arm64 -> universal dmg', () {
       expect(
-          svc
-              .assetForPlatform(universalRelease(), os: 'macos', arch: 'arm64')!
-              .name,
-          'YourSSH-0.2.0-macOS-universal.dmg');
+        svc
+            .assetForPlatform(universalRelease(), os: 'macos', arch: 'arm64')!
+            .name,
+        'YourSSH-0.2.0-macOS-universal.dmg',
+      );
     });
     test('macOS x64 -> universal dmg', () {
       expect(
-          svc
-              .assetForPlatform(universalRelease(), os: 'macos', arch: 'x64')!
-              .name,
-          'YourSSH-0.2.0-macOS-universal.dmg');
+        svc
+            .assetForPlatform(universalRelease(), os: 'macos', arch: 'x64')!
+            .name,
+        'YourSSH-0.2.0-macOS-universal.dmg',
+      );
     });
     test('macOS arm64 falls back to arm64 dmg on a pre-universal release', () {
-      expect(svc.assetForPlatform(release(), os: 'macos', arch: 'arm64')!.name,
-          'YourSSH-0.2.0-macOS-arm64.dmg');
+      expect(
+        svc.assetForPlatform(release(), os: 'macos', arch: 'arm64')!.name,
+        'YourSSH-0.2.0-macOS-arm64.dmg',
+      );
     });
     test('macOS x64 -> null on a pre-universal (arm64-only) release', () {
       expect(svc.assetForPlatform(release(), os: 'macos', arch: 'x64'), isNull);
     });
     test('Windows x64 prefers Setup installer over portable', () {
-      expect(svc.assetForPlatform(release(), os: 'windows', arch: 'x64')!.name,
-          'YourSSH.Setup.0.2.0-Windows-x64.exe');
+      expect(
+        svc.assetForPlatform(release(), os: 'windows', arch: 'x64')!.name,
+        'YourSSH.Setup.0.2.0-Windows-x64.exe',
+      );
     });
     test('Windows arm64 -> arm64 Setup', () {
-      expect(svc.assetForPlatform(release(), os: 'windows', arch: 'arm64')!.name,
-          'YourSSH.Setup.0.2.0-Windows-arm64.exe');
+      expect(
+        svc.assetForPlatform(release(), os: 'windows', arch: 'arm64')!.name,
+        'YourSSH.Setup.0.2.0-Windows-arm64.exe',
+      );
     });
     test('Linux amd64 prefers .deb over tar.gz', () {
-      expect(svc.assetForPlatform(release(), os: 'linux', arch: 'amd64')!.name,
-          'yourssh_0.2.0_amd64.deb');
+      expect(
+        svc.assetForPlatform(release(), os: 'linux', arch: 'amd64')!.name,
+        'yourssh_0.2.0_amd64.deb',
+      );
     });
     test('Linux arm64 -> arm64 .deb', () {
-      expect(svc.assetForPlatform(release(), os: 'linux', arch: 'arm64')!.name,
-          'yourssh_0.2.0_arm64.deb');
+      expect(
+        svc.assetForPlatform(release(), os: 'linux', arch: 'arm64')!.name,
+        'yourssh_0.2.0_arm64.deb',
+      );
     });
     test('Windows x64 falls back to portable when no Setup present', () {
       final noSetup = AppRelease.fromJson({
         'tag_name': 'v0.2.0',
         'assets': [
-          {'name': 'YourSSH-0.2.0-Windows-x64.exe', 'browser_download_url': 'u/portable', 'size': 1},
+          {
+            'name': 'YourSSH-0.2.0-Windows-x64.exe',
+            'browser_download_url': 'u/portable',
+            'size': 1,
+          },
         ],
       });
-      expect(svc.assetForPlatform(noSetup, os: 'windows', arch: 'x64')!.name,
-          'YourSSH-0.2.0-Windows-x64.exe');
+      expect(
+        svc.assetForPlatform(noSetup, os: 'windows', arch: 'x64')!.name,
+        'YourSSH-0.2.0-Windows-x64.exe',
+      );
     });
     test('Linux amd64 falls back to tar.gz when no deb present', () {
       final noDeb = AppRelease.fromJson({
         'tag_name': 'v0.2.0',
         'assets': [
-          {'name': 'YourSSH-0.2.0-Linux-x86_64.tar.gz', 'browser_download_url': 'u/tgz', 'size': 1},
+          {
+            'name': 'YourSSH-0.2.0-Linux-x86_64.tar.gz',
+            'browser_download_url': 'u/tgz',
+            'size': 1,
+          },
         ],
       });
-      expect(svc.assetForPlatform(noDeb, os: 'linux', arch: 'amd64')!.name,
-          'YourSSH-0.2.0-Linux-x86_64.tar.gz');
+      expect(
+        svc.assetForPlatform(noDeb, os: 'linux', arch: 'amd64')!.name,
+        'YourSSH-0.2.0-Linux-x86_64.tar.gz',
+      );
     });
     test('unknown os -> null', () {
-      expect(svc.assetForPlatform(release(), os: 'freebsd', arch: 'x64'), isNull);
+      expect(
+        svc.assetForPlatform(release(), os: 'freebsd', arch: 'x64'),
+        isNull,
+      );
     });
+
+    test(
+      'waytty Universal ZIP matches both Mac architectures, not sources',
+      () {
+        final release = AppRelease.fromJson({
+          'tag_name': 'v0.0.2',
+          'assets': [
+            {'name': 'waytty-0.0.2-source.zip'},
+            {'name': 'waytty-0.0.2-serial-sources.zip'},
+            {'name': 'waytty-0.0.2-macos-universal.zip.sha256'},
+            {'name': 'waytty-0.0.2-macos-universal.zip'},
+          ],
+        });
+        for (final arch in ['arm64', 'x64']) {
+          expect(
+            svc.assetForPlatform(release, os: 'macos', arch: arch)?.name,
+            'waytty-0.0.2-macos-universal.zip',
+          );
+        }
+      },
+    );
   });
 
   group('fetchLatestRelease', () {
+    test('a stalled check times out with a recoverable error', () async {
+      final pending = Completer<http.Response>();
+      final svc = UpdateService(
+        client: MockClient((_) => pending.future),
+        requestTimeout: const Duration(milliseconds: 10),
+      );
+      await expectLater(
+        svc.fetchLatestRelease(),
+        throwsA(isA<UpdateException>()),
+      );
+      pending.complete(http.Response('{}', 200));
+    });
+
     test('parses a 200 response', () async {
       final client = MockClient((req) async {
-        expect(req.url.toString(),
-            'https://api.github.com/repos/YoursshLabs/yourssh/releases/latest');
+        expect(
+          req.url.toString(),
+          'https://api.github.com/repos/wayyoungboy/waytty/releases/latest',
+        );
         expect(req.headers['Accept'], 'application/vnd.github+json');
         return http.Response(
           jsonEncode({'tag_name': 'v0.2.0', 'assets': []}),
@@ -193,9 +296,14 @@ void main() {
     });
 
     test('throws UpdateException on non-200 (e.g. rate limit)', () async {
-      final client = MockClient((req) async => http.Response('rate limited', 403));
+      final client = MockClient(
+        (req) async => http.Response('rate limited', 403),
+      );
       final svc = UpdateService(client: client);
-      await expectLater(svc.fetchLatestRelease(), throwsA(isA<UpdateException>()));
+      await expectLater(
+        svc.fetchLatestRelease(),
+        throwsA(isA<UpdateException>()),
+      );
     });
   });
 
@@ -211,11 +319,11 @@ void main() {
     });
 
     ReleaseAsset asset({String? digest}) => ReleaseAsset(
-          name: 'test.dmg',
-          downloadUrl: 'https://example.com/test.dmg',
-          size: 11,
-          digest: digest,
-        );
+      name: 'test.dmg',
+      downloadUrl: 'https://example.com/test.dmg',
+      size: 11,
+      digest: digest,
+    );
 
     test('non-HTTPS URL throws UpdateException', () async {
       final svc = UpdateService(
@@ -238,9 +346,7 @@ void main() {
       const body = 'hello world';
       const expectedDigest =
           'sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
-      final client = MockClient(
-        (_) async => http.Response(body, 200),
-      );
+      final client = MockClient((_) async => http.Response(body, 200));
       final svc = UpdateService(client: client, downloadDir: tmpDir);
       final file = await svc.downloadAsset(
         asset(digest: expectedDigest),
@@ -251,13 +357,14 @@ void main() {
     });
 
     test('digest mismatch throws UpdateException and deletes file', () async {
-      final client = MockClient(
-        (_) async => http.Response('hello world', 200),
-      );
+      final client = MockClient((_) async => http.Response('hello world', 200));
       final svc = UpdateService(client: client, downloadDir: tmpDir);
       await expectLater(
         svc.downloadAsset(
-          asset(digest: 'sha256:0000000000000000000000000000000000000000000000000000000000000000'),
+          asset(
+            digest:
+                'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+          ),
           onProgress: (_) {},
         ),
         throwsA(isA<UpdateException>()),
@@ -267,12 +374,60 @@ void main() {
     });
 
     test('null digest skips verification and succeeds', () async {
-      final client = MockClient(
-        (_) async => http.Response('some binary', 200),
-      );
+      final client = MockClient((_) async => http.Response('some binary', 200));
       final svc = UpdateService(client: client, downloadDir: tmpDir);
       final file = await svc.downloadAsset(asset(), onProgress: (_) {});
       expect(file.existsSync(), isTrue);
+    });
+
+    test('truncated response fails even without a digest', () async {
+      final svc = UpdateService(
+        client: MockClient((_) async => http.Response('short', 200)),
+        downloadDir: tmpDir,
+      );
+      await expectLater(
+        svc.downloadAsset(asset(), onProgress: (_) {}),
+        throwsA(isA<UpdateException>()),
+      );
+      expect(tmpDir.listSync(), isEmpty);
+    });
+
+    test(
+      'failed download preserves an existing file with the same name',
+      () async {
+        final existing = File('${tmpDir.path}/test.dmg')
+          ..writeAsStringSync('keep');
+        final svc = UpdateService(
+          client: MockClient((_) async => http.Response('hello world', 200)),
+          downloadDir: tmpDir,
+        );
+        await expectLater(
+          svc.downloadAsset(asset(digest: 'sha256:bad'), onProgress: (_) {}),
+          throwsA(isA<UpdateException>()),
+        );
+        expect(existing.readAsStringSync(), 'keep');
+        expect(tmpDir.listSync(), hasLength(1));
+      },
+    );
+
+    test('asset names cannot escape the download directory', () async {
+      final svc = UpdateService(
+        client: MockClient((_) async => fail('must reject before networking')),
+        downloadDir: tmpDir,
+      );
+      for (final name in ['../escape.zip', r'..\escape.zip', '', '.']) {
+        await expectLater(
+          svc.downloadAsset(
+            ReleaseAsset(
+              name: name,
+              downloadUrl: 'https://example.com/file',
+              size: 1,
+            ),
+            onProgress: (_) {},
+          ),
+          throwsA(isA<UpdateException>()),
+        );
+      }
     });
   });
 }
