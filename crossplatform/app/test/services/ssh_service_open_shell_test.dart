@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dartssh2/dartssh2.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yourssh/models/agent_forwarding_state.dart';
 import 'package:yourssh/models/host.dart';
+import 'package:yourssh/models/ssh_credentials.dart';
 import 'package:yourssh/models/ssh_session.dart';
 import 'package:yourssh/providers/shell_integration_provider.dart';
 import 'package:yourssh/services/ssh_service.dart';
@@ -44,6 +46,7 @@ class _FakeShell implements SSHSession {
   _FakeShell({this.refused = false});
 
   final bool refused;
+  bool closed = false;
   final _stdout = StreamController<Uint8List>();
   final _stderr = StreamController<Uint8List>();
   final resizes = <(int, int)>[];
@@ -80,6 +83,7 @@ class _FakeShell implements SSHSession {
 
   @override
   Future<void> close() async {
+    closed = true;
     await _stdout.close();
     await _stderr.close();
   }
@@ -93,6 +97,21 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+  });
+
+  test('closing a session while shell request is in flight closes the late shell', () async {
+    final service = SshService(StorageService());
+    final host = Host(label: 'fixture', host: 'fixture.invalid', username: 'u');
+    final session = SshSession(host: host);
+    final shell = _FakeShell();
+    final client = _FakeClient(shell)
+      ..duringShellOpen = () => service.disconnectSession(session.id);
+    service.debugSetClient(host.id, client);
+    await expectLater(service.openShell(session), throwsA(isA<AuthenticationCancelled>()));
+    await Future<void>.delayed(Duration.zero);
+    expect(shell.closed, true);
+    expect(shell.writes, isEmpty);
+    expect(service.sendInput(session.id, 'must not send'), false);
   });
 
   test('openShell opens the PTY at the terminal\'s current view size',
@@ -170,7 +189,7 @@ void main() {
     await shellDone;
   });
 
-  test('openShell fires a refused event when the server refuses forwarding',
+  test('openShell ignores legacy forwarding flags and emits no forwarding event',
       () async {
     final svc = SshService(StorageService());
     final host = Host(
@@ -193,14 +212,14 @@ void main() {
     final shellDone = svc.openShell(session);
     await pumpEventQueue();
 
-    expect(events, [(host.id, session.id, AgentForwardingState.refused)]);
+    expect(events, isEmpty);
+    expect(session.agentForwardingState, AgentForwardingState.off);
 
     await shell.close();
     await shellDone;
   });
 
-  test('openShell fires ready when forwarding is enabled and not refused '
-      '(resets a stale refused on reconnect)', () async {
+  test('openShell resets a stale forwarding state to off', () async {
     final svc = SshService(StorageService());
     final host = Host(
         label: 'fake',
@@ -219,10 +238,13 @@ void main() {
     final client = _FakeClient(shell);
     svc.debugSetClient(host.id, client);
 
+    session.agentForwardingState = AgentForwardingState.refused;
+
     final shellDone = svc.openShell(session);
     await pumpEventQueue();
 
-    expect(events, [(host.id, session.id, AgentForwardingState.ready)]);
+    expect(events, isEmpty);
+    expect(session.agentForwardingState, AgentForwardingState.off);
 
     await shell.close();
     await shellDone;
@@ -231,6 +253,123 @@ void main() {
   // > 250 ms bracketed-paste settle timer inside openShell.
   Future<void> settle() =>
       Future<void>.delayed(const Duration(milliseconds: 400));
+
+  group('passive startup readiness', () {
+    for (final interruption in ['busy', 'close', 'error']) {
+      test('pending initialization is cancelled by $interruption', () {
+        fakeAsync((clock) {
+          final svc = SshService(StorageService(),
+              shellIntegration: ShellIntegrationProvider());
+          final host = Host(
+              label: 'fixture', host: 'fixture.invalid', username: 'fixture');
+          final session = SshSession(host: host);
+          final shell = _FakeShell();
+          svc.debugSetClient(host.id, _FakeClient(shell));
+          Object? failure;
+          svc.openShell(session).then<void>((_) {}, onError: (Object error) {
+            failure = error;
+          });
+          clock.flushMicrotasks();
+          shell.emitStdout('\x1b[?2004hfixture\$ ');
+          clock.flushMicrotasks();
+          clock.elapse(const Duration(milliseconds: 200));
+          switch (interruption) {
+            case 'busy':
+              shell.emitStdout('\x1b[?2004l');
+              break;
+            case 'close':
+              svc.disconnectSession(session.id);
+              break;
+            case 'error':
+              shell._stdout.addError(StateError('fixture stream failed'));
+              break;
+          }
+          clock.flushMicrotasks();
+          clock.elapse(const Duration(seconds: 30));
+          expect(shell.writes, isEmpty);
+          expect(failure, interruption == 'error' ? isA<StateError>() : isNull);
+          shell.close();
+          clock.flushMicrotasks();
+          expect(clock.pendingTimers, isEmpty);
+        });
+      });
+    }
+
+    test('legacy idle prompt remains silent past the old probe deadline', () async {
+      final svc = SshService(StorageService(),
+          shellIntegration: ShellIntegrationProvider());
+      final host = Host(label: 'fixture', host: 'fixture.invalid', username: 'fixture');
+      final shell = _FakeShell();
+      svc.debugSetClient(host.id, _FakeClient(shell));
+      final done = svc.openShell(SshSession(host: host));
+      addTearDown(() async { await shell.close(); await done; });
+      await pumpEventQueue();
+      shell.emitStdout('Welcome\r\n(base)\r\n[fixture@server ~]\r\n\$ ');
+      await Future<void>.delayed(const Duration(milliseconds: 4100));
+      expect(shell.writes, isEmpty,
+          reason: 'No active Enter probe after the old 2.5-second floor');
+    });
+
+    for (final template in [false, true]) {
+      test('idle multiline prompt sends no automatic Enter (template=$template)', () {
+        fakeAsync((clock) {
+          final svc = SshService(StorageService(),
+              shellIntegration: ShellIntegrationProvider());
+          final host = Host(label: 'fixture', host: 'fixture.invalid', username: 'fixture',
+              workingDir: template ? '/fixture' : null);
+          final session = SshSession(host: host);
+          session.terminal.resize(100, 24);
+          final shell = _FakeShell();
+          svc.debugSetClient(host.id, _FakeClient(shell));
+          var closed = false;
+          svc.openShell(session).then((_) => closed = true);
+          clock.flushMicrotasks();
+          const prompt = '(base)\r\n[fixture@server /home/fixture]\r\n\$ ';
+          shell.emitStdout('Welcome to fixture\r\n$prompt');
+          clock.flushMicrotasks();
+          clock.elapse(const Duration(seconds: 30));
+          expect(shell.writes, isEmpty,
+              reason: 'Waiting for readiness must never submit an empty command');
+          final buffer = session.terminal.buffer;
+          expect([for (var i = 0; i <= buffer.absoluteCursorY; i++)
+            buffer.lines[i].getText().trimRight()],
+              ['Welcome to fixture', '(base)', '[fixture@server /home/fixture]', r'$']);
+          // A real Enter remains exactly one user input, with its output intact.
+          session.terminal.onOutput?.call('\r');
+          shell.emitStdout('\r\n$prompt');
+          clock.flushMicrotasks();
+          clock.elapse(const Duration(seconds: 30));
+          expect(shell.writes, ['\r']);
+          expect(buffer.absoluteCursorY, 6);
+          shell.close();
+          clock.flushMicrotasks();
+          expect(closed, true);
+          expect(clock.pendingTimers, isEmpty);
+        });
+      });
+    }
+
+    test('stalled banner and password prompt are never probed', () {
+      fakeAsync((clock) {
+        final svc = SshService(StorageService(),
+            shellIntegration: ShellIntegrationProvider());
+        final host = Host(label: 'fixture', host: 'fixture.invalid', username: 'fixture');
+        final shell = _FakeShell();
+        svc.debugSetClient(host.id, _FakeClient(shell));
+        svc.openShell(SshSession(host: host));
+        clock.flushMicrotasks();
+        for (final chunk in ['Last login:', '\r\nPassword: ', '\r\nanswer > ']) {
+          shell.emitStdout(chunk);
+          clock.flushMicrotasks();
+          clock.elapse(const Duration(seconds: 30));
+          expect(shell.writes, isEmpty);
+        }
+        shell.close();
+        clock.flushMicrotasks();
+        expect(clock.pendingTimers, isEmpty);
+      });
+    });
+  });
 
   group('initial prompt redraw', () {
     for (final width in [80, 20]) {

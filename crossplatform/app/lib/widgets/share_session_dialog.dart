@@ -51,7 +51,7 @@ class _StartSharingView extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           const LText(
-            "Shared over TLS via your Supabase project.",
+            "Realtime sharing is unavailable in this build.",
             style: TextStyle(color: Color(0xFF555555), fontSize: 11),
           ),
           const SizedBox(height: 20),

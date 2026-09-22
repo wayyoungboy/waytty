@@ -8,8 +8,6 @@
 
 #include <file_selector_linux/file_selector_plugin.h>
 #include <flutter_libserialport/flutter_libserialport_plugin.h>
-#include <flutter_secure_storage_linux/flutter_secure_storage_linux_plugin.h>
-#include <gtk/gtk_plugin.h>
 #include <hotkey_manager_linux/hotkey_manager_linux_plugin.h>
 #include <local_notifier/local_notifier_plugin.h>
 #include <screen_retriever/screen_retriever_plugin.h>
@@ -24,12 +22,6 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) flutter_libserialport_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "FlutterLibserialportPlugin");
   flutter_libserialport_plugin_register_with_registrar(flutter_libserialport_registrar);
-  g_autoptr(FlPluginRegistrar) flutter_secure_storage_linux_registrar =
-      fl_plugin_registry_get_registrar_for_plugin(registry, "FlutterSecureStorageLinuxPlugin");
-  flutter_secure_storage_linux_plugin_register_with_registrar(flutter_secure_storage_linux_registrar);
-  g_autoptr(FlPluginRegistrar) gtk_registrar =
-      fl_plugin_registry_get_registrar_for_plugin(registry, "GtkPlugin");
-  gtk_plugin_register_with_registrar(gtk_registrar);
   g_autoptr(FlPluginRegistrar) hotkey_manager_linux_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "HotkeyManagerLinuxPlugin");
   hotkey_manager_linux_plugin_register_with_registrar(hotkey_manager_linux_registrar);

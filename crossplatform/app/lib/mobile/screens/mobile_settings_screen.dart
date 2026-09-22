@@ -16,7 +16,7 @@ import 'mobile_sync_screen.dart';
 
 /// Settings tab — grouped preferences and security.
 /// Groups: TERMINAL · SECURITY · KEYBOARD & SYNC
-/// Both "Supabase sync" and "Pair new device" push [MobileSyncScreen].
+/// Both "Cloud account" and "Pair new device" push [MobileSyncScreen].
 class MobileSettingsScreen extends StatefulWidget {
   const MobileSettingsScreen({super.key});
 
@@ -91,7 +91,7 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
   // ── Sync banner ───────────────────────────────────────────────────────────
 
   Widget _syncBanner(SyncProvider sync) {
-    final active = sync.isSupabaseConfigured;
+    final active = sync.account.signedIn;
     return Container(
       decoration: BoxDecoration(
         color: MobileColors.surface,
@@ -109,7 +109,7 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 LText(
-                  active ? "Sync active" : "Sync off",
+                  active ? "Cloud account" : "Local offline",
                   style: mobileBody(
                     size: 14,
                     weight: FontWeight.w600,
@@ -118,7 +118,7 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
                 ),
                 const SizedBox(height: 2),
                 LText(
-                  "Supabase · end-to-end encrypted",
+                  "Encrypted connection backup",
                   style: mobileBody(size: 12, color: MobileColors.textMuted),
                 ),
               ],
@@ -205,8 +205,8 @@ class _MobileSettingsScreenState extends State<MobileSettingsScreen> {
         ),
         SettingsRow(
           leading: Icon(Icons.cloud_sync_outlined, color: MobileColors.textMuted, size: 20),
-          title: tr(context, "Supabase sync"),
-          value: sync.isSupabaseConfigured ? tr(context, 'Configured') : null,
+          title: tr(context, "Cloud account"),
+          value: sync.account.signedIn ? tr(context, 'Configured') : null,
           onTap: _pushSyncScreen,
         ),
         SettingsRow(

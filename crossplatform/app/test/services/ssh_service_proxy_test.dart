@@ -61,7 +61,7 @@ void main() {
         proxyHost: 'proxy',
         proxyPort: 1080,
         proxyUsername: 'pu');
-    await svc.saveProxyPassword(host.id, 'secret');
+    svc.proxyPasswordPrompt = (_, attempt) async => 'secret';
 
     ProxySettings? got;
     String? gotTarget;

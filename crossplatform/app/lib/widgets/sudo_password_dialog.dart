@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/host.dart';
 
 /// Prompts for the sudo password used by elevated SFTP. Pops with
-/// `(password:, remember:)` on OK, or null when cancelled. Persisting the
-/// password (when remember is checked) is the caller's job.
+/// `(password:, remember: false)` on OK, or null when cancelled.
+/// Credentials are never persisted.
 class SudoPasswordDialog extends StatefulWidget {
   final Host host;
   const SudoPasswordDialog({super.key, required this.host});
@@ -15,7 +15,6 @@ class SudoPasswordDialog extends StatefulWidget {
 
 class _SudoPasswordDialogState extends State<SudoPasswordDialog> {
   final _controller = TextEditingController();
-  bool _remember = false;
 
   @override
   void dispose() {
@@ -26,7 +25,7 @@ class _SudoPasswordDialogState extends State<SudoPasswordDialog> {
   void _submit() {
     if (_controller.text.isEmpty) return;
     Navigator.of(context)
-        .pop((password: _controller.text, remember: _remember));
+        .pop((password: _controller.text, remember: false));
   }
 
   @override
@@ -46,22 +45,17 @@ class _SudoPasswordDialogState extends State<SudoPasswordDialog> {
             controller: _controller,
             obscureText: true,
             autofocus: true,
-            autofillHints: const [AutofillHints.password],
+            autofillHints: const [],
+            enableSuggestions: false,
+            autocorrect: false,
+            enableIMEPersonalizedLearning: false,
             onSubmitted: (_) => _submit(),
             decoration:  InputDecoration(
               labelText: tr(context, "Password"),
               border: OutlineInputBorder(),
             ),
           ),
-          CheckboxListTile(
-            value: _remember,
-            onChanged: (v) => setState(() => _remember = v ?? false),
-            title: const LText("Remember in system keychain",
-                style: TextStyle(fontSize: 13)),
-            controlAffinity: ListTileControlAffinity.leading,
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-          ),
+
         ],
       ),
       actions: [

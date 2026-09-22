@@ -10,7 +10,6 @@ import 'package:yourssh/providers/host_provider.dart';
 import 'package:yourssh/providers/settings_provider.dart';
 import 'package:yourssh/providers/sync_provider.dart';
 import 'package:yourssh/services/storage_service.dart';
-import 'package:yourssh/services/sync_service.dart';
 
 Future<SyncProvider> _pump(WidgetTester tester) async {
   final sync    = SyncProvider();
@@ -28,7 +27,6 @@ Future<SyncProvider> _pump(WidgetTester tester) async {
         ChangeNotifierProvider<SettingsProvider>(
           create: (_) => SettingsProvider(),
         ),
-        Provider<SyncService>(create: (_) => SyncService(sync)),
       ],
       child: MaterialApp(
         theme: buildMobileTheme(),
@@ -56,17 +54,17 @@ void main() {
     );
   });
 
-  testWidgets('"Supabase sync" row navigates to MobileSyncScreen', (tester) async {
+  testWidgets('"Cloud account" row navigates to MobileSyncScreen', (tester) async {
     await _pump(tester);
 
     // Tap the row — now pushes MobileSyncScreen instead of opening a sheet.
-    await tester.tap(find.text('Supabase sync'));
+    await tester.tap(find.text('Cloud account'));
     // Use pump(Duration) to avoid pumpAndSettle timing out on the P2P Timer.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
     // MobileSyncScreen heading must be visible.
-    expect(find.text('Sync with Supabase'), findsOneWidget);
+    expect(find.text('P2P Transfer'), findsOneWidget);
     expect(find.byType(MobileSyncScreen), findsOneWidget);
   });
 }

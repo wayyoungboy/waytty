@@ -25,6 +25,8 @@ class _FakeSsh extends SshService {
   /// When set, openShell blocks until completed — keeps the session in
   /// `connected` state so user-close paths can be exercised.
   Completer<void>? shellGate;
+  Completer<void>? connectGate;
+  int shellOpens = 0;
 
   @override
   Future<SSHClient> connect(
@@ -35,6 +37,7 @@ class _FakeSsh extends SshService {
     Future<bool> Function(Host hop, String keyType, Uint8List fp)?
         verifyHopHostKey,
   }) async {
+    await connectGate?.future;
     if (failConnect) throw Exception('refused');
     return _NullClient();
   }
@@ -42,6 +45,7 @@ class _FakeSsh extends SshService {
   @override
   Future<void> openShell(SshSession session,
       {bool useTmux = false, String termType = 'xterm-256color'}) async {
+    shellOpens++;
     final gate = shellGate;
     if (gate != null) await gate.future;
   }
@@ -60,6 +64,20 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  test('closed session cannot open a shell or log connected after late authentication', () async {
+    final audit = AuditService()..initInMemory();
+    final ssh = _FakeSsh()..connectGate = Completer<void>();
+    final provider = SessionProvider(ssh, TabMetadataService())..audit = audit;
+    final connecting = provider.connect(_host());
+    await Future<void>.delayed(Duration.zero);
+    provider.closeSession(provider.sshSessions.single.id);
+    ssh.connectGate!.complete();
+    await connecting;
+    expect(ssh.shellOpens, 0);
+    expect(audit.query(const AuditFilter(type: 'connect')), isEmpty);
+    provider.dispose();
+  });
 
   test('successful connect records a connect event', () async {
     final audit = AuditService()..initInMemory();

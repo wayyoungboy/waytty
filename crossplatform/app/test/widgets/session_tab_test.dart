@@ -213,7 +213,7 @@ void main() {
     expect(tester.widget<Icon>(find.byIcon(Icons.key)).color, AppColors.accent);
   });
 
-  testWidgets('key icon colors for ready and fallback states', (tester) async {
+  testWidgets('legacy forwarding flag does not activate the key icon', (tester) async {
     final fwdHost = Host(
         id: 'h11',
         label: 'fwd3',
@@ -222,23 +222,14 @@ void main() {
         username: 'u',
         agentForwarding: true);
     final (sessions, hosts) = makeProviders();
-    final session = seedSession(sessions, fwdHost); // starts ready
+    final session = seedSession(sessions, fwdHost);
 
     await tester.pumpWidget(wrap(
         SessionTab(
             session: session, isActive: true, provider: sessions, onTap: () {}),
         sessions,
         hosts));
-    expect(tester.widget<Icon>(find.byIcon(Icons.key)).color,
-        AppColors.textSecondary);
-
-    session.agentForwardingState = AgentForwardingState.fallback;
-    await tester.pumpWidget(wrap(
-        SessionTab(
-            session: session, isActive: true, provider: sessions, onTap: () {}),
-        sessions,
-        hosts));
-    expect(
-        tester.widget<Icon>(find.byIcon(Icons.key)).color, AppColors.orange);
+    expect(find.byIcon(Icons.key), findsNothing);
+    expect(session.agentForwardingState, AgentForwardingState.off);
   });
 }

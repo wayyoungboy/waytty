@@ -216,6 +216,41 @@
       "scope": "lines",
       "sha256": "a9493fc70ffe048fa497d7e1c8ddd98e409a35c5e2d5b368798d0af932a6fc7f",
       "reason": "Reviewed generated translation identifier or non-network test-only sync value"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "ed30a25410d5134d5806610c7d4d66f38b857b4461ae4bc3f8185c68de69206b",
+      "reason": "Reviewed password-mismatch and account-creation UI translations; the detected value is a generated message identifier"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "5dc3daf11a28b64ac671ab427905a200af4e4055da1c1be9b276762b2b3e7c83",
+      "reason": "Reviewed saved-key unlock error and protection UI translations; the detected value is a generated message identifier"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "0be640f5f28666a4e5f1a880458253a53691e85bdb2d725dda2aad17f400675e",
+      "reason": "Reviewed local unlock password and confirmation UI labels; the detected value is a generated message identifier"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "43f1dbda1cc1ead48de9857a97c9b3e75a1d4fa17dae045c3abd4856d1128402",
+      "reason": "Reviewed saved-key update error and deletion UI translations; the detected value is a generated message identifier"
+    },
+    {
+      "path": "crossplatform/packages/waytty_l10n/l10n/waytty_en.arb",
+      "rule": "generic-api-key",
+      "scope": "lines",
+      "sha256": "05a5930538b64f51f02002d92cb4d78d199736f39b65a480faf309a474f00589",
+      "reason": "Reviewed saved-key locking and manual key-pasting UI translations; the detected value is a generated message identifier"
     }
   ]
 }

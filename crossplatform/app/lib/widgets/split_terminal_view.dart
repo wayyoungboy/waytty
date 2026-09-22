@@ -22,6 +22,9 @@ import 'broadcast_toolbar.dart';
 import 'terminal_config_panel.dart';
 import 'terminal_snippets_panel.dart';
 import 'terminal_monitor_panel.dart';
+import 'terminal_file_workspace.dart';
+import 'workspace_side_panel.dart';
+import 'keep_alive_offstage.dart';
 
 class SplitTerminalView extends StatelessWidget {
   // Keep pane boundaries visible against both dark and light terminal themes.
@@ -55,13 +58,15 @@ class SplitTerminalView extends StatelessWidget {
           : command;
       for (final s in sessions) {
         if (s.id == sourceSessionId) continue;
-        audit.record(AuditEvent.now(
-          type: AuditEventType.input,
-          host: s is SshSession ? s.host : null,
-          sessionId: s.id,
-          command: cmd,
-          meta: const {'source': 'input-bar-broadcast'},
-        ));
+        audit.record(
+          AuditEvent.now(
+            type: AuditEventType.input,
+            host: s is SshSession ? s.host : null,
+            sessionId: s.id,
+            command: cmd,
+            meta: const {'source': 'input-bar-broadcast'},
+          ),
+        );
       }
     } on ProviderNotFoundException {
       // Tests pumped without audit wiring.
@@ -71,17 +76,24 @@ class SplitTerminalView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final layout = context.watch<TerminalLayoutProvider>();
-    final snippetsEnabled = context
-        .watch<PluginProvider>()
-        .isEnabled(YourSSHSnippetsPlugin.pluginId);
+    final snippetsEnabled = context.watch<PluginProvider>().isEnabled(
+      YourSSHSnippetsPlugin.pluginId,
+    );
     final sessionProvider = context.watch<SessionProvider>();
-    final termSessions = sessionProvider.sessions.whereType<TerminalSession>().toList();
+    final termSessions = sessionProvider.sessions
+        .whereType<TerminalSession>()
+        .toList();
     final activeRaw = sessionProvider.activeSession;
-    final active = activeRaw is TerminalSession ? activeRaw : (termSessions.isNotEmpty ? termSessions[0] : null);
+    final active = activeRaw is TerminalSession
+        ? activeRaw
+        : (termSessions.isNotEmpty ? termSessions[0] : null);
 
     if (termSessions.isEmpty) {
       return const Center(
-        child: LText("No active sessions", style: TextStyle(color: Color(0xFF555555))),
+        child: LText(
+          "No active sessions",
+          style: TextStyle(color: Color(0xFF555555)),
+        ),
       );
     }
 
@@ -89,27 +101,94 @@ class SplitTerminalView extends StatelessWidget {
       children: [
         const BroadcastToolbar(),
         Expanded(
-          child: Row(
-            children: [
-              Expanded(child: _buildPanes(context, layout, termSessions, active)),
-              // Gated on the plugin too: the panel must vanish if the
-              // snippets plugin is disabled while it is open.
-              if (snippetsEnabled && layout.snippetsPanelVisible)
-                TerminalSnippetsPanel(
-                  canRun: _canRunSnippetTarget(context),
-                  onRunSnippet: (snippet) =>
-                      _runSnippetOnActive(context, snippet.command),
-                  onClose: layout.toggleSnippetsPanel,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final hasRightPanel =
+                  layout.configPanelVisible ||
+                  layout.monitorPanelVisible ||
+                  (snippetsEnabled && layout.snippetsPanelVisible);
+              final rightWidth = hasRightPanel
+                  ? WorkspaceSidePanel.panelWidth
+                  : 0.0;
+              final available = constraints.maxWidth - rightWidth - 280;
+              final filesWidth = layout.filesWidth.clamp(
+                240.0,
+                available.clamp(240.0, 520.0),
+              );
+              final minWidth =
+                  (layout.filesVisible ? filesWidth + 5 : 0) + rightWidth + 280;
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: constraints.maxWidth < minWidth
+                      ? minWidth
+                      : constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  child: Row(
+                    children: [
+                      Offstage(
+                        key: const ValueKey('terminal-files'),
+                        offstage: !layout.filesVisible,
+                        child: SizedBox(
+                          width: filesWidth,
+                          child: TerminalFileWorkspace(
+                            visible: layout.filesVisible,
+                          ),
+                        ),
+                      ),
+                      if (layout.filesVisible)
+                        MouseRegion(
+                          cursor: SystemMouseCursors.resizeColumn,
+                          child: GestureDetector(
+                            key: const ValueKey('file-workspace-divider'),
+                            behavior: HitTestBehavior.opaque,
+                            onHorizontalDragUpdate: (event) =>
+                                layout.resizeFiles(filesWidth + event.delta.dx),
+                            child: const SizedBox(
+                              width: 5,
+                              child: Center(
+                                child: VerticalDivider(
+                                  width: 1,
+                                  thickness: 1,
+                                  color: Color(0xFF303030),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      Expanded(
+                        child: _buildPanes(
+                          context,
+                          layout,
+                          termSessions,
+                          active,
+                        ),
+                      ),
+                      // Gated on the plugin too: the panel must vanish if the
+                      // snippets plugin is disabled while it is open.
+                      if (snippetsEnabled && layout.snippetsPanelVisible)
+                        TerminalSnippetsPanel(
+                          canRun: _canRunSnippetTarget(context),
+                          onRunSnippet: (snippet) =>
+                              _runSnippetOnActive(context, snippet.command),
+                          onClose: layout.toggleSnippetsPanel,
+                        ),
+                      if (layout.configPanelVisible)
+                        TerminalConfigPanel(
+                          onClose: () =>
+                              layout.toggleSidePanel(SidePanel.terminalConfig),
+                          onOpenSettings: onNavigateToSettings,
+                        ),
+                      KeepAliveOffstage(
+                        key: const ValueKey('terminal-monitor'),
+                        active: layout.monitorPanelVisible,
+                        child: const TerminalMonitorPanel(),
+                      ),
+                    ],
+                  ),
                 ),
-              if (layout.configPanelVisible)
-                TerminalConfigPanel(
-                  onClose: () =>
-                      layout.toggleSidePanel(SidePanel.terminalConfig),
-                  onOpenSettings: onNavigateToSettings,
-                ),
-              if (layout.monitorPanelVisible)
-                const TerminalMonitorPanel(),
-            ],
+              );
+            },
           ),
         ),
       ],
@@ -128,95 +207,124 @@ class SplitTerminalView extends StatelessWidget {
 
   void _runSnippetOnActive(BuildContext context, String command) {
     if (!_canRunSnippetTarget(context)) return;
-    (context.read<SessionProvider>().activeSession! as TerminalSession)
-        .terminal
+    (context.read<SessionProvider>().activeSession! as TerminalSession).terminal
         .textInput('$command\n');
   }
 
-  Widget _buildPanes(BuildContext context, TerminalLayoutProvider layout, List<TerminalSession> sessions, TerminalSession? active) {
+  Widget _buildPanes(
+    BuildContext context,
+    TerminalLayoutProvider layout,
+    List<TerminalSession> sessions,
+    TerminalSession? active,
+  ) {
     final pane0 = active ?? sessions[0];
     switch (layout.layout) {
       case SplitLayout.single:
         return _buildPane(context, 0, pane0, sessions, layout);
 
       case SplitLayout.horizontal:
-        return Row(children: [
-          Expanded(child: _buildPane(context, 0, sessions[0], sessions, layout)),
-          const VerticalDivider(
-            width: _dividerThickness,
-            thickness: _dividerThickness,
-            color: _dividerColor,
-          ),
-          Expanded(
-            child: sessions.length > 1
-                ? _buildPane(context, 1, sessions[1], sessions, layout)
-                : _buildEmptyPane(),
-          ),
-        ]);
+        return Row(
+          children: [
+            Expanded(
+              child: _buildPane(context, 0, sessions[0], sessions, layout),
+            ),
+            const VerticalDivider(
+              width: _dividerThickness,
+              thickness: _dividerThickness,
+              color: _dividerColor,
+            ),
+            Expanded(
+              child: sessions.length > 1
+                  ? _buildPane(context, 1, sessions[1], sessions, layout)
+                  : _buildEmptyPane(),
+            ),
+          ],
+        );
 
       case SplitLayout.vertical:
-        return Column(children: [
-          Expanded(child: _buildPane(context, 0, sessions[0], sessions, layout)),
-          const Divider(
-            height: _dividerThickness,
-            thickness: _dividerThickness,
-            color: _dividerColor,
-          ),
-          Expanded(
-            child: sessions.length > 1
-                ? _buildPane(context, 1, sessions[1], sessions, layout)
-                : _buildEmptyPane(),
-          ),
-        ]);
+        return Column(
+          children: [
+            Expanded(
+              child: _buildPane(context, 0, sessions[0], sessions, layout),
+            ),
+            const Divider(
+              height: _dividerThickness,
+              thickness: _dividerThickness,
+              color: _dividerColor,
+            ),
+            Expanded(
+              child: sessions.length > 1
+                  ? _buildPane(context, 1, sessions[1], sessions, layout)
+                  : _buildEmptyPane(),
+            ),
+          ],
+        );
 
       case SplitLayout.quad:
-        return Column(children: [
-          Expanded(
-            child: Row(children: [
-              Expanded(child: _buildPane(context, 0, sessions[0], sessions, layout)),
-              const VerticalDivider(
-                width: _dividerThickness,
-                thickness: _dividerThickness,
-                color: _dividerColor,
+        return Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildPane(
+                      context,
+                      0,
+                      sessions[0],
+                      sessions,
+                      layout,
+                    ),
+                  ),
+                  const VerticalDivider(
+                    width: _dividerThickness,
+                    thickness: _dividerThickness,
+                    color: _dividerColor,
+                  ),
+                  Expanded(
+                    child: sessions.length > 1
+                        ? _buildPane(context, 1, sessions[1], sessions, layout)
+                        : _buildEmptyPane(),
+                  ),
+                ],
               ),
-              Expanded(
-                child: sessions.length > 1
-                    ? _buildPane(context, 1, sessions[1], sessions, layout)
-                    : _buildEmptyPane(),
+            ),
+            const Divider(
+              height: _dividerThickness,
+              thickness: _dividerThickness,
+              color: _dividerColor,
+            ),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: sessions.length > 2
+                        ? _buildPane(context, 2, sessions[2], sessions, layout)
+                        : _buildEmptyPane(),
+                  ),
+                  const VerticalDivider(
+                    width: _dividerThickness,
+                    thickness: _dividerThickness,
+                    color: _dividerColor,
+                  ),
+                  Expanded(
+                    child: sessions.length > 3
+                        ? _buildPane(context, 3, sessions[3], sessions, layout)
+                        : _buildEmptyPane(),
+                  ),
+                ],
               ),
-            ]),
-          ),
-          const Divider(
-            height: _dividerThickness,
-            thickness: _dividerThickness,
-            color: _dividerColor,
-          ),
-          Expanded(
-            child: Row(children: [
-              Expanded(
-                child: sessions.length > 2
-                    ? _buildPane(context, 2, sessions[2], sessions, layout)
-                    : _buildEmptyPane(),
-              ),
-              const VerticalDivider(
-                width: _dividerThickness,
-                thickness: _dividerThickness,
-                color: _dividerColor,
-              ),
-              Expanded(
-                child: sessions.length > 3
-                    ? _buildPane(context, 3, sessions[3], sessions, layout)
-                    : _buildEmptyPane(),
-              ),
-            ]),
-          ),
-        ]);
+            ),
+          ],
+        );
     }
   }
 
   Widget _buildEmptyPane() {
     return const Center(
-      child: LText("No session", style: TextStyle(color: Color(0xFF555555), fontSize: 13)),
+      child: LText(
+        "No session",
+        style: TextStyle(color: Color(0xFF555555), fontSize: 13),
+      ),
     );
   }
 
@@ -229,7 +337,8 @@ class SplitTerminalView extends StatelessWidget {
   ) {
     // Pane 0 reflects the global inputBarVisible toggle; other panes use it too
     // when broadcast is on, otherwise only pane 0 gets the bar from the hotkey
-    final showInput = layout.inputBarVisible && paneIndex == 0 ||
+    final showInput =
+        layout.inputBarVisible && paneIndex == 0 ||
         (layout.inputBarVisible && layout.broadcastEnabled);
 
     return Column(
@@ -246,16 +355,24 @@ class SplitTerminalView extends StatelessWidget {
           TerminalInputBar(
             sessionId: session.id,
             cwd: context.select<ShellIntegrationProvider, String?>(
-                (p) => p.cwdFor(session.id)),
+              (p) => p.cwdFor(session.id),
+            ),
             // Path completion needs a remote lister — SSH only.
             listDir: session is SshSession
-                ? (dir) =>
-                    context.read<SshService>().listDirectory(session.host, dir)
+                ? (dir) => context.read<SshService>().listDirectory(
+                    session.host,
+                    dir,
+                  )
                 : null,
             onSubmit: (cmd) {
               if (layout.broadcastEnabled) {
-                _broadcastCommand(context, allSessions, cmd, layout,
-                    sourceSessionId: session.id);
+                _broadcastCommand(
+                  context,
+                  allSessions,
+                  cmd,
+                  layout,
+                  sourceSessionId: session.id,
+                );
               } else {
                 _sendCommand(session, cmd);
               }
@@ -270,17 +387,23 @@ class SplitTerminalView extends StatelessWidget {
     // Exhaustive over the known session types — a future third type must
     // fail loudly here instead of being silently treated as SSH.
     return switch (session) {
-      TelnetSession() => TelnetTerminalPane(key: ValueKey(session.id), session: session),
+      TelnetSession() => TelnetTerminalPane(
+        key: ValueKey(session.id),
+        session: session,
+      ),
       LocalSession() => LocalTerminalPane(
-          key: ValueKey(session.id),
-          session: session,
-          onRestart: () =>
-              context.read<SessionProvider>().restartLocalSession(session.id),
-        ),
-      SshSession() =>
-        SessionTerminalView(key: ValueKey(session.id), session: session),
+        key: ValueKey(session.id),
+        session: session,
+        onRestart: () =>
+            context.read<SessionProvider>().restartLocalSession(session.id),
+      ),
+      SshSession() => SessionTerminalView(
+        key: ValueKey(session.id),
+        session: session,
+      ),
       _ => throw UnsupportedError(
-          'Unknown TerminalSession type: ${session.runtimeType}'),
+        'Unknown TerminalSession type: ${session.runtimeType}',
+      ),
     };
   }
 }
@@ -326,7 +449,13 @@ class _WatchBanner extends StatelessWidget {
           if (!sessionEnded)
             GestureDetector(
               onTap: () => context.read<ShareProvider>().leaveSession(),
-              child: LText("Leave", style: TextStyle(color: fg.withValues(alpha: 0.7), fontSize: 11)),
+              child: LText(
+                "Leave",
+                style: TextStyle(
+                  color: fg.withValues(alpha: 0.7),
+                  fontSize: 11,
+                ),
+              ),
             ),
         ],
       ),

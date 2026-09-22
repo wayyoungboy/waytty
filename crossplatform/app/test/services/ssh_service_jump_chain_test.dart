@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yourssh/models/host.dart';
 import 'package:yourssh/models/ssh_key.dart';
+import 'package:yourssh/models/ssh_connection_attempt.dart';
 import 'package:yourssh/services/ssh_service.dart';
 import 'package:yourssh/services/storage_service.dart';
 import 'package:yourssh/services/system_agent_proxy.dart';
@@ -52,6 +53,7 @@ class _ProbeSshService extends SshService {
   Future<({SSHClient client, SystemAgentProxy? proxy})> dialHop(
     Host hop,
     SSHSocket? over, {
+    SshConnectionAttempt? attempt,
     SshKeyEntry? keyEntry,
     Future<bool> Function(String keyType, Uint8List fingerprint)? verifyHostKey,
   }) async {

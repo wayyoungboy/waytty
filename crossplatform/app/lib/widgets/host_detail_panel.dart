@@ -12,8 +12,8 @@ import '../services/shell_integration_service.dart';
 import '../services/ssh_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/terminal_themes.dart';
-import 'agent_status_line.dart';
 import 'host_chain_editor.dart';
+import 'saved_private_key_controls.dart';
 import 'network_discovery_sheet.dart';
 import 'protocol_badge.dart';
 import 'terminal_appearance_controls.dart' show kBundledTerminalFonts;
@@ -29,8 +29,7 @@ class HostDetailPanel extends StatefulWidget {
   final Future<void> Function(Host host, String password) onSave;
   final Future<void> Function(Host host)? onConnect;
 
-  /// Test seam for the agent status line; defaults to the real probe using
-  /// SshService's Keychain loader.
+  /// Retained for compatibility; no agent or credential probe is performed.
   final Future<AgentProbeResult> Function()? agentProbe;
 
   const HostDetailPanel({
@@ -116,12 +115,12 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
         text: (h?.port ?? widget.initialPort ?? _protocol.defaultPort).toString());
     _usernameCtrl = TextEditingController(text: h?.username ?? '');
     _passwordCtrl = TextEditingController();
-    _authType = h?.authType ?? AuthType.password;
+    _authType = h?.authType == AuthType.agent ? AuthType.privateKey : h?.authType ?? AuthType.password;
     _selectedKeyId = h?.keyId;
     _autoRecord = h?.autoRecord ?? false;
     _recordingRedaction = h?.recordingRedaction ?? true;
     _shellIntegration = h?.shellIntegration ?? true;
-    _agentForwarding = h?.agentForwarding ?? false;
+    _agentForwarding = false;
     _osc52Clipboard = h?.osc52Clipboard ?? false;
     _proxyType = h?.proxyType ?? ProxyType.none;
     _proxyHostCtrl = TextEditingController(text: h?.proxyHost ?? '');
@@ -148,30 +147,6 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
     for (final c in [_hostCtrl, _portCtrl, _usernameCtrl, _passwordCtrl]) {
       c.addListener(_clearTestResult);
     }
-    if (h != null &&
-        (_authType == AuthType.password || _proxyType != ProxyType.none)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadExistingPassword(h.id));
-    }
-  }
-
-  Future<void> _loadExistingPassword(String hostId) async {
-    if (!mounted) return;
-    final ssh = context.read<SshService>();
-    if (_authType == AuthType.password) {
-      final pw = await ssh.loadPassword(hostId);
-      if (mounted && pw != null && pw.isNotEmpty && _passwordCtrl.text.isEmpty) {
-        setState(() => _passwordCtrl.text = pw);
-      }
-    }
-    if (_proxyType != ProxyType.none) {
-      final proxyPw = await ssh.loadProxyPassword(hostId);
-      if (mounted &&
-          proxyPw != null &&
-          proxyPw.isNotEmpty &&
-          _proxyPasswordCtrl.text.isEmpty) {
-        setState(() => _proxyPasswordCtrl.text = proxyPw);
-      }
-    }
   }
 
   void _clearTestResult() {
@@ -187,17 +162,6 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
     if (host.isEmpty) return 'this host';
     final user = _usernameCtrl.text.trim();
     return user.isEmpty ? host : '$user@$host';
-  }
-
-  Future<AgentProbeResult> _probeAgent() {
-    final custom = widget.agentProbe;
-    if (custom != null) return custom();
-    // Defensive: the status line probes from its initState; if this panel is
-    // torn down in the same frame, context.read would throw on a dead element.
-    if (!mounted) return Future.value(const AgentProbeNothing());
-    final loader = context.read<SshService>().keychainIdentitiesLoader;
-    return probeAgentStatus(
-        loadKeychainIdentities: loader ?? () async => const []);
   }
 
   static String _fmtFontSize(double? v) => v == null
@@ -373,7 +337,6 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final keys = context.watch<KeyProvider>().keys;
 
     return Container(
       width: 340,
@@ -659,36 +622,16 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
                         items: const [
                           DropdownMenuItem(value: AuthType.password, child: LText("密码")),
                           DropdownMenuItem(value: AuthType.privateKey, child: LText("Private Key")),
-                          DropdownMenuItem(value: AuthType.agent, child: LText("SSH Agent")),
+                          DropdownMenuItem(value: AuthType.certificate, child: LText("Certificate")),
                         ],
                         onChanged: (v) => setState(() { _authType = v!; _selectedKeyId = null; _testResult = null; }),
                       ),
                     ),
-                    if (_authType == AuthType.privateKey) ...[
-                      _divider(),
-                      _DropdownRow(
-                        icon: Icons.vpn_key_outlined,
-                        child: DropdownButton<String>(
-                          value: _selectedKeyId,
-                          isExpanded: true,
-                          hint: const LText("Select key", style: TextStyle(color: AppColors.textTertiary, fontSize: 13)),
-                          style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
-                          dropdownColor: AppColors.card,
-                          underline: const SizedBox(),
-                          items: keys.map((k) => DropdownMenuItem(
-                            value: k.id,
-                            child: LText(LMessage("{0} ({1})", [k.label, k.algorithmLabel])),
-                          )).toList(),
-                          onChanged: (v) => setState(() { _selectedKeyId = v; _testResult = null; }),
-                        ),
-                      ),
-                    ],
-                    if (_authType == AuthType.agent) ...[
-                      _divider(),
-                      AgentStatusLine(
-                          key: const ValueKey('auth-agent-status'),
-                          probe: _probeAgent),
-                    ],
+                    if (_authType != AuthType.password)
+                      const Padding(padding: EdgeInsets.all(12), child: LText(
+                        'Paste the private key when connecting and choose whether to save it with this connection.')),
+                    if (widget.existing != null)
+                      SavedPrivateKeyControls(host: widget.existing!),
                   ]),
 
                   const SizedBox(height: 16),
@@ -896,35 +839,6 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
                       activeThumbColor: AppColors.accent,
                     ),
                     SwitchListTile(
-                      value: _agentForwarding,
-                      onChanged: (v) => setState(() => _agentForwarding = v),
-                      title:  Row(children: [
-                        Flexible(
-                          child: LText(
-                            "Agent forwarding",
-                            style: TextStyle(
-                                color: AppColors.textPrimary, fontSize: 13),
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Tooltip(
-                          message:
-                              tr(context, "SSH Agent auth: your agent's keys log you in to THIS host.\nAgent forwarding: this host can borrow your local keys to reach other places (git pull, ssh to the next hop). Private keys never leave your machine.\nOnly enable for trusted hosts — root on the host can use your keys while you are connected."),
-                          child: Icon(Icons.info_outline,
-                              size: 13, color: AppColors.textTertiary),
-                        ),
-                      ]),
-                      subtitle: const LText(
-                        "Let this host use your local SSH keys for onward connections — git, ssh to other servers (like ssh -A). Applies on next connect.",
-                        style: TextStyle(
-                            color: AppColors.textTertiary, fontSize: 11),
-                      ),
-                      dense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 2),
-                      activeThumbColor: AppColors.accent,
-                    ),
-                    SwitchListTile(
                       value: _osc52Clipboard,
                       onChanged: (v) => setState(() => _osc52Clipboard = v),
                       title: const LText(
@@ -942,13 +856,6 @@ class _HostDetailPanelState extends State<HostDetailPanel> {
                           horizontal: 12, vertical: 2),
                       activeThumbColor: AppColors.accent,
                     ),
-                    // Zero-click feedback: probes on appearance. The auth
-                    // section owns the line when auth = SSH Agent (spec: one
-                    // probe, no duplicate row).
-                    if (_agentForwarding && _authType != AuthType.agent)
-                      AgentStatusLine(
-                          key: const ValueKey('forwarding-status'),
-                          probe: _probeAgent),
                   ]),
 
                   const SizedBox(height: 16),

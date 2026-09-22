@@ -40,3 +40,19 @@ Flutter 收到字节后向原生驱动回传接收确认，限制尚未处理的
 ![中文串口入口](screenshots/serial-zh.png)
 
 本轮没有打开用户物理串口、发送硬件命令或调用真实模型 API。后续需验证真实回环、拔插和线路控制、Windows DLL 分发、Android SDK/平板及芯片组合。ANSI 视图、更多编码、自动热插拔刷新、长时间落盘录制和 AI 串口工具仍按原方案推进。
+
+## 桌面配置所有权回归（2026-09-18）
+
+修复初始化配置以及 DTR/RTS 更新后的原生重复释放。当前 Dart `libserialport` 0.3.0+1 的 `SerialPort.config` setter 会先接管配置，再调用原生 `sp_set_config`；即使原生调用报错，配置仍由端口对象持有。替换配置或 `SerialPort.dispose()` 会释放它，因此应用只能在“配置准备失败、尚未交给 setter”时自行释放。统一通过 `applySerialPortConfig` 管理此边界。
+
+此前串口测试使用模拟后端，未覆盖真实 FFI 配置生命周期。本次增加独立 Dart 子进程原生回归，加载实际分发的 libserialport，使用 null port（不枚举、不打开硬件）验证：1000 轮初始化/线路配置替换、1000 轮接管后异常、1000 轮准备异常，最后释放所属端口。子进程异常退出会让测试失败，而不会使整套 Flutter 测试进程崩溃。
+
+macOS 构建后，从 `crossplatform/app` 执行（工具路径按本机设置）：
+
+```sh
+LIBSERIALPORT_PATH="$PWD/../../dist/waytty.app/Contents/Frameworks/libserialport.framework/Versions/A/libserialport" \
+WAYTTY_TEST_DART=/absolute/path/to/flutter/bin/dart \
+/absolute/path/to/flutter/bin/flutter test --no-pub test/serial
+```
+
+未设置以上原生 fixture 环境时，3 个原生测试会明确跳过，不应把普通模拟测试通过视为原生内存生命周期已验收。本回归不替代 USB 硬件回环、热插拔和 Windows 原生验收。

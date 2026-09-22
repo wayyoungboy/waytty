@@ -8,35 +8,35 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
-  final Map<String, String> secureStore = {};
-
+  final calls = <String>[];
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    secureStore.clear();
+    calls.clear();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
-      switch (call.method) {
-        case 'write':
-          final key = call.arguments['key'] as String;
-          final value = call.arguments['value'] as String?;
-          if (value != null) secureStore[key] = value;
-          return null;
-        case 'read':
-          final key = call.arguments['key'] as String;
-          return secureStore[key];
-        case 'delete':
-          final key = call.arguments['key'] as String;
-          secureStore.remove(key);
-          return null;
-        default:
-          return null;
-      }
+      calls.add(call.method);
+      throw PlatformException(code: 'forbidden-keychain-access');
     });
   });
-
   tearDown(() {
+    expect(calls, isEmpty);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
+  });
+
+  test('restart never reloads API keys from preferences or keychain', () async {
+    SharedPreferences.setMockInitialValues({'ai_api_key': 'legacy-key'});
+    final first = AiChatProvider();
+    await first.ready;
+    expect(first.configured, isFalse);
+    await first.setProviderConfig(AiProvider.openai, apiKey: 'fixture-key');
+    expect(first.configs[AiProvider.openai]!.apiKey, 'fixture-key');
+    first.dispose();
+    final restarted = AiChatProvider();
+    await restarted.ready;
+    expect(restarted.configuredProviders, isEmpty);
+    expect((await SharedPreferences.getInstance()).getString('ai_api_key'), 'legacy-key');
+    restarted.dispose();
   });
 
   group('AiChatProvider', () {

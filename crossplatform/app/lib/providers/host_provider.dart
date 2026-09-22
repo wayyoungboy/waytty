@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
+
 import '../models/host.dart';
 import '../services/storage_service.dart';
 
@@ -11,7 +12,7 @@ class HostProvider extends ChangeNotifier {
   late final Future<void> ready;
   String? loadError;
 
-  /// Called after any mutation so SyncService can push.
+  /// Optional callback after a persisted local mutation.
   Future<void> Function()? onMutation;
 
   /// Fired before a host is removed so dependents (tunnels) can shut down.
@@ -178,6 +179,7 @@ class HostProvider extends ChangeNotifier {
 
   Future<void> deleteHost(String id) async {
     await _readyForWrite();
+    await _storage.privateKeys.remove(id);
     onHostDeleted?.call(id);
     _hosts.removeWhere((h) => h.id == id);
     await _storage.saveHosts(_hosts);
@@ -207,17 +209,26 @@ class HostProvider extends ChangeNotifier {
 
   Future<void> replaceAll(
     List<Host> hosts,
-    Map<String, String> passwords,
-  ) async {
+    Map<String, String> passwords, {
+    bool clearMissingPasswords = false,
+  }) async {
     await _readyForWrite();
     final oldIds = _hosts.map((h) => h.id).toSet();
     final newIds = hosts.map((h) => h.id).toSet();
     final removedIds = oldIds.difference(newIds);
+    for (final id in removedIds) {
+      await _storage.privateKeys.remove(id);
+    }
     for (final entry in passwords.entries) {
       if (!entry.key.startsWith('pw_')) continue;
       final hostId = entry.key.substring(3);
       if (newIds.contains(hostId)) {
         await _storage.savePassword(hostId, entry.value);
+      }
+    }
+    if (clearMissingPasswords) {
+      for (final id in newIds) {
+        if (!passwords.containsKey('pw_$id')) await _storage.deletePassword(id);
       }
     }
     await _storage.saveHosts(hosts);

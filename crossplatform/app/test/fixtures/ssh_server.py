@@ -2,16 +2,30 @@
 import asyncio
 import json
 import sys
+from pathlib import Path
 
 import asyncssh
 
 
 class FixtureServer(asyncssh.SSHServer):
     def begin_auth(self, username):
+        # Optional isolated test evidence: count auth starts, never credentials.
+        if len(sys.argv) > 2:
+            with open(sys.argv[2], 'a') as evidence:
+                evidence.write('auth\n')
         return True
 
     def password_auth_supported(self):
         return True
+
+    def public_key_auth_supported(self):
+        return True
+
+    def validate_public_key(self, username, key):
+        fixture_key = asyncssh.read_private_key(
+            Path(__file__).parent / "keys" / "id_ed25519",
+        )
+        return username == "fixture-key" and key == fixture_key.convert_to_public()
 
     def validate_password(self, username, password):
         return (username in {"fixture", "fixture-fast-shell"}

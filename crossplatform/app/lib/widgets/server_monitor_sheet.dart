@@ -16,6 +16,7 @@ import 'cpu_monitor_section.dart';
 
 class ServerMonitorSheet extends StatefulWidget {
   final Host host;
+  final String? sessionId;
   // Bypasses the SessionProvider check in tests — null means use the real check.
   @visibleForTesting
   final bool? testIsConnected;
@@ -24,6 +25,7 @@ class ServerMonitorSheet extends StatefulWidget {
   const ServerMonitorSheet({
     super.key,
     required this.host,
+    this.sessionId,
     this.testIsConnected,
     this.embedded = false,
   });
@@ -89,6 +91,7 @@ class ServerMonitorSheetState extends State<ServerMonitorSheet> {
   String? _firewallError;
   bool _connected = false;
   bool _paused = false;
+  bool _visible = false;
   final _history = <SystemSnapshot>[];
   final _rates = <String, NetworkStatsDelta>{};
 
@@ -107,6 +110,7 @@ class ServerMonitorSheetState extends State<ServerMonitorSheet> {
           .any(
             (s) =>
                 s.host.id == widget.host.id &&
+                (widget.sessionId == null || s.id == widget.sessionId) &&
                 !s.isWatch &&
                 s.status == SessionStatus.connected,
           );
@@ -114,13 +118,26 @@ class ServerMonitorSheetState extends State<ServerMonitorSheet> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _syncConnection(_isConnected(context));
+    final connected = _isConnected(context);
+    final visible = TickerMode.valuesOf(context).enabled;
+    if (_visible != visible) {
+      _visible = visible;
+      if (!visible) {
+        _statsService?.pause();
+        _firewallService?.pause();
+      } else if (_connected == connected) {
+        // Resume the normal cadence with cached readings still on screen.
+        _startServices(immediate: false);
+      }
+    }
+    _syncConnection(connected);
   }
 
   @override
   void didUpdateWidget(covariant ServerMonitorSheet oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.host.id != widget.host.id) {
+    if (oldWidget.host.id != widget.host.id ||
+        oldWidget.sessionId != widget.sessionId) {
       _syncConnection(false);
       _syncConnection(_isConnected(context, listen: false));
     }
@@ -142,13 +159,14 @@ class ServerMonitorSheetState extends State<ServerMonitorSheet> {
   void _stopServices() {
     _statsService?.stop();
     _firewallService?.stop();
+    _statsService = null;
+    _firewallService = null;
   }
 
-  void _startServices() {
-    _stopServices();
-    if (!_connected || _paused) return;
+  void _startServices({bool immediate = true}) {
+    if (!_connected || _paused || !_visible) return;
     final ssh = context.read<SshService>();
-    _statsService = SystemStatsService(
+    _statsService ??= SystemStatsService(
       host: widget.host,
       sshService: ssh,
       onUpdate: (s) {
@@ -192,7 +210,7 @@ class ServerMonitorSheetState extends State<ServerMonitorSheet> {
         }
       },
     );
-    _firewallService = FirewallStatusService(
+    _firewallService ??= FirewallStatusService(
       host: widget.host,
       sshService: ssh,
       onUpdate: (f) {
@@ -210,8 +228,8 @@ class ServerMonitorSheetState extends State<ServerMonitorSheet> {
     _statsService!.start();
     _firewallService!.start();
     // Deliver first reading immediately rather than waiting for the first tick.
-    _statsService!.poll();
-    _firewallService!.poll();
+    if (immediate || _snapshot == null) _statsService!.poll();
+    if (immediate || _firewall == null) _firewallService!.poll();
   }
 
   @override

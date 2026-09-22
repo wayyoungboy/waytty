@@ -18,6 +18,7 @@ class _NetworkStatsOverlayState extends State<NetworkStatsOverlay> {
   NetworkStatsService? _service;
   NetworkStatsDelta? _delta;
   String? _watchedSessionId;
+  bool _visible = false;
 
   @override
   void didChangeDependencies() {
@@ -34,9 +35,19 @@ class _NetworkStatsOverlayState extends State<NetworkStatsOverlay> {
             active.status == SessionStatus.connected
         ? active
         : null;
-    if (session?.id == _watchedSessionId) return;
-    _watchedSessionId = session?.id;
-    _resetService(session);
+    final visible = TickerMode.valuesOf(context).enabled;
+    final visibilityChanged = visible != _visible;
+    _visible = visible;
+    if (session?.id != _watchedSessionId) {
+      _watchedSessionId = session?.id;
+      _resetService(session);
+    } else if (visibilityChanged) {
+      if (visible) {
+        _service?.start();
+      } else {
+        _service?.stop();
+      }
+    }
   }
 
   void _resetService(SshSession? session) {
@@ -56,7 +67,7 @@ class _NetworkStatsOverlayState extends State<NetworkStatsOverlay> {
         if (mounted) setState(() => _delta = null);
       },
     );
-    _service!.start();
+    if (_visible) _service!.start();
   }
 
   @visibleForTesting

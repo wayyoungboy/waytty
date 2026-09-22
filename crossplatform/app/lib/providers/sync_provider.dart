@@ -1,128 +1,61 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/storage_service.dart';
-import '../services/sync_code.dart';
+import 'account_vault_provider.dart';
 
-enum SyncStatus { idle, syncing, synced, error }
+enum DataMode { local, cloudAccount }
 
+/// Data stays local until a user explicitly signs in and saves a backup.
 class SyncProvider extends ChangeNotifier {
-  static const _supabaseUrlKey = 'supabase_url';
-  static const _supabaseAnonKeyKey = 'supabase_anon_key';
-  static const _syncCodeKey = 'sync_code';
-  static const _legacyPassphraseKey = 'sync_passphrase';
-
-  final StorageService? _storage;
-
-  SyncStatus _status = SyncStatus.idle;
-  String? _error;
-  DateTime? _lastSynced;
-  String _supabaseUrl = '';
-  String _supabaseAnonKey = '';
-  String _syncCode = '';
-  bool _supabaseConfigExplicitlySet = false;
+  static const _modeKey = 'waytty.data_mode';
+  final AccountVaultProvider account;
+  late final Future<void> ready;
+  DataMode _mode = DataMode.local;
   bool _disposed = false;
+  int _modeGeneration = 0;
+  int get modeGeneration => _modeGeneration;
+  DataMode get mode => _mode;
 
-  bool get enabled => isSupabaseConfigured && hasSyncCode;
-  SyncStatus get status => _status;
-  String? get error => _error;
-  DateTime? get lastSynced => _lastSynced;
-  String get supabaseUrl => _supabaseUrl;
-  String get supabaseAnonKey => _supabaseAnonKey;
-
-  /// The 12-char sync code: the single secret for cloud sync (row id + KDF
-  /// input). Empty until the user generates one or joins with an existing code.
-  String get syncCode => _syncCode;
-  bool get hasSyncCode => _syncCode.length == SyncCode.length;
-
-  bool get isSupabaseConfigured => _supabaseUrl.isNotEmpty && _supabaseAnonKey.isNotEmpty;
-
-  // ignore: prefer_initializing_formals
-  SyncProvider({StorageService? storage}) : _storage = storage {
-    _init();
+  SyncProvider({AccountVaultProvider? account})
+    : account = account ?? AccountVaultProvider() {
+    this.account.addListener(_accountChanged);
+    ready = _init();
   }
 
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
+  void _accountChanged() {
+    if (!_disposed) notifyListeners();
   }
 
   Future<void> _init() async {
     final prefs = await SharedPreferences.getInstance();
     if (_disposed) return;
-    if (!_supabaseConfigExplicitlySet) {
-      _supabaseUrl = prefs.getString(_supabaseUrlKey) ?? '';
-      _supabaseAnonKey = prefs.getString(_supabaseAnonKeyKey) ?? '';
+    // Legacy sync-code settings never activate a network connection. Leave old
+    // settings and local data intact so users can recover them with an old build.
+    _mode = prefs.getString(_modeKey) == DataMode.cloudAccount.name
+        ? DataMode.cloudAccount
+        : DataMode.local;
+    if (prefs.getString(_modeKey) == 'legacySync') {
+      await prefs.setString(_modeKey, DataMode.local.name);
     }
-    if (_storage != null) {
-      try {
-        _syncCode = await _storage.loadGenericSecret(_syncCodeKey) ?? '';
-        await _storage.deleteGenericSecret(_legacyPassphraseKey);
-      } catch (e) {
-        _status = SyncStatus.error;
-        _error = '无法读取系统钥匙串：$e';
-      }
-    }
+    if (!_disposed) notifyListeners();
+  }
+
+  Future<void> selectMode(DataMode mode) async {
+    await ready;
     if (_disposed) return;
-    notifyListeners();
-  }
-
-  Future<void> setSupabaseConfig(String url, String anonKey) async {
-    _supabaseUrl = url.trim();
-    _supabaseAnonKey = anonKey.trim();
-    _supabaseConfigExplicitlySet = true;
+    _modeGeneration++;
+    _mode = mode;
+    if (mode == DataMode.local) account.disconnect();
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_supabaseUrlKey, _supabaseUrl);
-    await prefs.setString(_supabaseAnonKeyKey, _supabaseAnonKey);
+    await prefs.setString(_modeKey, mode.name);
   }
 
-  Future<void> setSyncCode(String value) async {
-    final normalized = SyncCode.normalize(value);
-    if (_storage != null) {
-      if (normalized.isEmpty) {
-        await _storage.deleteGenericSecret(_syncCodeKey);
-      } else {
-        await _storage.saveGenericSecret(_syncCodeKey, normalized);
-      }
-    }
-    _syncCode = normalized;
-    notifyListeners();
-  }
-
-  Future<String> generateSyncCode() async {
-    final code = SyncCode.generate();
-    await setSyncCode(code);
-    return code;
-  }
-
-  Future<void> clearSupabaseConfig() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_supabaseUrlKey);
-    await prefs.remove(_supabaseAnonKeyKey);
-    if (_storage != null) {
-      await _storage.deleteGenericSecret(_syncCodeKey);
-    }
-    _supabaseUrl = '';
-    _supabaseAnonKey = '';
-    _syncCode = '';
-    _supabaseConfigExplicitlySet = false;
-    notifyListeners();
-  }
-
-  void setStatus(SyncStatus status) {
-    _status = status;
-    if (status == SyncStatus.synced) {
-      _error = null;
-      _lastSynced = DateTime.now();
-    }
-    notifyListeners();
-  }
-
-  void setError(String message) {
-    _status = SyncStatus.error;
-    _error = message;
-    notifyListeners();
+  @override
+  void dispose() {
+    _disposed = true;
+    _modeGeneration++;
+    account.removeListener(_accountChanged);
+    account.dispose();
+    super.dispose();
   }
 }

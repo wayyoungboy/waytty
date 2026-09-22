@@ -28,12 +28,7 @@ enum ReadinessSignal {
 /// zsh/bash emit `h` exactly when the editor starts reading.
 class InjectionReadiness {
   String _scanTail = '';
-  bool _bpEver = false;
   bool _bpOn = false;
-
-  /// Whether bracketed paste was ever seen — a shell that has it never needs
-  /// the probe fallback.
-  bool get bpEver => _bpEver;
 
   /// Whether the line editor is reading right now (last toggle was `h`).
   bool get bpOn => _bpOn;
@@ -49,26 +44,8 @@ class InjectionReadiness {
     final hi = scan.lastIndexOf('\x1b[?2004h');
     final lo = scan.lastIndexOf('\x1b[?2004l');
     if (hi < 0 && lo < 0) return ReadinessSignal.none;
-    _bpEver = true;
     _bpOn = hi > lo;
     return _bpOn ? ReadinessSignal.editorReading : ReadinessSignal.editorBusy;
-  }
-
-  static final _escapes = RegExp(
-      r'\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)' // OSC
-      r'|\x1b\[[0-9;?]*[A-Za-z]' // CSI
-      r'|\x1b.' // ESC + one (charset, keypad…)
-      r'|[\x00-\x08\x0b-\x1f]' // other C0 controls
-      );
-  static const _promptChars = r'$#%>❯➜»';
-
-  /// Whether [s] (output accumulated since a probe) ends in something that
-  /// looks like a shell prompt once escape sequences are stripped. Fallback
-  /// readiness check for shells without bracketed paste (bash ≤ 5.0).
-  static bool promptLikeTail(String s) {
-    final visible = s.replaceAll(_escapes, '').trimRight();
-    if (visible.isEmpty) return false;
-    return _promptChars.contains(visible[visible.length - 1]);
   }
 }
 

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_libserialport/flutter_libserialport.dart' as native;
 import '../../models/serial_models.dart';
 import 'serial_backend.dart';
+import 'desktop_serial_config.dart';
 
 /// Each open port is owned by one worker isolate. Native handles never cross
 /// isolates, and polling/nonblocking writes do not run on Flutter's UI isolate.
@@ -208,8 +209,7 @@ void _serialWorker(List<Object> args) {
     if (!owned.openReadWrite()) {
       throw StateError(native.SerialPort.lastError.toString());
     }
-    final settings = native.SerialPortConfig();
-    try {
+    applySerialPortConfig(owned, (settings) {
       settings.baudRate = config.baudRate;
       settings.bits = config.dataBits;
       settings.parity = config.parity.index;
@@ -224,10 +224,7 @@ void _serialWorker(List<Object> args) {
       if (config.flowControl != SerialFlowControl.rtsCts) {
         settings.rts = native.SerialPortRts.off;
       }
-      owned.config = settings;
-    } finally {
-      settings.dispose();
-    }
+    });
     events.send({'type': 'ready', 'port': commands.sendPort});
     poll = Timer.periodic(const Duration(milliseconds: 10), (_) {
       if (port == null || awaitingReadAck) return;
@@ -263,17 +260,13 @@ void _serialWorker(List<Object> args) {
               final ok = enabled ? owned.startBreak() : owned.endBreak();
               if (!ok) throw StateError(native.SerialPort.lastError.toString());
             } else {
-              final update = native.SerialPortConfig();
-              try {
+              applySerialPortConfig(owned, (update) {
                 if (signal['signal'] == SerialSignal.dtr.name) {
                   update.dtr = enabled ? 1 : 0;
                 } else {
                   update.rts = enabled ? 1 : 0;
                 }
-                owned.config = update;
-              } finally {
-                update.dispose();
-              }
+              });
             }
           case 'close':
             cleanup();

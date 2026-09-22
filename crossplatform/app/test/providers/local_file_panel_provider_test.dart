@@ -199,4 +199,13 @@ void main() {
           reason: 'select-then-filter must not keep hidden files selected');
     });
   });
+  test('nested tree selection is available for actions and cleared on navigation', () {
+    final nested = _entry('src/main.dart');
+    provider.setEntriesForTest([_entry('src', isDir: true)]);
+    provider.selectOnly(nested);
+    expect(provider.selectedEntries, {nested});
+    provider.pushPath('/elsewhere');
+    expect(provider.selectedEntries, isEmpty);
+  });
+
 }

@@ -27,7 +27,7 @@ void main() {
   test('monitor probes never reconnect an offline host', () async {
     var attempts = 0;
     final ssh = SshService(StorageService())
-      ..defaultHostKeyVerifier = (_, port, type, fingerprint) async {
+      ..defaultHostKeyVerifier = (_, port, type, fingerprint, {attempt}) async {
         attempts++;
         return true;
       };

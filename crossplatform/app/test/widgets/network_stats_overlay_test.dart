@@ -18,6 +18,7 @@ import 'package:yourssh/services/ssh_service.dart';
 import 'package:yourssh/services/storage_service.dart';
 import 'package:yourssh/services/tab_metadata_service.dart';
 import 'package:yourssh/widgets/network_stats_overlay.dart';
+import 'package:yourssh/widgets/keep_alive_offstage.dart';
 
 class _FakePty implements PtyRunner {
   final _output = StreamController<List<int>>();
@@ -73,6 +74,43 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
+
+  testWidgets('offstage overlay stops polling without dropping its last reading', (tester) async {
+    SharedPreferences.setMockInitialValues({'networkStatsEnabled': true});
+    final ssh = _OverlaySsh();
+    final sessions = _OverlaySessions(SshSession(
+      host: Host(label: 'fixture', host: 'fixture.invalid', username: 'fixture'),
+      status: SessionStatus.connected,
+    ));
+    final settings = SettingsProvider();
+    Widget app(bool visible) => MultiProvider(providers: [
+      ChangeNotifierProvider<SessionProvider>.value(value: sessions),
+      ChangeNotifierProvider.value(value: settings),
+      Provider<SshService>.value(value: ssh),
+    ], child: MaterialApp(home: KeepAliveOffstage(active: visible,
+      child: const NetworkStatsOverlay())));
+    await tester.pumpWidget(app(true));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+    expect(ssh.calls, 1);
+    final dynamic state = tester.state(find.byType(NetworkStatsOverlay));
+    state.debugSetDelta(
+      const NetworkStatsDelta(rxBytesPerSec: 1024, txBytesPerSec: 2048),
+    );
+    await tester.pump();
+    await tester.pumpWidget(app(false));
+    await tester.pump(const Duration(seconds: 20));
+    expect(ssh.calls, 1);
+    await tester.pumpWidget(app(true));
+    expect(tester.state(find.byType(NetworkStatsOverlay)), same(state));
+    expect(find.byIcon(Icons.arrow_downward), findsOneWidget);
+    expect(ssh.calls, 1);
+    await tester.pump(const Duration(seconds: 2));
+    expect(ssh.calls, 2);
+    await tester.pumpWidget(const SizedBox());
+    settings.dispose();
+    sessions.dispose();
+  });
 
   testWidgets('disabled or disconnected network overlay does not poll', (
     tester,

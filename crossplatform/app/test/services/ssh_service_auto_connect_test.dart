@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yourssh/models/host.dart';
+import 'package:yourssh/models/ssh_credentials.dart';
 import 'package:yourssh/services/ssh_service.dart';
 import 'package:yourssh/services/storage_service.dart';
 
@@ -65,8 +66,7 @@ void main() {
     );
     await expectLater(
       svc.connect(host),
-      throwsA(predicate((e) =>
-          e is Exception && e.toString().contains('No key linked for certificate auth'))),
+      throwsA(isA<ManualAuthenticationRequired>()),
     );
   });
 }

@@ -14,6 +14,7 @@ import '../models/vnc_session.dart';
 import '../models/shell_profile.dart';
 import '../models/ssh_key.dart';
 import '../models/ssh_session.dart';
+import '../models/ssh_credentials.dart';
 import '../models/app_session.dart';
 import '../models/serial_models.dart';
 import '../models/serial_session.dart';
@@ -96,6 +97,9 @@ class SessionProvider extends ChangeNotifier {
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    for (final hostId in sshSessions.map((s) => s.host.id).toSet()) {
+      _ssh.disconnect(hostId);
+    }
     for (final session in _sessions.whereType<SerialSession>()) {
       session.onStateChanged = null;
       session.dispose();
@@ -475,8 +479,12 @@ class SessionProvider extends ChangeNotifier {
     await connectVnc(old.host);
   }
 
-  Future<void> _doConnect(SshSession session, Host host, {required int attempt}) async {
+  Future<void> _doConnect(SshSession session, Host host, {required int attempt, bool interactive = true}) async {
+    if (_disposed || !_sessions.contains(session)) return;
     try {
+      if (!interactive && !_ssh.isConnected(host.id)) {
+        throw const ManualAuthenticationRequired();
+      }
       final keyEntry = host.keyId != null ? keyLookup?.call(host.keyId!) : null;
       final jumpChain = SshService.resolveJumpChain(
         host,
@@ -505,6 +513,7 @@ class SessionProvider extends ChangeNotifier {
                 _verifyAndLog(session, hop.host, hop.port, keyType, fp)
             : null,
       );
+      if (_disposed || !_sessions.contains(session)) return;
       session.logConnection(ConnectionLogLevel.success, 'Connection established');
       session.status = SessionStatus.connected;
       audit?.record(AuditEvent.now(
@@ -529,6 +538,7 @@ class SessionProvider extends ChangeNotifier {
         useTmux: host.tmuxOverride ?? tmuxEnabled?.call() ?? false,
         termType: host.termType ?? terminalType?.call() ?? 'xterm-256color',
       );
+      if (_disposed || !_sessions.contains(session)) return;
       _safeNotify();
 
       // Shell closed — try auto-reconnect
@@ -552,13 +562,15 @@ class SessionProvider extends ChangeNotifier {
         _safeNotify();
       }
     } catch (e) {
-      if (!_sessions.contains(session)) return;
+      if (_disposed || !_sessions.contains(session)) return;
       session.logConnection(ConnectionLogLevel.error, 'Connection failed: $e');
       final maxAttempts = reconnectAttempts?.call() ?? 0;
       final isUnlimited = maxAttempts == 0;
       // A jump-chain config error (deleted bastion, cycle) can never succeed
       // on retry — don't loop on it, surface it immediately.
-      final isConfigError = e is JumpChainException;
+      final isConfigError = e is JumpChainException ||
+          e is ManualAuthenticationRequired || e is AuthenticationCancelled ||
+          e is FormatException;
       final shouldRetry = !isConfigError &&
           (autoReconnectEnabled?.call() ?? false) &&
           (isUnlimited || attempt < maxAttempts);
@@ -630,7 +642,7 @@ class SessionProvider extends ChangeNotifier {
     _reconnectTimers[session.id] = Timer(Duration(seconds: delay), () {
       _reconnectTimers.remove(session.id);
       if (_disposed || !_sessions.contains(session)) return;
-      _doConnect(session, host, attempt: attempt);
+      _doConnect(session, host, attempt: attempt, interactive: false);
     });
   }
 

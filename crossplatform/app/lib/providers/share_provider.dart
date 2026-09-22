@@ -5,10 +5,9 @@ import '../models/share_event.dart';
 import '../models/ssh_session.dart';
 import '../services/share_session_service.dart';
 import 'session_provider.dart';
-import 'sync_provider.dart';
 
 class ShareProvider extends ChangeNotifier {
-  final SyncProvider _syncProvider;
+  final ShareTransport Function()? _createTransport;
   SessionProvider? _sessionProvider;
   HookBus? _hookBus;
 
@@ -26,7 +25,7 @@ class ShareProvider extends ChangeNotifier {
   bool _hasControl = false;
   bool _sessionEnded = false;
 
-  bool get canShare => _syncProvider.isSupabaseConfigured;
+  bool get canShare => _createTransport != null;
   bool get isSharing => _isSharing;
   String? get shareCode => _shareCode;
   String? get sharingSessionId => _sharingSessionId;
@@ -40,13 +39,12 @@ class ShareProvider extends ChangeNotifier {
   void Function(String)? onGuestInput;
 
   ShareProvider({
-    required SyncProvider syncProvider,
+    ShareTransport Function()? createTransport,
     SessionProvider? sessionProvider,
     HookBus? hookBus,
-  })  : _syncProvider = syncProvider, // ignore: prefer_initializing_formals
+  })  : _createTransport = createTransport, // ignore: prefer_initializing_formals
         _sessionProvider = sessionProvider, // ignore: prefer_initializing_formals
         _hookBus = hookBus { // ignore: prefer_initializing_formals
-    _syncProvider.addListener(_onSyncChanged);
   }
 
   void wireDependencies(SessionProvider sessionProvider, HookBus hookBus) {
@@ -55,16 +53,15 @@ class ShareProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _onSyncChanged() => notifyListeners();
 
   // ─── Host ────────────────────────────────────────────
 
   Future<String> startSharing(String sessionId) async {
     if (_isSharing) return _shareCode!;
-    assert(canShare, 'canShare must be true before calling startSharing');
+    if (!canShare) throw StateError('Realtime sharing is unavailable in this build.');
     assert(_hookBus != null, '_hookBus must be wired via wireDependencies() before calling startSharing');
     _sharingSessionId = sessionId;
-    final service = ShareSessionService();
+    final service = ShareSessionService(transport: _createTransport?.call());
     service.onPresenceLeave = (guestId) {
       _guests.remove(guestId);
       if (_controlledBy == guestId) {
@@ -77,8 +74,6 @@ class ShareProvider extends ChangeNotifier {
     final code = await service.startSharing(
       sessionId,
       _hookBus!,
-      _syncProvider.supabaseUrl,
-      _syncProvider.supabaseAnonKey,
     );
     _isSharing = true;
     _shareCode = code;
@@ -137,9 +132,8 @@ class ShareProvider extends ChangeNotifier {
 
   Future<void> joinSession(
     String shareCode,
-    String supabaseUrl,
-    String anonKey,
   ) async {
+    if (!canShare) throw StateError('Realtime sharing is unavailable in this build.');
     // Clean up any existing guest session first
     if (_isGuest) await leaveSession();
 
@@ -151,15 +145,13 @@ class ShareProvider extends ChangeNotifier {
 
     _sessionProvider?.addWatchSession(watchSession);
 
-    final service = ShareSessionService();
+    final service = ShareSessionService(transport: _createTransport?.call());
     _service = service;
     _eventSub = service.events
         .listen((event) => _onGuestEvent(event, service.guestId));
 
     await service.joinSession(
       shareCode,
-      supabaseUrl,
-      anonKey,
       watchSession.terminal,
     );
     notifyListeners();
@@ -214,7 +206,6 @@ class ShareProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _syncProvider.removeListener(_onSyncChanged);
     _eventSub?.cancel();
     super.dispose();
   }

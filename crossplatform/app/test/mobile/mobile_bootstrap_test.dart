@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import '../helpers/secure_store.dart';
+import 'package:yourssh/models/ssh_connection_attempt.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -12,12 +14,11 @@ void main() {
   setUp(installSecureStoreMock);
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('constructs services and wires SessionProvider callbacks', () {
+  test('constructs services and wires cancellable trust verification', () async {
     final b = MobileBootstrap();
 
     // Connect-critical callbacks must be wired.
     expect(b.sessions.keyLookup, isNotNull);
-    expect(b.sessions.hostKeyVerifier, isNotNull);
     expect(b.sessions.autoReconnectEnabled, isNotNull);
     expect(b.sessions.terminalType, isNotNull);
     expect(b.ssh.defaultHostKeyVerifier, isNotNull);
@@ -25,12 +26,21 @@ void main() {
 
     // Exposes a provider list for the widget tree.
     expect(b.providers, isNotEmpty);
+    final attempt = SshConnectionAttempt();
+    final decision = b.ssh.defaultHostKeyVerifier!(
+      'fixture.invalid', 22, 'ssh-ed25519', Uint8List(16), attempt: attempt);
+    expect(b.knownHosts.pendingChallenge, isNotNull);
+    attempt.cancel();
+    expect(await decision, false);
+    expect(b.knownHosts.hosts, isEmpty);
+    // Let constructor-started fixture loads finish before tearing services down.
+    await Future<void>.delayed(Duration.zero);
+    b.dispose();
   });
 
-  test('exposes sync provider + service', () {
+  test('exposes local/cloud mode provider', () {
     final b = MobileBootstrap();
     expect(b.sync, isNotNull);
-    expect(b.syncService, isNotNull);
   });
 
   test('exposes snippets + transfer service', () {
@@ -43,11 +53,6 @@ void main() {
     final b = MobileBootstrap();
     expect(b.portForwardProvider, isNotNull);
     expect(b.portForwardService, isNotNull);
-  });
-
-  test('port-forward provider is in the providers list', () {
-    final b = MobileBootstrap();
-    expect(b.providers.length, greaterThanOrEqualTo(14));
   });
 
   testWidgets('providers resolve from a child context', (tester) async {

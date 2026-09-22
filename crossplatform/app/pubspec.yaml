@@ -25,7 +25,6 @@ dependencies:
   flutter_libserialport: ^0.6.0
 
   # Secure credential storage (Keychain on macOS, Credential Manager on Windows)
-  flutter_secure_storage: ^9.2.2
 
   # State management
   provider: ^6.1.2
@@ -66,14 +65,13 @@ dependencies:
   # WebView for code editor
   webview_flutter: ^4.8.0
 
-  # Supabase backend integration.
   # Held at 2.12.x by the lockfile on purpose (#96): 2.13+ depends on passkeys,
   # whose passkeys_darwin plugin needs macOS 13.5 while the Runner targets 10.15,
   # which breaks `flutter build macos`. Bumping this means raising
   # MACOSX_DEPLOYMENT_TARGET in the same change.
-  supabase_flutter: ^2.5.0
 
-  # HTTP client for Supabase migration API calls
+
+  # Standalone account API and HTTP integrations
   http: ^1.2.0
 
   # Plugin system

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ssh_key.dart';
 
@@ -27,37 +26,8 @@ class KeyProvider extends ChangeNotifier {
         _keys = [];
       }
     }
-    // Auto-discover keys from ~/.ssh
-    await _discoverSshKeys();
+    // Saved metadata is displayed only; never discover or load private keys.
     notifyListeners();
-  }
-
-  Future<void> _discoverSshKeys() async {
-    final sshDir = Directory(p.join(Platform.environment['HOME'] ?? '', '.ssh'));
-    if (!sshDir.existsSync()) return;
-
-    final knownPrivate = {'id_ed25519', 'id_rsa', 'id_ecdsa', 'id_dsa'};
-    for (final name in knownPrivate) {
-      final keyFile = File(p.join(sshDir.path, name));
-      final pubFile = File(p.join(sshDir.path, '$name.pub'));
-      if (!keyFile.existsSync()) continue;
-      // Skip already registered keys
-      if (_keys.any((k) => k.privateKeyPath == keyFile.path)) continue;
-
-      final algo = _algorithmFrom(name);
-      final pubKey = pubFile.existsSync() ? pubFile.readAsStringSync().trim() : '';
-      _keys.add(SshKeyEntry(
-        label: name,
-        algorithm: algo,
-        publicKey: pubKey,
-        privateKeyPath: keyFile.path,
-      ));
-      final certFile = File(p.join(sshDir.path, '$name-cert.pub'));
-      if (certFile.existsSync()) {
-        _keys.last.certificatePath = certFile.path;
-      }
-    }
-    await _save();
   }
 
   /// Infers the key algorithm from a filename or path by substring match.
@@ -67,8 +37,7 @@ class KeyProvider extends ChangeNotifier {
     return KeyAlgorithm.rsa;
   }
 
-  /// Persists key passphrases (wired to StorageService.savePassphrase in
-  /// main.dart — StorageService is not in the provider tree).
+  /// Optional explicit-import hook. Unwired in the app: no persisted passphrases.
   Future<void> Function(String keyId, String passphrase)? savePassphrase;
 
   Future<SshKeyEntry> addKeyFromFile(String path, String label) async {

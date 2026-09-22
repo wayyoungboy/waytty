@@ -1,17 +1,24 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xterm/xterm.dart';
 import 'package:yourssh_script_engine/yourssh_script_engine.dart';
 import '../models/share_event.dart';
 
+/// Transport contract retained for a future self-hosted sharing service.
+/// No realtime transport is enabled in this build.
+abstract class ShareTransport {
+  Future<void> connect(String code, {required void Function(Map<String, dynamic>) onMessage, void Function(String)? onLeave});
+  Future<void> send(Map<String, dynamic> payload);
+  Future<void> trackGuest(String guestId);
+  Future<void> close();
+}
+
 class ShareSessionService {
   static const maxBufferLength = 500 * 1024;
   static const _chunkSize = 80 * 1024;
   static const _pluginId = 'yourssh_share_service';
-  static const _broadcastEvent = 'share';
 
   final _outputBuffer = StringBuffer();
   int _bufferLength = 0;
@@ -22,8 +29,7 @@ class ShareSessionService {
   /// The SSH session ID currently being shared, or null when not sharing.
   String? get activeSessionId => _sessionId;
 
-  SupabaseClient? _client;
-  RealtimeChannel? _channel;
+  final ShareTransport? _transport;
 
   Terminal? _guestTerminal;
   final _chunkAccumulator = <int, String>{};
@@ -37,10 +43,11 @@ class ShareSessionService {
 
   // ─── Constructor ─────────────────────────────────────
 
-  ShareSessionService();
+  // ignore: prefer_initializing_formals
+  ShareSessionService({ShareTransport? transport}) : _transport = transport;
 
   /// Named constructor for unit tests — no external dependencies required.
-  ShareSessionService.forTest();
+  ShareSessionService.forTest() : _transport = null;
 
   // ─── Helpers ─────────────────────────────────────────
 
@@ -67,9 +74,11 @@ class ShareSessionService {
   Future<String> startSharing(
     String sessionId,
     HookBus hookBus,
-    String supabaseUrl,
-    String anonKey,
   ) async {
+    final transport = _transport;
+    if (transport == null) throw StateError('Realtime sharing is unavailable in this build.');
+    final code = generateShareCode();
+    await transport.connect(code, onMessage: _onHostReceived, onLeave: (id) => onPresenceLeave?.call(id));
     _sessionId = sessionId;
     _hookBus = hookBus;
     _outputBuffer.clear();
@@ -82,25 +91,6 @@ class ShareSessionService {
       }
       return event.data;
     });
-
-    final code = generateShareCode();
-    _client = SupabaseClient(supabaseUrl, anonKey);
-    _channel = _client!.channel('share:$code');
-
-    _channel!
-        .onBroadcast(
-          event: _broadcastEvent,
-          callback: (payload) => _onHostReceived(payload),
-        )
-        .onPresenceLeave((leavePayload) {
-          for (final p in leavePayload.leftPresences) {
-            final guestId = p.payload['guestId'] as String?;
-            if (guestId != null) {
-              onPresenceLeave?.call(guestId);
-            }
-          }
-        })
-        .subscribe();
 
     return code;
   }
@@ -115,21 +105,17 @@ class ShareSessionService {
   }
 
   void _broadcastOutput(String text) {
-    _channel?.sendBroadcastMessage(
-      event: _broadcastEvent,
-      payload: ShareEvent.output(text).toJson(),
+    _transport?.send(ShareEvent.output(text).toJson(),
     );
   }
 
   Future<void> sendSnapshot(String guestId) async {
-    if (_channel == null) return;
+    if (_transport == null) return;
     final snapshot = _outputBuffer.toString();
     if (snapshot.length <= _chunkSize) {
       final payload = ShareEvent.snapshot(snapshot).toJson()
         ..['targetGuestId'] = guestId;
-      await _channel!.sendBroadcastMessage(
-        event: _broadcastEvent,
-        payload: payload,
+      await _transport.send(payload,
       );
     } else {
       final chunks = <String>[];
@@ -139,32 +125,24 @@ class ShareSessionService {
       for (var i = 0; i < chunks.length; i++) {
         final payload = ShareEvent.snapshotChunk(chunks[i], i, chunks.length).toJson()
           ..['targetGuestId'] = guestId;
-        await _channel!.sendBroadcastMessage(
-          event: _broadcastEvent,
-          payload: payload,
+        await _transport.send(payload,
         );
       }
     }
   }
 
   Future<void> sendRejected(String guestId, String reason) async {
-    await _channel?.sendBroadcastMessage(
-      event: _broadcastEvent,
-      payload: ShareEvent.rejected(reason).toJson(),
+    await _transport?.send(ShareEvent.rejected(reason).toJson(),
     );
   }
 
   Future<void> grantControl(String guestId) async {
-    await _channel?.sendBroadcastMessage(
-      event: _broadcastEvent,
-      payload: ShareEvent.controlGrant(guestId).toJson(),
+    await _transport?.send(ShareEvent.controlGrant(guestId).toJson(),
     );
   }
 
   Future<void> revokeControl() async {
-    await _channel?.sendBroadcastMessage(
-      event: _broadcastEvent,
-      payload: ShareEvent.controlRevoke().toJson(),
+    await _transport?.send(ShareEvent.controlRevoke().toJson(),
     );
   }
 
@@ -172,16 +150,9 @@ class ShareSessionService {
     _hookBus?.unregisterAll(_pluginId);
     _hookBus = null;
     _sessionId = null;
-    await _channel?.sendBroadcastMessage(
-      event: _broadcastEvent,
-      payload: ShareEvent.ended().toJson(),
+    await _transport?.send(ShareEvent.ended().toJson(),
     );
-    if (_client != null && _channel != null) {
-      await _client!.removeChannel(_channel!);
-    }
-    _channel = null;
-    _client?.dispose();
-    _client = null;
+    await _transport?.close();
     _outputBuffer.clear();
     _bufferLength = 0;
   }
@@ -193,28 +164,14 @@ class ShareSessionService {
 
   Future<void> joinSession(
     String shareCode,
-    String supabaseUrl,
-    String anonKey,
     Terminal localTerminal,
   ) async {
+    final transport = _transport;
+    if (transport == null) throw StateError('Realtime sharing is unavailable in this build.');
+    await transport.connect(shareCode, onMessage: _onGuestReceived);
     _guestTerminal = localTerminal;
-    _client = SupabaseClient(supabaseUrl, anonKey);
-    _channel = _client!.channel('share:$shareCode');
-
-    _channel!
-        .onBroadcast(
-          event: _broadcastEvent,
-          callback: (payload) => _onGuestReceived(payload),
-        )
-        .subscribe((status, _) async {
-          if (status == RealtimeSubscribeStatus.subscribed) {
-            await _channel!.track({'guestId': _guestId, 'role': 'guest'});
-            await _channel!.sendBroadcastMessage(
-              event: _broadcastEvent,
-              payload: ShareEvent.joinRequest(_guestId).toJson(),
-            );
-          }
-        });
+    await transport.trackGuest(_guestId);
+    await transport.send(ShareEvent.joinRequest(_guestId).toJson());
   }
 
   void _onGuestReceived(Map<String, dynamic> payload) {
@@ -273,20 +230,12 @@ class ShareSessionService {
   }
 
   Future<void> sendGuestInput(String data) async {
-    await _channel?.sendBroadcastMessage(
-      event: _broadcastEvent,
-      payload: ShareEvent.input(data).toJson(),
+    await _transport?.send(ShareEvent.input(data).toJson(),
     );
   }
 
   Future<void> leaveSession() async {
-    await _channel?.untrack();
-    if (_client != null && _channel != null) {
-      await _client!.removeChannel(_channel!);
-    }
-    _channel = null;
-    _client?.dispose();
-    _client = null;
+    await _transport?.close();
     _guestTerminal = null;
     _chunkAccumulator.clear();
   }

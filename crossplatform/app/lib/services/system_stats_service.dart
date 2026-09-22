@@ -27,6 +27,11 @@ class SystemStatsService {
 
   void stop() {
     _generation++;
+    pause();
+  }
+
+  /// Suspend future ticks while allowing a visible-started sample to finish.
+  void pause() {
     _timer?.cancel();
     _timer = null;
   }

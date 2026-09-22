@@ -1,9 +1,12 @@
 import 'package:waytty_l10n/waytty_l10n.dart';
+
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
+
 import '../models/local_entry.dart';
 import '../providers/local_file_panel_provider.dart';
 import '../services/app_discovery_service.dart';
@@ -13,9 +16,11 @@ import '../util/fs_error.dart';
 import 'entry_context_menu.dart';
 import 'path_breadcrumb.dart';
 import 'permissions_dialog.dart';
+import 'file_tree_view.dart';
 
 class LocalFilePanel extends StatefulWidget {
   final LocalFilePanelProvider provider;
+  final FileTreeCache<LocalEntry>? treeCache;
 
   /// When set, shows a "Local" source chip next to the breadcrumb that
   /// opens the panel's source picker (two-panel SFTP layout).
@@ -31,6 +36,7 @@ class LocalFilePanel extends StatefulWidget {
   const LocalFilePanel({
     super.key,
     required this.provider,
+    this.treeCache,
     this.onChangeSource,
     this.onCopyToTarget,
     this.copyToTargetBlockReason,
@@ -45,7 +51,11 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) widget.provider.reload();
+      if (mounted &&
+          (widget.treeCache == null ||
+              widget.provider.loadState != LocalFilePanelLoadState.loaded)) {
+        widget.provider.reload();
+      }
     });
   }
 
@@ -64,8 +74,10 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
       if (mounted) await widget.provider.reload();
     } catch (e) {
       if (mounted) {
-        _showError('Failed to create folder: '
-            '${describeFileSystemError(e, path: newPath)}');
+        _showError(
+          'Failed to create folder: '
+          '${describeFileSystemError(e, path: newPath)}',
+        );
       }
     }
   }
@@ -99,7 +111,8 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
     } catch (e) {
       if (mounted) {
         _showError(
-            'Rename failed: ${describeFileSystemError(e, path: entry.path)}');
+          'Rename failed: ${describeFileSystemError(e, path: entry.path)}',
+        );
       }
     }
   }
@@ -113,9 +126,14 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const LText("Delete", style: TextStyle(color: Color(0xFFD4D4D4))),
+        title: const LText(
+          "Delete",
+          style: TextStyle(color: Color(0xFFD4D4D4)),
+        ),
         content: LText(
-          LMessage("Delete {0} item(s)? This cannot be undone.", [entries.length]),
+          LMessage("Delete {0} item(s)? This cannot be undone.", [
+            entries.length,
+          ]),
           style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
         ),
         actions: [
@@ -145,8 +163,10 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
       if (mounted) await widget.provider.reload();
     } catch (e) {
       if (mounted) {
-        _showError('Delete failed: '
-            '${describeFileSystemError(e, path: entries.first.path)}');
+        _showError(
+          'Delete failed: '
+          '${describeFileSystemError(e, path: entries.first.path)}',
+        );
       }
     }
   }
@@ -183,7 +203,8 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
     } catch (e) {
       if (mounted) {
         _showError(
-            'chmod failed: ${describeFileSystemError(e, path: entry.path)}');
+          'chmod failed: ${describeFileSystemError(e, path: entry.path)}',
+        );
       }
     }
   }
@@ -209,7 +230,7 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
             _buildHeader(prov),
             if (prov.filterVisible) _buildFilterBar(prov),
             _buildBreadcrumb(prov),
-            _buildColumnHeader(),
+            if (widget.treeCache == null) _buildColumnHeader(),
             Expanded(child: _buildContent(prov)),
           ],
         ),
@@ -427,7 +448,8 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
             ),
             onPressed: prov.canGoBack ? prov.goBack : null,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
           IconButton(
             icon: Icon(
@@ -439,7 +461,8 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
             ),
             onPressed: prov.canGoForward ? prov.goForward : null,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
           const SizedBox(width: 2),
           Expanded(
@@ -453,7 +476,8 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
             icon: const Icon(Icons.refresh, size: 13, color: Color(0xFF555555)),
             onPressed: prov.reload,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
         ],
       ),
@@ -537,6 +561,23 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
         ),
       );
     }
+    if (widget.treeCache != null && prov.entries.isNotEmpty) {
+      return FileTreeView<LocalEntry>(
+        root: prov.currentPath,
+        revision: prov.entriesRevision,
+        entries: prov.entries,
+        cache: widget.treeCache!,
+        filter: prov.filterQuery,
+        pathOf: (e) => e.path,
+        nameOf: (e) => e.name,
+        isDirectory: (e) => e.isDirectory,
+        listDirectory: _listTreeDirectory,
+        onOpen: _openEntry,
+        onSelect: prov.selectOnly,
+        isSelected: (entry) => prov.selectedEntries.contains(entry),
+        wrapEntry: _entryMenu,
+      );
+    }
     final entries = prov.filteredEntries;
     if (entries.isEmpty) {
       return Center(
@@ -566,7 +607,9 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
                 visualDensity: VisualDensity.compact,
               ),
               LText(
-                prov.selectedEntries.isEmpty ? LMessage("{0} items", [entries.length]) : LMessage("{0} selected", [prov.selectedEntries.length]),
+                prov.selectedEntries.isEmpty
+                    ? LMessage("{0} items", [entries.length])
+                    : LMessage("{0} selected", [prov.selectedEntries.length]),
                 style: const TextStyle(color: Color(0xFF555555), fontSize: 11),
               ),
             ],
@@ -577,40 +620,9 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
             itemCount: entries.length,
             itemBuilder: (_, i) {
               final entry = entries[i];
-              return EntryContextMenu(
-                path: entry.path,
-                isDirectory: entry.isDirectory,
-                onOpen: () => _openEntry(entry),
-                loadApps: entry.isDirectory
-                    ? null
-                    : () => context
-                        .read<AppDiscoveryService>()
-                        .getAppsFor(entry.path),
-                onOpenWithApp: entry.isDirectory
-                    ? null
-                    : (app) => _openWith(entry, app.executablePath),
-                onChooseApp: entry.isDirectory
-                    ? null
-                    : () async {
-                        final appPath = await pickApplication();
-                        if (appPath != null && mounted) {
-                          await _openWith(entry, appPath);
-                        }
-                      },
-                onCopyToTarget: widget.onCopyToTarget == null
-                    ? null
-                    : () => widget.onCopyToTarget!(entry),
-                copyToTargetDisabledReason: widget.onCopyToTarget == null
-                    ? 'No target panel'
-                    : widget.copyToTargetBlockReason?.call(entry),
-                onRename: () => _rename(entry),
-                onDelete: () => _delete([entry]),
-                onRefresh: () => widget.provider.reload(),
-                onNewFolder: _createFolder,
-                onEditPermissions: Platform.isWindows
-                    ? null
-                    : () => _showPermissionsDialog(entry),
-                child: _LocalEntryRow(
+              return _entryMenu(
+                entry,
+                _LocalEntryRow(
                   entry: entry,
                   selected: prov.selectedEntries.contains(entry),
                   onToggleSelect: () => prov.toggleSelection(entry),
@@ -634,6 +646,58 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
         ),
       ],
     );
+  }
+
+  Widget _entryMenu(LocalEntry entry, Widget child) {
+    return EntryContextMenu(
+      path: entry.path,
+      isDirectory: entry.isDirectory,
+      onOpen: () => _openEntry(entry),
+      loadApps: entry.isDirectory
+          ? null
+          : () => context.read<AppDiscoveryService>().getAppsFor(entry.path),
+      onOpenWithApp: entry.isDirectory
+          ? null
+          : (app) => _openWith(entry, app.executablePath),
+      onChooseApp: entry.isDirectory
+          ? null
+          : () async {
+              final appPath = await pickApplication();
+              if (appPath != null && mounted) {
+                await _openWith(entry, appPath);
+              }
+            },
+      onCopyToTarget: widget.onCopyToTarget == null
+          ? null
+          : () => widget.onCopyToTarget!(entry),
+      copyToTargetDisabledReason: widget.onCopyToTarget == null
+          ? 'No target panel'
+          : widget.copyToTargetBlockReason?.call(entry),
+      onRename: () => _rename(entry),
+      onDelete: () => _delete([entry]),
+      onRefresh: () => widget.provider.reload(),
+      onNewFolder: _createFolder,
+      onEditPermissions: Platform.isWindows
+          ? null
+          : () => _showPermissionsDialog(entry),
+      child: child,
+    );
+  }
+
+  Future<List<LocalEntry>> _listTreeDirectory(String path) async {
+    final provider = LocalFilePanelProvider.atPath(path);
+    try {
+      await provider.reload();
+      if (provider.loadState == LocalFilePanelLoadState.error) {
+        throw FileSystemException(
+          provider.errorMessage ?? 'Cannot read directory',
+          path,
+        );
+      }
+      return provider.entries.toList();
+    } finally {
+      provider.dispose();
+    }
   }
 
   List<({String label, String path})> _buildCrumbs(String path) {
@@ -704,7 +768,10 @@ class _LocalFilePanelState extends State<LocalFilePanel> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, controller.text),
-            child: const LText("OK", style: TextStyle(color: Color(0xFF22C55E))),
+            child: const LText(
+              "OK",
+              style: TextStyle(color: Color(0xFF22C55E)),
+            ),
           ),
         ],
       ),

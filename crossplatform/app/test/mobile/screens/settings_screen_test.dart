@@ -12,14 +12,12 @@ import 'package:yourssh/providers/host_provider.dart';
 import 'package:yourssh/providers/settings_provider.dart';
 import 'package:yourssh/providers/sync_provider.dart';
 import 'package:yourssh/services/storage_service.dart';
-import 'package:yourssh/services/sync_service.dart';
 
 Future<void> _pump(WidgetTester tester) async {
   final settings = SettingsProvider();
   final sync     = SyncProvider();
   final storage  = StorageService();
   final hosts    = HostProvider(storage);
-  final syncSvc  = SyncService(sync);
 
   await tester.pumpWidget(
     MaterialApp(
@@ -29,7 +27,6 @@ Future<void> _pump(WidgetTester tester) async {
           ChangeNotifierProvider<SettingsProvider>.value(value: settings),
           ChangeNotifierProvider<SyncProvider>.value(value: sync),
           ChangeNotifierProvider<HostProvider>.value(value: hosts),
-          Provider<SyncService>.value(value: syncSvc),
         ],
         child: const MobileSettingsScreen(),
       ),

@@ -14,7 +14,11 @@ class KeepAliveOffstage extends StatefulWidget {
   final bool active;
   final Widget child;
 
-  const KeepAliveOffstage({super.key, required this.active, required this.child});
+  const KeepAliveOffstage({
+    super.key,
+    required this.active,
+    required this.child,
+  });
 
   @override
   State<KeepAliveOffstage> createState() => _KeepAliveOffstageState();
@@ -29,8 +33,11 @@ class _KeepAliveOffstageState extends State<KeepAliveOffstage> {
     if (!_everActive) return const SizedBox.shrink();
     return Offstage(
       offstage: !widget.active,
-      // Pause animations while hidden.
-      child: TickerMode(enabled: widget.active, child: widget.child),
+      // Hidden terminals must not keep accepting keyboard input.
+      child: ExcludeFocus(
+        excluding: !widget.active,
+        child: TickerMode(enabled: widget.active, child: widget.child),
+      ),
     );
   }
 }

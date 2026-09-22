@@ -6,6 +6,7 @@ import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yourssh/models/host.dart';
+import 'package:yourssh/models/ssh_credentials.dart';
 import 'package:yourssh/services/ssh_service.dart';
 import 'package:yourssh/services/storage_service.dart';
 import 'package:yourssh/services/bounded_ssh_exec.dart';
@@ -45,10 +46,31 @@ void main() {
           username: 'fixture',
         );
         final storage = StorageService();
-        await storage.savePassword(host.id, 'fixture-only-password');
         ssh = SshService(storage)
-          ..defaultHostKeyVerifier = (_, p, type, fp) async =>
+          ..credentialsPrompt = ((_, attempt) async => const SshCredentials(password: 'fixture-only-password'))
+          ..defaultHostKeyVerifier = (_, p, type, fp, {attempt}) async =>
               p == port && type == 'ssh-ed25519' && fp.isNotEmpty;
+        await ssh.connect(host, verifyHostKey: (type, fp) async =>
+            type == 'ssh-ed25519' && fp.isNotEmpty);
+        // The UI supplies this exact PEM text; only the test reads its fixture.
+        final pem = await File('test/fixtures/keys/id_ed25519').readAsString();
+        var keyPrompts = 0;
+        ssh.credentialsPrompt = (_, attempt) async {
+          keyPrompts++;
+          return SshCredentials(privateKey: pem);
+        };
+        final keyHost = Host(label: 'key-fixture', host: '127.0.0.1', port: port,
+            username: 'fixture-key', authType: AuthType.privateKey);
+        try {
+          final keyClient = await ssh.connect(keyHost,
+              verifyHostKey: (type, fp) async => type == 'ssh-ed25519' && fp.isNotEmpty);
+          expect(keyClient.isClosed, isFalse);
+          expect((await ssh.exec(keyHost, 'waytty-utf8-check')).exitCode, 7);
+          expect(await ssh.ensureClient(keyHost), same(keyClient));
+          expect(keyPrompts, 1, reason: 'Tools reuse a live authenticated transport');
+        } finally {
+          ssh.disconnect(keyHost.id);
+        }
         final result = await ssh.exec(host, 'waytty-utf8-check');
         expect(result.stdout, '中文 SSH ✓\n');
         expect(result.stderr, '诊断信息\n');

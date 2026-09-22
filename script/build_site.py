@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / 'dist' / 'site'
 SITE_FILES = ('index.html', 'style.css', 'app.js', 'favicon.svg')
 SCREENSHOTS = ('connections-zh.png', 'connections-en.png', 'serial-zh.png',
-               'cpu-all-cores-zh-fixture.png', 'cpu-single-core-zh-fixture.png')
+               'workspace-demo.png')
 
 
 def build():

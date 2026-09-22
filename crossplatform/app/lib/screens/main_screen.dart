@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import '../services/workspace_service.dart';
 import '../models/host.dart';
-import '../models/known_host.dart';
 import '../models/local_session.dart';
 import '../models/serial_session.dart';
 import '../widgets/serial/serial_session_pane.dart';
@@ -25,6 +24,7 @@ import 'notes_screen.dart';
 import 'mcp_screen.dart';
 import '../widgets/keychain_screen.dart';
 import '../widgets/known_hosts_screen.dart';
+import '../widgets/ssh_host_key_dialog.dart';
 import '../widgets/port_forwarding_screen.dart';
 import '../widgets/settings_screen.dart';
 import '../widgets/network_stats_overlay.dart';
@@ -246,12 +246,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         !_hostKeyDialogShowing &&
         mounted) {
       _hostKeyDialogShowing = true;
-      showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => _HostKeyDialog(challenge: challenge),
-      ).then((trusted) {
-        challenge.resolve(trusted ?? false);
+      showSshHostKeyDialog(context, challenge).then((_) {
         _hostKeyDialogShowing = false;
         // A challenge raised while this dialog was open was skipped by the
         // guard above — re-check, or it would silently time out (2 min).
@@ -795,6 +790,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildContent(AppSession? active) {
+    final showTerminal = _viewingTerminal && active is TerminalSession;
     final showHosts = _nav == NavSection.hosts && !(_viewingTerminal && active != null) &&
         _activePluginId == null && _activeScriptPanel == null;
     final showSftp = _nav == NavSection.sftp &&
@@ -831,7 +827,64 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
             active: showSftp,
           ),
         ),
-        if (!showSftp && !showHosts) _buildForeground(active),
+        // Retain file providers, in-flight listings, and monitor history while
+        // another navigation page or a non-terminal session is foreground.
+        KeepAliveOffstage(
+          key: const ValueKey('terminal-workspace'),
+          active: showTerminal,
+          child: _buildTerminalWorkspace(active),
+        ),
+        if (!showSftp && !showHosts && !showTerminal) _buildForeground(active),
+      ],
+    );
+  }
+
+  Widget _buildTerminalWorkspace(AppSession? active) {
+    // Hide the AI toggle (and any open chat panel) when no AI provider
+    // has an API key configured — it appears once a key is saved.
+    final aiConfigured = context.select<AiChatProvider, bool>(
+        (p) => p.configuredProviders.isNotEmpty);
+    final showAiChat = _showAiChat && aiConfigured;
+    return Row(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              SplitTerminalView(
+                onNavigateToSettings: () => setState(() {
+                  _nav = NavSection.settings;
+                  _viewingTerminal = false;
+                }),
+              ),
+              Positioned(
+                top: 8,
+                right: showAiChat ? 348 : 8,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const NetworkStatsOverlay(),
+                    if (active is SshSession) ...[
+                      const SizedBox(width: 8),
+                      _ShareButton(session: active),
+                    ],
+                    if (aiConfigured) ...[
+                      const SizedBox(width: 8),
+                      _AiChatToggle(
+                        active: showAiChat,
+                        onToggle: () =>
+                            setState(() => _showAiChat = !_showAiChat),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (showAiChat)
+          AiChatSidebar(
+            onClose: () => setState(() => _showAiChat = false),
+          ),
       ],
     );
   }
@@ -854,55 +907,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         onReconnect: () => _retryVnc(active),
         isFullscreen: _vncFullscreen,
         onFullscreenChanged: (on) => unawaited(_setVncFullscreen(on)),
-      );
-    }
-    if (_viewingTerminal && active != null) {
-      // Hide the AI toggle (and any open chat panel) when no AI provider
-      // has an API key configured — it appears once a key is saved.
-      final aiConfigured = context.select<AiChatProvider, bool>(
-          (p) => p.configuredProviders.isNotEmpty);
-      final showAiChat = _showAiChat && aiConfigured;
-      return Row(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                SplitTerminalView(
-                  onNavigateToSettings: () => setState(() {
-                    _nav = NavSection.settings;
-                    _viewingTerminal = false;
-                  }),
-                ),
-                Positioned(
-                  top: 8,
-                  right: showAiChat ? 348 : 8,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const NetworkStatsOverlay(),
-                      if (active is SshSession) ...[
-                        const SizedBox(width: 8),
-                        _ShareButton(session: active),
-                      ],
-                      if (aiConfigured) ...[
-                        const SizedBox(width: 8),
-                        _AiChatToggle(
-                          active: showAiChat,
-                          onToggle: () =>
-                              setState(() => _showAiChat = !_showAiChat),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (showAiChat)
-            AiChatSidebar(
-              onClose: () => setState(() => _showAiChat = false),
-            ),
-        ],
       );
     }
 
@@ -1560,8 +1564,7 @@ class _AiChatToggle extends StatelessWidget {
 
 // ── Host Key Mismatch Dialog ──────────────────────────────
 
-/// Shared chrome for TOFU trust prompts (SSH host key, RDP certificate) —
-/// one dialog skeleton so the two security prompts can't visually diverge.
+/// Chrome for the RDP certificate trust prompt.
 class _TofuDialog extends StatelessWidget {
   final IconData icon;
   final Color accentColor;
@@ -1623,30 +1626,6 @@ class _TofuDialog extends StatelessWidget {
           child: LText(acceptLabel),
         ),
       ],
-    );
-  }
-}
-
-class _HostKeyDialog extends StatelessWidget {
-  final HostKeyChallenge challenge;
-  const _HostKeyDialog({required this.challenge});
-
-  @override
-  Widget build(BuildContext context) {
-    return _TofuDialog(
-      icon: Icons.warning_amber_rounded,
-      accentColor: Colors.orange,
-      title: tr(context, "Host key changed"),
-      endpoint: '${challenge.host}:${challenge.port}',
-      fingerprintRows: [
-        _FpRow(label: tr(context, "Old"), fp: challenge.oldFingerprint),
-        const SizedBox(height: 4),
-        _FpRow(label: tr(context, "New"), fp: challenge.newFingerprint),
-      ],
-      warning: 'This could indicate a man-in-the-middle attack. '
-          'Only trust the new key if you know the server key changed.',
-      cancelLabel: tr(context, "Cancel"),
-      acceptLabel: 'Trust new key',
     );
   }
 }

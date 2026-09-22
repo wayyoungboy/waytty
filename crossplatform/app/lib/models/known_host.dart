@@ -100,12 +100,13 @@ class RdpCertChallenge extends TofuChallenge {
   });
 }
 
-/// Async TOFU challenge for a changed SSH host key.
+/// Async trust challenge for a first-seen or changed SSH host key.
 class HostKeyChallenge extends TofuChallenge {
   final String host;
   final int port;
   final String keyType;
-  final String oldFingerprint;
+  String? oldFingerprint;
+  bool get isMismatch => oldFingerprint != null;
   final String newFingerprint;
 
   HostKeyChallenge({

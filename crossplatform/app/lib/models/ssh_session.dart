@@ -66,11 +66,7 @@ class SshSession implements TerminalSession {
     this.isPinned = false,
   })  : id = id ?? const Uuid().v4(),
         terminal = Terminal(maxLines: 10000),
-        connectedAt = connectedAt ?? DateTime.now() {
-    if (host.agentForwarding) {
-      agentForwardingState = AgentForwardingState.ready;
-    }
-  }
+        connectedAt = connectedAt ?? DateTime.now();
 
   factory SshSession.watch({required String watchedTitle}) {
     return SshSession(

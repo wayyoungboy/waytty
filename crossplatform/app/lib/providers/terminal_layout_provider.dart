@@ -9,10 +9,25 @@ enum SidePanel { none, snippets, terminalConfig, monitor }
 class TerminalLayoutProvider extends ChangeNotifier {
   SplitLayout _layout = SplitLayout.single;
   bool _broadcastEnabled = false;
+  bool _filesVisible = true;
+  double _filesWidth = 300;
   bool _inputBarVisible = false;
   SidePanel _sidePanel = SidePanel.none;
 
   SplitLayout get layout => _layout;
+  bool get filesVisible => _filesVisible;
+  double get filesWidth => _filesWidth;
+
+  void toggleFiles() {
+    _filesVisible = !_filesVisible;
+    notifyListeners();
+  }
+
+  void resizeFiles(double width) {
+    _filesWidth = width.clamp(240, 520);
+    notifyListeners();
+  }
+
   bool get broadcastEnabled => _broadcastEnabled;
   bool get inputBarVisible => _inputBarVisible;
   SidePanel get sidePanel => _sidePanel;

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yourssh/models/app_session.dart';
 import 'package:yourssh/models/host.dart';
+import 'package:yourssh/models/ssh_credentials.dart';
 import 'package:yourssh/models/ssh_session.dart';
 import 'package:yourssh/providers/session_provider.dart';
 import 'package:yourssh/services/ssh_service.dart';
@@ -38,7 +39,8 @@ void main() {
     late SessionProvider provider;
 
     setUp(() {
-      provider = SessionProvider(SshService(StorageService()), TabMetadataService());
+      provider = SessionProvider(SshService(StorageService())
+          ..credentialsPrompt = (_, attempt) async => const SshCredentials(password: 'fixture'), TabMetadataService());
     });
 
     tearDown(() => provider.dispose());
@@ -169,7 +171,8 @@ void main() {
           'pinned': true,
         }),
       });
-      final p = SessionProvider(SshService(StorageService()), TabMetadataService());
+      final p = SessionProvider(SshService(StorageService())
+          ..credentialsPrompt = (_, attempt) async => const SshCredentials(password: 'fixture'), TabMetadataService());
       final host = Host(
         id: 'h-load',
         label: 'Test',
@@ -192,7 +195,8 @@ void main() {
     late SessionProvider p;
 
     setUp(() {
-      p = SessionProvider(SshService(StorageService()), TabMetadataService());
+      p = SessionProvider(SshService(StorageService())
+          ..credentialsPrompt = (_, attempt) async => const SshCredentials(password: 'fixture'), TabMetadataService());
       p.addWatchSession(_makeSession('h1'));
       p.addWatchSession(_makeSession('h2'));
       p.addWatchSession(_makeSession('h3'));
@@ -265,7 +269,8 @@ void main() {
     test('mutating one tab mirrors metadata onto sibling tabs of the same host',
         () {
       final p2 =
-          SessionProvider(SshService(StorageService()), TabMetadataService());
+          SessionProvider(SshService(StorageService())
+          ..credentialsPrompt = (_, attempt) async => const SshCredentials(password: 'fixture'), TabMetadataService());
       p2.addWatchSession(_makeSession('dup'));
       p2.addWatchSession(_makeSession('dup'));
       final a = p2.sshSessions[0];

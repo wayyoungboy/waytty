@@ -24,6 +24,7 @@ Widget _wrap(
       theme: buildMobileTheme(),
       home: MultiProvider(
         providers: [
+          Provider<SshService>(create: (_) => SshService(StorageService())),
           ChangeNotifierProvider<HostProvider>.value(value: hosts),
           ChangeNotifierProvider(create: (_) => KeyProvider()),
           ChangeNotifierProvider<SessionProvider>.value(

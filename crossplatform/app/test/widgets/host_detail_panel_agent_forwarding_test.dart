@@ -56,74 +56,37 @@ void main() {
         agentForwarding: agentForwarding,
       );
 
-  testWidgets('toggle defaults off and saves true after switching on',
+  testWidgets('legacy forwarding is disabled without probing credentials',
       (tester) async {
-    await pumpPanel(tester, existing: existingHost());
-
-    final toggle = find.widgetWithText(SwitchListTile, 'Agent forwarding');
-    await tester.ensureVisible(toggle);
-    expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
-
-    await tester.tap(toggle);
-    await tester.pumpAndSettle();
-
+    var probes = 0;
+    await pumpPanel(tester,
+        existing: existingHost(agentForwarding: true),
+        agentProbe: () async {
+          probes++;
+          throw StateError('Agent access is forbidden');
+        });
+    expect(probes, 0);
+    expect(find.widgetWithText(SwitchListTile, 'Agent forwarding'), findsNothing);
+    expect(find.byType(AgentStatusLine), findsNothing);
     final save = find.text('SAVE ONLY');
     await tester.ensureVisible(save);
     await tester.tap(save);
     await tester.pumpAndSettle();
-
     expect(saved, isNotNull);
-    expect(saved!.agentForwarding, isTrue);
+    expect(saved!.agentForwarding, isFalse);
+    expect(probes, 0);
   });
 
-  testWidgets('editing a host with forwarding on shows the switch on',
+  testWidgets('legacy agent profiles use manual private key authentication',
       (tester) async {
-    await pumpPanel(tester, existing: existingHost(agentForwarding: true));
-
-    final toggle = find.widgetWithText(SwitchListTile, 'Agent forwarding');
-    await tester.ensureVisible(toggle);
-    expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
-  });
-
-  testWidgets('status line appears when the toggle is switched on',
-      (tester) async {
-    await pumpPanel(tester,
-        existing: existingHost(),
-        agentProbe: () async => const AgentProbeKeychain(2));
+    final host = Host(label: 'srv', host: 'fixture.invalid', username: 'fixture',
+        authType: AuthType.agent, agentForwarding: true);
+    await pumpPanel(tester, existing: host);
+    final dropdown = tester.widget<DropdownButton<AuthType>>(
+        find.byType(DropdownButton<AuthType>));
+    expect(dropdown.value, AuthType.privateKey);
+    expect(dropdown.items!.map((item) => item.value), isNot(contains(AuthType.agent)));
+    expect(find.text('Paste the private key when connecting and choose whether to save it with this connection.'), findsOneWidget);
     expect(find.byType(AgentStatusLine), findsNothing);
-
-    final toggle = find.widgetWithText(SwitchListTile, 'Agent forwarding');
-    await tester.ensureVisible(toggle);
-    await tester.tap(toggle);
-    await tester.pumpAndSettle();
-
-    expect(
-      find.text(
-          'No system agent — 2 app Keychain keys will be offered instead'),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('only one status line when auth is SSH Agent and forwarding on',
-      (tester) async {
-    await pumpPanel(tester, existing: existingHost(agentForwarding: true));
-    expect(find.byType(AgentStatusLine), findsOneWidget);
-
-    final dropdown = find.byType(DropdownButton<AuthType>);
-    await tester.ensureVisible(dropdown);
-    await tester.tap(dropdown);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('SSH Agent').last);
-    await tester.pumpAndSettle();
-
-    expect(find.byType(AgentStatusLine), findsOneWidget);
-  });
-
-  testWidgets('info tooltip explains agent auth vs forwarding',
-      (tester) async {
-    await pumpPanel(tester, existing: existingHost());
-    final tooltip = find.byWidgetPredicate((w) =>
-        w is Tooltip && (w.message ?? '').startsWith('SSH Agent auth:'));
-    expect(tooltip, findsOneWidget);
   });
 }

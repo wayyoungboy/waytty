@@ -7,6 +7,7 @@ import 'package:yourssh/providers/host_provider.dart';
 import 'package:yourssh/providers/key_provider.dart';
 import 'package:yourssh/mobile/screens/mobile_add_host_screen.dart';
 import 'package:yourssh/services/storage_service.dart';
+import 'package:yourssh/services/ssh_service.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -14,6 +15,7 @@ void main() {
   Widget wrap(HostProvider hosts, Widget child) => MaterialApp(
         home: MultiProvider(
           providers: [
+          Provider<SshService>(create: (_) => SshService(StorageService())),
             ChangeNotifierProvider.value(value: hosts),
             ChangeNotifierProvider(create: (_) => KeyProvider()),
           ],

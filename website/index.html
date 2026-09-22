@@ -1,78 +1,890 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="waytty 开源终端客户端。连接 SSH、传输文件、查看每个 CPU 核心、调试串口。默认中文，macOS 优先，面向 Windows 和安卓平板。">
-  <meta name="theme-color" content="#101513">
-  <meta property="og:title" content="waytty — 连接你的机器，专注眼前的事">
-  <meta property="og:description" content="SSH、SFTP、主机监控和串口调试，一个工作区。开源，默认中文，macOS 优先。">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://wayyoungboy.github.io/waytty/assets/serial-zh.png">
-  <title>waytty — 连接你的机器，专注眼前的事</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css">
-  <script src="./app.js" defer></script>
-</head>
-<body>
-  <a class="skip-link" href="#main" data-en="Skip to content">跳至正文</a>
-  <header class="site-header wrap">
-    <a class="wordmark" href="#" aria-label="waytty home"><svg viewBox="0 0 36 36" aria-hidden="true"><rect x="1" y="1" width="34" height="34" rx="9"/><path d="m10 11 7 7-7 7m10 0h7"/></svg>waytty</a>
-    <nav aria-label="主导航" data-en-aria="Main navigation">
-      <a href="#workspace" data-en="Workspace">工作区</a>
-      <a href="#platforms" data-en="Platforms">平台进展</a>
-      <a class="nav-github" href="https://github.com/wayyoungboy/waytty">GitHub <span aria-hidden="true">↗</span></a>
-      <button id="language" class="language" type="button" aria-label="Switch to English">EN</button>
-    </nav>
-  </header>
-  <main id="main">
-    <section class="hero wrap">
-      <div class="hero-copy">
-        <p class="release-label"><span class="status-dot" aria-hidden="true"></span><span data-en="v0.0.1 · macOS development build">v0.0.1 · macOS 开发版</span></p>
-        <h1><span data-en="Your machines.">连接你的机器。</span><br><span data-en="Your workspace.">专注眼前的事。</span></h1>
-        <p class="hero-description" data-en="From the first SSH connection to the last line of a serial log. Terminals, files and host metrics, together in waytty.">从第一条 SSH 连接，到串口日志的最后一行。终端、文件与主机状态，在 waytty 里一起处理。</p>
-        <div class="actions"><a class="button primary" href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.1" data-en="Download for macOS">下载 macOS 版</a><a class="button secondary" href="#workspace" data-en="Explore the workspace">看看工作区 <span aria-hidden="true">↓</span></a></div>
-        <p class="hero-note" data-en="Chinese by default. English included. Your connections stay yours.">默认中文，也支持 English。连接信息由你掌握。</p>
-      </div>
-      <div class="terminal-scene" aria-label="终端与 CPU 监控演示数据" data-en-aria="Illustrative terminal and CPU monitoring with demo data">
-        <div class="scene-top"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>demo@linux</span><span class="scene-protocol">SSH</span></div>
-        <div class="scene-toolbar"><span class="scene-tab"><span class="status-dot" aria-hidden="true"></span>demo.example.com</span><span aria-hidden="true">＋</span></div>
-        <div class="scene-content">
-          <div class="shell"><p><span class="prompt">demo@linux</span> <span class="muted">~</span> $ uptime</p><p class="output">14:32:08 up 12 days, 4:06<br>load average: 0.24, 0.31, 0.28</p><p><span class="prompt">demo@linux</span> <span class="muted">~</span> $ uname -s</p><p class="output">Linux</p><p><span class="prompt">demo@linux</span> <span class="muted">~</span> $ <span class="cursor" aria-hidden="true"></span></p><div class="shell-footer"><span>UTF-8</span><span>80 × 24</span></div></div>
-          <div class="mini-monitor"><div class="mini-heading"><strong data-en="Monitor">监控</strong><span class="status-dot" aria-hidden="true"></span></div><p class="mini-label" data-en="CPU · all cores">CPU · 全部核心</p><div class="cpu-total"><strong>24.8<small>%</small></strong><svg viewBox="0 0 115 35" aria-hidden="true"><path d="M0 28 10 26 20 29 30 19 40 22 50 9 60 16 70 13 80 20 90 7 100 10 115 3"/></svg></div><div class="core-bars"><div><span>0</span><i style="--load:32%"></i><b>32%</b></div><div><span>1</span><i style="--load:18%"></i><b>18%</b></div><div><span>2</span><i style="--load:41%"></i><b>41%</b></div><div><span>3</span><i style="--load:8%"></i><b>8%</b></div></div><div class="mini-memory"><span data-en="Memory">内存</span><strong>3.9 / 8 GB</strong></div></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="waytty 开源终端工作区：SSH、SFTP、Linux 主机监控与串口调试。本地免登录，可选加密云端备份预览。下载 macOS 版本。"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta property="og:title" content="waytty — 连接远端，工作就在眼前。" />
+    <meta
+      property="og:description"
+      content="SSH、文件传输与主机监控，收进一个顺手的工作区。本地免登录，MIT 开源。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:url" content="https://wayyoungboy.github.io/waytty/" />
+    <meta
+      property="og:image"
+      content="https://wayyoungboy.github.io/waytty/assets/workspace-demo.png"
+    />
+    <meta
+      property="og:image:alt"
+      content="waytty 官网工作区示意，使用虚构主机与示例输出"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>waytty — 连接远端，工作就在眼前。</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <svg
+      class="icon-library"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M4 12h15m-6-6 6 6-6 6" />
+      </symbol>
+      <symbol id="i-external" viewBox="0 0 24 24">
+        <path d="m7 17 10-10M6 7h11v11" />
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4" />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M6 18 18 6" />
+      </symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24">
+        <path d="M4 7h16M4 17h16" />
+      </symbol>
+    </svg>
+
+    <a data-en="Skip to content" class="skip-link" href="#main">跳至正文</a>
+    <header class="site-header" id="top">
+      <div class="wrap header-inner">
+        <a
+          class="wordmark"
+          href="#top"
+          aria-label="waytty 首页"
+          data-en-aria="waytty home"
+          ><img src="./favicon.svg" width="32" height="32" alt="" />waytty</a
+        >
+        <nav id="navigation" aria-label="主导航" data-en-aria="Main navigation">
+          <a data-en="Product" href="#product">产品</a
+          ><a data-en="Data &amp; sync" href="#data">数据与同步</a
+          ><a
+            data-en="Docs"
+            href="https://github.com/wayyoungboy/waytty/blob/main/README.md"
+            data-doc-link
+            >文档</a
+          >
+        </nav>
+        <div class="header-actions">
+          <button
+            id="language"
+            class="language js-only"
+            type="button"
+            aria-label="Switch to English"
+          >
+            English
+          </button>
+          <a class="github-link" href="https://github.com/wayyoungboy/waytty"
+            ><span data-en="GitHub">GitHub</span
+            ><svg class="icon" aria-hidden="true">
+              <use href="#i-external" /></svg
+          ></a>
+          <button
+            id="menu-toggle"
+            class="icon-button menu-toggle js-only"
+            type="button"
+            aria-controls="navigation"
+            aria-expanded="false"
+            aria-label="打开导航"
+            data-en-aria="Toggle navigation"
+          >
+            <svg class="icon" aria-hidden="true"><use href="#i-menu" /></svg>
+          </button>
         </div>
-        <div class="scene-caption"><span class="status-dot" aria-hidden="true"></span><span data-en="Workspace illustration · demo data">工作区示意 · 演示数据</span></div>
       </div>
-    </section>
-
-    <div class="capability-strip wrap" aria-label="核心功能" data-en-aria="Core capabilities"><span>SSH / Telnet</span><span>SFTP</span><span data-en="Per-core CPU monitoring">逐核 CPU 监控</span><span data-en="Serial debugging">串口调试</span><span data-en="中文 / English">中文 / English</span></div>
-
-    <section id="workspace" class="workspace wrap">
-      <div class="section-intro"><h2 data-en="A place for the work you do every day.">把日常操作，<br>放在同一个工作区。</h2><p data-en="Keep sessions organized. Move files beside your terminal. Check a busy core without losing your place.">整理会话，在终端旁传输文件。发现机器变慢时，直接展开 CPU 明细，查看每个核心的负载。</p></div>
-      <div class="showcase">
-        <div class="showcase-controls" role="tablist" aria-label="应用截图" data-en-aria="App screenshots">
-          <button id="tab-connections" role="tab" aria-selected="true" aria-controls="panel-connections" type="button" data-en="Connections">连接管理</button>
-          <button id="tab-monitor" role="tab" aria-selected="false" aria-controls="panel-monitor" tabindex="-1" type="button" data-en="CPU details">CPU 明细</button>
-          <button id="tab-serial" role="tab" aria-selected="false" aria-controls="panel-serial" tabindex="-1" type="button" data-en="Serial debugging">串口调试</button>
+    </header>
+    <main id="main">
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <h1 id="hero-title">
+            <span data-en="Connect to your world.">连接远端，</span><br /><span
+              data-en="Stay in your flow."
+              class="accent"
+              >工作就在眼前。</span
+            >
+          </h1>
+          <p class="hero-description">
+            <span
+              data-en="SSH, file transfers and host monitoring in one focused workspace."
+              >SSH、文件传输与主机监控，收进一个顺手的工作区。</span
+            ><br /><span
+              data-en="From your first server to your whole environment. Keep work moving."
+              >从第一台服务器到一整组环境，保持专注。</span
+            >
+          </p>
+          <div class="actions">
+            <a
+              class="button primary"
+              href="https://github.com/wayyoungboy/waytty/releases/download/v0.0.1/waytty-0.0.1-macos-universal.zip"
+              ><span data-en="Download macOS">下载 macOS 版</span
+              ><svg class="icon" aria-hidden="true">
+                <use href="#i-download" /></svg></a
+            ><a class="text-link" href="#workspace"
+              ><span data-en="Explore the workspace">探索工作区</span
+              ><svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg
+            ></a>
+          </div>
+          <p
+            data-en="v0.0.1 · macOS 12+ · Apple Silicon / Intel"
+            class="release-note"
+          >
+            v0.0.1 · macOS 12+ · Apple Silicon / Intel
+          </p>
         </div>
-        <div id="panel-connections" class="showcase-panel" role="tabpanel" aria-labelledby="tab-connections" tabindex="0"><div class="panel-copy"><span class="panel-glyph" aria-hidden="true">⌘</span><h3 data-en="Find the right connection.">连接再多，也有条理。</h3><p data-en="Groups, favorites, recent hosts and search. Open sessions in tabs, split the terminal and broadcast input when needed.">用分组、收藏、最近访问和搜索整理主机。标签、分屏与广播输入，适应多会话工作。</p><span class="screenshot-note" data-en="Actual app screenshot · empty demo workspace">应用实图 · 空白演示工作区</span></div><a class="screenshot-link" href="./assets/connections-zh.png" aria-label="查看完整连接界面截图" data-en-aria="View full connections screenshot"><img id="connections-image" src="./assets/connections-zh.png" width="1229" height="768" alt="waytty 中文连接管理界面，无保存的主机" data-en-alt="waytty connections interface with no saved hosts" loading="lazy"></a></div>
-        <div id="panel-monitor" class="showcase-panel" role="tabpanel" aria-labelledby="tab-monitor" tabindex="0" hidden><div class="panel-copy"><span class="panel-glyph" aria-hidden="true">▥</span><h3 data-en="Look beyond the average.">总体之外，<br>看见每一个核心。</h3><p data-en="Switch between overall CPU, all logical cores and one selected core. Follow usage trends alongside memory, disk and per-interface network rates.">在总体、全部逻辑核心和单个核心之间切换。结合使用率趋势、内存、磁盘和各网卡速率，了解 Linux 主机当前状态。</p><span class="screenshot-note" data-en="Actual rendered app UI · test data · Chinese interface">应用渲染实图 · 测试数据</span></div><div class="monitor-images"><a href="./assets/cpu-all-cores-zh-fixture.png" aria-label="查看全部核心截图" data-en-aria="View all cores screenshot"><img src="./assets/cpu-all-cores-zh-fixture.png" width="680" height="1920" alt="CPU 全部核心视图" data-en-alt="CPU all cores view in Chinese" loading="lazy"></a><a href="./assets/cpu-single-core-zh-fixture.png" aria-label="查看单核心截图" data-en-aria="View single core screenshot"><img src="./assets/cpu-single-core-zh-fixture.png" width="680" height="1920" alt="CPU 单核心视图" data-en-alt="Single CPU core view in Chinese" loading="lazy"></a></div></div>
-        <div id="panel-serial" class="showcase-panel" role="tabpanel" aria-labelledby="tab-serial" tabindex="0" hidden><div class="panel-copy"><span class="panel-glyph" aria-hidden="true">⇄</span><h3 data-en="A terminal for your hardware, too.">从服务器，<br>到桌上的开发板。</h3><p data-en="Choose a port and save its settings. Send and receive text or HEX, export logs, and control DTR, RTS and BREAK. Hardware compatibility testing is ongoing.">选择端口并保存参数，支持文本与 HEX 收发、记录导出，以及 DTR、RTS、BREAK 控制。真实硬件兼容性仍在持续验收。</p><span class="screenshot-note" data-en="Actual app screenshot · Chinese interface">应用实图 · 串口连接入口</span></div><a class="screenshot-link" href="./assets/serial-zh.png" aria-label="查看完整串口界面截图" data-en-aria="View full serial screenshot"><img src="./assets/serial-zh.png" width="1229" height="768" alt="waytty 中文串口参数设置界面" data-en-alt="waytty serial settings interface in Chinese" loading="lazy"></a></div>
+        <figure class="workspace-figure" id="workspace">
+          <div
+            class="workspace"
+            aria-label="工作区演示"
+            data-en-aria="Workspace demonstration"
+          >
+            <div class="workspace-bar">
+              <div class="window-brand">
+                <span class="traffic" aria-hidden="true"
+                  ><i></i><i></i><i></i></span
+                ><span>waytty</span>
+              </div>
+              <div
+                class="demo-tabs"
+                role="tablist"
+                aria-label="切换工作区演示"
+                data-en-aria="Explore the demo workspace"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  id="tab-terminal"
+                  aria-controls="panel-terminal"
+                  aria-selected="true"
+                  tabindex="0"
+                >
+                  <span data-en="Terminal">终端</span></button
+                ><button
+                  type="button"
+                  role="tab"
+                  id="tab-files"
+                  aria-controls="panel-files"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  <span data-en="Files">文件</span></button
+                ><button
+                  type="button"
+                  role="tab"
+                  id="tab-monitor"
+                  aria-controls="panel-monitor"
+                  aria-selected="false"
+                  tabindex="-1"
+                >
+                  <span data-en="Monitor">监控</span>
+                </button>
+              </div>
+              <span data-en="Demo environment" class="demo-environment"
+                >演示环境</span
+              >
+            </div>
+            <div class="workspace-body">
+              <aside class="workspace-sidebar">
+                <strong data-en="Connections">连接</strong>
+                <p data-en="Demo environment" class="sidebar-label">演示环境</p>
+                <ul>
+                  <li class="selected">
+                    <span class="status-dot"></span>web-01
+                  </li>
+                  <li><span class="status-dot idle"></span>staging-01</li>
+                  <li><span class="status-dot idle"></span>localhost</li>
+                </ul>
+                <span class="sidebar-bottom">SSH / 22</span>
+              </aside>
+              <div
+                class="demo-panel"
+                role="tabpanel"
+                id="panel-terminal"
+                aria-labelledby="tab-terminal"
+                tabindex="0"
+              >
+                <div class="terminal-main">
+                  <div class="terminal-tab">
+                    web-01 <span aria-hidden="true">×</span>
+                  </div>
+                  <div class="terminal-output" lang="en">
+                    <p>
+                      <b>demo@web-01 ~ %</b> uname -srm<br />Linux 6.8.0 x86_64
+                    </p>
+                    <p>
+                      <b>demo@web-01 ~ %</b> ls -lh /var/www<br /><span
+                        class="muted"
+                        >total 12K</span
+                      ><br />drwxr-xr-x &nbsp;3 root root 4.0K Mar 11 10:24
+                      <em>assets</em><br />-rw-r--r-- &nbsp;1 root root 1.2K Mar
+                      11 10:24 index.html<br />-rw-r--r-- &nbsp;1 root root
+                      &nbsp;892 Mar 11 10:24 app.conf
+                    </p>
+                    <p>
+                      <b>demo@web-01 ~ %</b> systemctl status nginx<br /><b
+                        >● nginx.service — active (running)</b
+                      >
+                    </p>
+                    <p>
+                      <b>demo@web-01 ~ %</b>
+                      <span class="cursor" aria-hidden="true"></span>
+                    </p>
+                  </div>
+                </div>
+                <aside class="mini-monitor">
+                  <strong data-en="System monitor">系统监控</strong>
+                  <div class="metric">
+                    <div><span>CPU</span><span>24%</span></div>
+                    <svg
+                      class="sparkline"
+                      viewBox="0 0 230 58"
+                      aria-hidden="true"
+                    >
+                      <path class="grid" d="M0 14H230M0 42H230" />
+                      <path
+                        d="M0 43 12 31 24 36 36 32 48 18 60 24 72 15 84 30 96 39 108 28 120 31 132 25 144 38 156 40 168 30 180 39 192 38 204 23 216 25 230 19"
+                      />
+                    </svg>
+                  </div>
+                  <div class="metric">
+                    <div>
+                      <span data-en="Memory">内存</span><span>2.1 / 8 GB</span>
+                    </div>
+                    <svg
+                      class="sparkline"
+                      viewBox="0 0 230 58"
+                      aria-hidden="true"
+                    >
+                      <path class="grid" d="M0 14H230M0 42H230" />
+                      <path
+                        d="M0 43 12 31 24 36 36 32 48 18 60 24 72 15 84 30 96 39 108 28 120 31 132 25 144 38 156 40 168 30 180 39 192 38 204 23 216 25 230 19"
+                      />
+                    </svg>
+                  </div>
+                </aside>
+              </div>
+              <div
+                class="demo-panel file-demo"
+                role="tabpanel"
+                id="panel-files"
+                aria-labelledby="tab-files"
+                tabindex="0"
+                hidden
+              >
+                <div class="file-path">
+                  <span>web-01</span><code>/var/www</code
+                  ><span data-en="Remote files">远程文件</span>
+                </div>
+                <table>
+                  <caption class="sr-only" data-en="Example remote directory">
+                    远程目录示例
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th data-en="Name" scope="col">文件名</th>
+                      <th data-en="Size" scope="col">大小</th>
+                      <th data-en="Permissions" scope="col">权限</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="file-glyph">▸</span>assets/</td>
+                      <td>4.0 KB</td>
+                      <td>drwxr-xr-x</td>
+                    </tr>
+                    <tr>
+                      <td><span class="file-glyph">≡</span>index.html</td>
+                      <td>1.2 KB</td>
+                      <td>-rw-r--r--</td>
+                    </tr>
+                    <tr>
+                      <td><span class="file-glyph">≡</span>app.conf</td>
+                      <td>892 B</td>
+                      <td>-rw-r--r--</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="transfer">
+                  <div>
+                    <span class="status-dot"></span
+                    ><span data-en="Transfer complete">传输完成</span
+                    ><code>index.html</code>
+                  </div>
+                  <span>1.2 KB / 1.2 KB</span>
+                </div>
+                <div class="transfer-track"></div>
+              </div>
+              <div
+                class="demo-panel monitor-demo"
+                role="tabpanel"
+                id="panel-monitor"
+                aria-labelledby="tab-monitor"
+                tabindex="0"
+                hidden
+              >
+                <div class="monitor-heading">
+                  <strong>web-01</strong
+                  ><span data-en="Sample metrics · Linux"
+                    >示例指标 · Linux</span
+                  >
+                </div>
+                <div class="monitor-metrics">
+                  <div>
+                    <span>CPU</span><strong>24<small>%</small></strong
+                    ><svg
+                      class="sparkline"
+                      viewBox="0 0 230 58"
+                      aria-hidden="true"
+                    >
+                      <path class="grid" d="M0 14H230M0 42H230" />
+                      <path
+                        d="M0 43 12 31 24 36 36 32 48 18 60 24 72 15 84 30 96 39 108 28 120 31 132 25 144 38 156 40 168 30 180 39 192 38 204 23 216 25 230 19"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <span data-en="Memory">内存</span
+                    ><strong>2.1<small>/ 8 GB</small></strong
+                    ><svg
+                      class="sparkline"
+                      viewBox="0 0 230 58"
+                      aria-hidden="true"
+                    >
+                      <path class="grid" d="M0 14H230M0 42H230" />
+                      <path
+                        d="M0 43 12 31 24 36 36 32 48 18 60 24 72 15 84 30 96 39 108 28 120 31 132 25 144 38 156 40 168 30 180 39 192 38 204 23 216 25 230 19"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <span data-en="Disk">磁盘</span
+                    ><strong>38<small>%</small></strong
+                    ><svg
+                      class="sparkline"
+                      viewBox="0 0 230 58"
+                      aria-hidden="true"
+                    >
+                      <path class="grid" d="M0 14H230M0 42H230" />
+                      <path
+                        d="M0 43 12 31 24 36 36 32 48 18 60 24 72 15 84 30 96 39 108 28 120 31 132 25 144 38 156 40 168 30 180 39 192 38 204 23 216 25 230 19"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div class="monitor-detail">
+                  <span>eth0</span
+                  ><span data-en="Receive 128 KB/s">接收 128 KB/s</span
+                  ><span data-en="Send 42 KB/s">发送 42 KB/s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption
+            data-en="Interactive workspace illustration · Fictional hosts and output. No real connections."
+          >
+            工作区交互示意 · 示例主机与输出，不会发起真实连接
+          </figcaption>
+        </figure>
+        <ul class="product-facts">
+          <li>SSH / SFTP / <span data-en="Serial">串口</span></li>
+          <li>
+            <span data-en="Local use. No account required."
+              >无需账号，本地使用</span
+            >
+          </li>
+          <li><span data-en="Open source · MIT">MIT 开源</span></li>
+        </ul>
+      </section>
+      <section
+        class="workflow wrap section"
+        id="product"
+        aria-labelledby="product-title"
+      >
+        <div class="section-heading">
+          <h2 id="product-title">
+            <span data-en="From connection">从连接到排查，</span><br /><span
+              data-en="to resolution."
+              >顺着工作往下走。</span
+            >
+          </h2>
+          <p>
+            <span data-en="The tools you need, right where you need them."
+              >常用工具各就其位。</span
+            ><br /><span data-en="Connect once. Move on to the next step."
+              >一次连接，接着完成下一步。</span
+            >
+          </p>
+        </div>
+        <div class="feature-rail">
+          <article>
+            <span class="rail-number">01</span>
+            <h3 data-en="Connect. Get to work.">连上，开始工作。</h3>
+            <p
+              data-en="SSH / Telnet, tabs and split terminals. Organize hosts by project and find the next connection with search."
+            >
+              SSH / Telnet、多标签与分屏。<br />按项目整理主机，用搜索找到下一条连接。
+            </p>
+          </article>
+          <article>
+            <span class="rail-number">02</span>
+            <h3 data-en="Files, within reach.">文件，随手处理。</h3>
+            <p
+              data-en="SFTP and local file panels. Transfer, edit remotely and manage permissions without breaking your flow."
+            >
+              SFTP 与本地文件面板。<br />传输、远程编辑和权限管理，保持连贯。
+            </p>
+          </article>
+          <article>
+            <span class="rail-number">03</span>
+            <h3 data-en="See how it’s running.">状态，一眼看清。</h3>
+            <p
+              data-en="CPU, memory, disk and network. Go from overall load to individual core trends on Linux."
+            >
+              CPU、内存、磁盘与网络。<br />从整体负载深入到单个核心的趋势。
+            </p>
+          </article>
+        </div>
+      </section>
+      <section
+        class="showcase section"
+        aria-label="真实应用界面"
+        data-en-aria="Actual application screenshots"
+      >
+        <div class="wrap showcase-inner">
+          <div class="showcase-copy">
+            <p data-en="Inside the application" class="section-label">
+              实际应用界面
+            </p>
+            <div id="copy-serial">
+              <h2>
+                <span data-en="Make room for">也照顾好，</span><br /><span
+                  data-en="the device on your desk."
+                  >桌上的那台设备。</span
+                >
+              </h2>
+              <p
+                data-en="Serial settings, text and HEX transfers. A place for remote operations and hands-on hardware debugging."
+              >
+                串口参数配置、文本与 HEX 收发，让远程运维与硬件调试各得其所。
+              </p>
+            </div>
+            <div id="copy-connections" hidden>
+              <h2>
+                <span data-en="More connections.">连接再多，</span><br /><span
+                  data-en="Still organized."
+                  >也井井有条。</span
+                >
+              </h2>
+              <p
+                data-en="Keep environments organized with groups, favorites and recent hosts. Find the right host when it’s time to work."
+              >
+                用分组、收藏和最近访问整理环境。需要开始工作时，快速找到目标主机。
+              </p>
+            </div>
+            <div
+              class="shot-tabs"
+              role="tablist"
+              aria-label="查看实际界面"
+              data-en-aria="View actual app screens"
+            >
+              <button
+                type="button"
+                role="tab"
+                id="tab-serial"
+                aria-controls="panel-serial"
+                aria-selected="true"
+                tabindex="0"
+              >
+                <span data-en="Serial">串口调试</span></button
+              ><button
+                type="button"
+                role="tab"
+                id="tab-connections"
+                aria-controls="panel-connections"
+                aria-selected="false"
+                tabindex="-1"
+              >
+                <span data-en="Connections">连接管理</span>
+              </button>
+            </div>
+            <p data-en="Click a screenshot to enlarge" class="caption">
+              截图可点击放大
+            </p>
+          </div>
+          <div class="shot-panels">
+            <figure
+              role="tabpanel"
+              id="panel-serial"
+              aria-labelledby="tab-serial"
+              tabindex="0"
+            >
+              <a
+                class="preview-link"
+                href="./assets/serial-zh.png"
+                aria-label="放大串口界面"
+                data-en-aria="Enlarge the serial interface"
+                ><img
+                  src="./assets/serial-zh.png"
+                  width="1229"
+                  height="768"
+                  alt="waytty 串口参数与配置界面"
+                  data-en-alt="waytty serial configuration, Chinese interface"
+                  loading="lazy"
+              /></a>
+              <figcaption
+                data-en="Actual app screenshot · Physical serial hardware validation is ongoing"
+              >
+                真实应用截图 · 串口硬件兼容性仍在验证
+              </figcaption>
+            </figure>
+            <figure
+              role="tabpanel"
+              id="panel-connections"
+              aria-labelledby="tab-connections"
+              tabindex="0"
+              hidden
+            >
+              <a
+                class="preview-link"
+                href="./assets/connections-zh.png"
+                aria-label="放大连接界面"
+                data-en-aria="Enlarge the connections interface"
+                ><img
+                  src="./assets/connections-zh.png"
+                  data-image-zh="./assets/connections-zh.png"
+                  data-image-en="./assets/connections-en.png"
+                  width="1229"
+                  height="768"
+                  alt="waytty 连接管理，空白演示工作区"
+                  data-en-alt="waytty connections, empty demo workspace"
+                  loading="lazy"
+              /></a>
+              <figcaption
+                data-en="Actual app screenshot · Empty demo workspace"
+              >
+                真实应用截图 · 空白演示工作区
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+      <section
+        class="data-section section"
+        id="data"
+        aria-labelledby="data-title"
+      >
+        <div class="wrap data-inner">
+          <div>
+            <h2 id="data-title">
+              <span data-en="Local from the start.">本地就能用。</span
+              ><br /><span data-en="Cloud when you choose." class="lime"
+                >云端，由你选择。</span
+              >
+            </h2>
+            <p>
+              <span data-en="Your connections stay on your device."
+                >连接资料留在本机。</span
+              ><br /><span
+                data-en="Choose encrypted backup when you need another device."
+                >需要跨设备时，再开启加密备份。</span
+              >
+            </p>
+          </div>
+          <div class="data-modes">
+            <article>
+              <span class="mode-dot" aria-hidden="true"></span>
+              <h3>
+                <span data-en="Local &amp; offline">本地离线</span>
+                <span data-en="Available" class="status">现已可用</span>
+              </h3>
+              <p
+                data-en="Manage connections and credentials without an account."
+              >
+                无需注册，管理连接与凭据。
+              </p>
+              <p
+                data-en="Remote connections still require a network."
+                class="mode-note"
+              >
+                连接远程主机仍需网络。
+              </p>
+            </article>
+            <article>
+              <span class="mode-dot hollow" aria-hidden="true"></span>
+              <h3>
+                <span data-en="Email-account cloud backup"
+                  >邮箱账号云端备份</span
+                >
+                <span data-en="Preview" class="status muted-status"
+                  >开发预览</span
+                >
+              </h3>
+              <p
+                data-en="Verify your email, sign in, and encrypt credentials on your device."
+              >
+                邮箱验证后登录，凭据先在客户端加密。
+              </p>
+              <p
+                data-en="Not included in the v0.0.1 download."
+                class="mode-note"
+              >
+                尚未包含在 v0.0.1 下载包中。
+              </p>
+              <a
+                class="text-link"
+                href="https://github.com/wayyoungboy/waytty/blob/main/docs/CLOUD_ACCOUNT.md"
+                ><span data-en="Backup details &amp; scope"
+                  >了解备份方式与范围</span
+                ><svg class="icon" aria-hidden="true">
+                  <use href="#i-external" /></svg
+              ></a>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section
+        class="download-section section wrap"
+        id="download"
+        aria-labelledby="download-title"
+      >
+        <div class="section-heading">
+          <div>
+            <h2 id="download-title">
+              <span data-en="Your next connection">下一次连接，</span
+              ><br /><span data-en="starts here.">从这里开始。</span>
+            </h2>
+            <p
+              data-en="Get the macOS release. Your workspace is a few steps away."
+            >
+              下载 macOS 版本，几步进入工作区。
+            </p>
+          </div>
+          <div class="actions">
+            <a
+              class="button lime-button"
+              href="https://github.com/wayyoungboy/waytty/releases/download/v0.0.1/waytty-0.0.1-macos-universal.zip"
+              ><span data-en="Download macOS">下载 macOS 版</span
+              ><svg class="icon" aria-hidden="true">
+                <use href="#i-download" /></svg></a
+            ><a
+              class="text-link"
+              href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.1"
+              ><span data-en="Release notes">发布说明</span
+              ><svg class="icon" aria-hidden="true">
+                <use href="#i-external" /></svg
+            ></a>
+          </div>
+        </div>
+        <div
+          class="platform-table"
+          role="region"
+          aria-label="平台支持"
+          data-en-aria="Platform availability"
+          tabindex="0"
+        >
+          <table>
+            <caption class="sr-only" data-en="Downloads and platform support">
+              下载与平台支持
+            </caption>
+            <thead class="sr-only">
+              <tr>
+                <th scope="col"><span data-en="Platform">平台</span></th>
+                <th scope="col">
+                  <span data-en="Requirements and progress">要求与进度</span>
+                </th>
+                <th scope="col">
+                  <span data-en="Release status">发布状态</span>
+                </th>
+                <th scope="col"><span data-en="Get the app">获取</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">macOS</th>
+                <td>12+ · Apple Silicon / Intel</td>
+                <td>
+                  <span
+                    data-en="v0.0.1"
+                    class="release-status"
+                    >v0.0.1</span
+                  >
+                </td>
+                <td>
+                  <a
+                    class="text-link"
+                    href="https://github.com/wayyoungboy/waytty/releases/download/v0.0.1/waytty-0.0.1-macos-universal.zip"
+                    ><span data-en="Download">下载</span
+                    ><svg class="icon" aria-hidden="true">
+                      <use href="#i-external" /></svg
+                  ></a>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Windows</th>
+                <td data-en="Platform validation in progress">
+                  目标平台验收中
+                </td>
+                <td data-en="No package available yet">暂未提供安装包</td>
+                <td>
+                  <a
+                    class="text-link"
+                    href="https://github.com/wayyoungboy/waytty/blob/main/docs/PARITY.md"
+                    ><span data-en="Progress">进展</span
+                    ><svg class="icon" aria-hidden="true">
+                      <use href="#i-external" /></svg
+                  ></a>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <span data-en="Android tablets">Android 平板</span>
+                </th>
+                <td data-en="Device validation in progress">目标设备验收中</td>
+                <td data-en="No package available yet">暂未提供安装包</td>
+                <td>
+                  <a
+                    class="text-link"
+                    href="https://github.com/wayyoungboy/waytty/blob/main/docs/PARITY.md"
+                    ><span data-en="Progress">进展</span
+                    ><svg class="icon" aria-hidden="true">
+                      <use href="#i-external" /></svg
+                  ></a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="install-note">
+          <span
+            data-en="The macOS package is ad-hoc signed and not yet notarized by Apple."
+            >当前安装包为 ad-hoc 签名，尚未完成 Apple 公证。</span
+          >
+          <a href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.1"
+            ><span
+              data-en="See the release page for installation notes and SHA-256 checksums."
+              >安装说明与 SHA-256 校验文件见发布页。</span
+            ></a
+          >
+        </p>
+        <ol class="setup-steps" id="quickstart">
+          <li>
+            <span class="rail-number">01</span>
+            <h3 data-en="Download &amp; verify">下载并校验</h3>
+            <p
+              data-en="Download the ZIP and SHA256SUMS.txt from the release page. Verify the checksum."
+            >
+              从发布页下载安装包与 SHA256SUMS.txt，核对文件校验值。
+            </p>
+          </li>
+          <li>
+            <span class="rail-number">02</span>
+            <h3 data-en="Move to Applications">放入应用程序</h3>
+            <p
+              data-en="Extract the ZIP and move waytty.app to Applications. If macOS blocks it, verify the source and follow its Privacy &amp; Security prompt."
+            >
+              解压后将 waytty.app
+              放入「应用程序」。首次打开如被拦截，核对来源后按系统提示操作。
+            </p>
+          </li>
+          <li>
+            <span class="rail-number">03</span>
+            <h3 data-en="Add an SSH connection">新建 SSH 连接</h3>
+            <p
+              data-en="Choose Connections → SSH → New connection and enter the host details. Verify the server fingerprint on first connection."
+            >
+              进入「连接 → SSH →
+              新建连接」，填写主机信息。首次连接请核对服务器指纹。
+            </p>
+          </li>
+        </ol>
+      </section>
+      <section class="faq-section wrap" aria-labelledby="faq-title">
+        <h2 id="faq-title">
+          <span data-en="A few more things.">还有几个问题。</span>
+        </h2>
+        <div class="faq-list">
+          <details>
+            <summary>
+              <span data-en="Do I need an account?">需要注册才能使用吗？</span
+              ><span aria-hidden="true" class="plus"></span>
+            </summary>
+            <p
+              data-en="No. Local connection management and terminal tools do not require an account. You can manage local data offline; remote connections and transfers need a network. Optional email-account backup is not included in v0.0.1."
+            >
+              不需要。本地连接管理与终端工具无需账号。离线模式可以管理本机资料；连接远程主机和传输文件仍需网络。邮箱账号备份为可选功能，尚未包含在
+              v0.0.1 中。
+            </p>
+          </details>
+          <details>
+            <summary>
+              <span data-en="Does the cloud store plaintext credentials?"
+                >云端会保存明文凭据吗？</span
+              ><span aria-hidden="true" class="plus"></span>
+            </summary>
+            <p
+              data-en="Email-account backup encrypts connection settings and passwords on your device. The self-hosted server stores ciphertext in SQLite or MySQL. A separate vault password never leaves your device; resetting your login password cannot recover a vault password you have lost. Private key files are not backed up."
+            >
+              邮箱账号备份在客户端加密连接设置与连接密码，自建服务端使用 SQLite 或 MySQL 保存密文。登录密码与保险库密码各有用途；保险库密码不会发送到服务器，遗失后无法通过重置登录密码恢复备份。私钥文件不在备份范围内。
+            </p>
+          </details>
+          <details>
+            <summary>
+              <span data-en="What platforms does v0.0.1 support?"
+                >v0.0.1 支持哪些平台？</span
+              ><span aria-hidden="true" class="plus"></span>
+            </summary>
+            <p
+              data-en="v0.0.1 provides a macOS Universal package for Apple Silicon and Intel. Windows and Android packages are not available yet. See project docs for platform validation, upgrades and issue reporting."
+            >
+              v0.0.1 提供 macOS Universal 安装包，支持 Apple Silicon 与 Intel。Windows 和 Android 安装包暂未提供；平台验收、升级说明与问题反馈可查看项目文档。
+            </p>
+          </details>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <div class="footer-brand">
+        <a class="wordmark" href="#top"
+          ><img src="./favicon.svg" width="32" height="32" alt="" />waytty</a
+        >
+        <p data-en="Make room for focused work.">为每一次连接，留出专注。</p>
       </div>
-    </section>
-
-    <section class="details wrap" aria-label="更多功能" data-en-aria="More features">
-      <article><span class="detail-icon" aria-hidden="true">↗</span><h3 data-en="Files, right beside the terminal">文件就在终端旁</h3><p data-en="SFTP and local file panels, transfer queues, remote editing and file permissions.">SFTP 与本地文件面板、传输队列、远程编辑和权限管理，减少来回切换。</p></article>
-      <article><span class="detail-icon" aria-hidden="true">&gt;_</span><h3 data-en="Keep useful work close">把常用操作留下来</h3><p data-en="Reusable commands, Markdown notes, terminal recording and configurable shortcuts.">复用命令片段、记录 Markdown 笔记、录制终端会话，也可以配置自己的快捷键。</p></article>
-      <article><span class="detail-icon" aria-hidden="true">◈</span><h3 data-en="Connections under your control">连接与凭证由你配置</h3><p data-en="SSH keys, agent forwarding, jump hosts and proxies. Cloud sync is optional and uses your own configuration.">支持 SSH 密钥、Agent、跳板链与代理。云同步按需配置，应用可在本地使用。</p></article>
-    </section>
-
-    <section id="platforms" class="platforms wrap"><div><h2 data-en="Starting on Mac. Built to go further.">从 Mac 开始，<br>走向更多设备。</h2><p data-en="One shared Flutter interface and core. Platform support follows real build and device verification.">基于 Flutter 界面与共享核心，按真实构建和设备验收推进各平台支持。</p></div><div class="platform-list"><div><strong>macOS</strong><span class="platform-state current" data-en="Development build available">开发版已可运行</span></div><div><strong>Windows</strong><span class="platform-state" data-en="Build scaffolding · verification pending">已有工程入口 · 待构建验收</span></div><div><strong data-en="Android tablets">安卓平板</strong><span class="platform-state" data-en="Interface & USB support · verification pending">已有界面与 USB 通道 · 待验收</span></div><p data-en="Current scope excludes RDP; VNC is not enabled.">当前范围不包含 RDP，VNC 暂不启用。</p></div></section>
-
-    <section class="ai-note wrap"><div class="ai-symbol" aria-hidden="true">✳</div><div><h3 data-en="Next: an assistant for operations">下一步：让 AI 协助运维</h3><p data-en="Streaming AI chat is in place. Host diagnosis, controlled command execution and result verification are planned. See the design and help shape it.">已接入流式 AI 对话；主机诊断、受控命令执行与结果验证正在规划。欢迎一起讨论助手应该如何参与运维。</p></div><a href="https://github.com/wayyoungboy/waytty/blob/main/docs/plans/AI_OPERATIONS_ASSISTANT.md" data-en="Read the plan ↗">查看规划 ↗</a></section>
-
-    <section id="start" class="start wrap"><div><h2 data-en="Make room for your next session.">下一段会话，<br>从这里开始。</h2><p data-en="waytty is in active development. Explore the source, report a bug or help build the next feature.">waytty 正在持续开发。查看源码、反馈问题，或者一起实现下一个功能。</p></div><div class="start-actions"><a class="button primary" href="https://github.com/wayyoungboy/waytty" data-en="Explore on GitHub">在 GitHub 查看项目 <span aria-hidden="true">↗</span></a><a href="https://github.com/wayyoungboy/waytty/issues" data-en="Report an issue">反馈问题</a><span data-en="v0.0.1 for macOS 12+. Apple Silicon + Intel. Ad-hoc signed; not notarized.">v0.0.1 · macOS 12+ · Apple Silicon / Intel。开发版签名，尚未公证。</span></div></section>
-  </main>
-  <footer class="wrap"><a class="wordmark" href="#">waytty<span class="footer-cursor" aria-hidden="true">_</span></a><p data-en="An open-source terminal, built with care.">一个认真打磨的开源终端。</p><div><a href="https://github.com/wayyoungboy/waytty/blob/main/THIRD_PARTY_NOTICES.md" data-en="Acknowledgements & licenses">致谢与许可</a><a href="https://github.com/wayyoungboy/waytty/blob/main/docs/PRIVACY_REVIEW.md" data-en="Privacy review">隐私检查</a><a href="https://github.com/wayyoungboy/waytty">GitHub ↗</a></div></footer>
-</body>
+      <nav aria-label="项目链接" data-en-aria="Project links">
+        <a
+          data-en="Docs"
+          href="https://github.com/wayyoungboy/waytty/blob/main/README.md"
+          data-doc-link
+          >文档</a
+        ><a href="https://github.com/wayyoungboy/waytty">GitHub</a
+        ><a
+          data-en="Report an issue"
+          href="https://github.com/wayyoungboy/waytty/issues"
+          >反馈问题</a
+        ><a href="https://github.com/wayyoungboy/waytty/blob/main/LICENSE"
+          >MIT License</a
+        >
+      </nav>
+    </footer>
+    <dialog id="image-preview" aria-labelledby="preview-caption">
+      <button
+        id="preview-close"
+        class="icon-button"
+        type="button"
+        aria-label="关闭预览"
+        data-en-aria="Close preview"
+      >
+        <svg class="icon" aria-hidden="true">
+          <use href="#i-close" />
+        </svg></button
+      ><img id="preview-image" alt="截图预览" />
+      <p id="preview-caption"></p>
+    </dialog>
+  </body>
 </html>

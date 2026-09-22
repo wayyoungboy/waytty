@@ -15,7 +15,6 @@ import 'package:yourssh/providers/sync_provider.dart';
 import 'package:yourssh/services/key_gen_service.dart';
 import 'package:yourssh/services/ssh_service.dart';
 import 'package:yourssh/services/storage_service.dart';
-import 'package:yourssh/services/sync_service.dart';
 import 'package:yourssh/services/tab_metadata_service.dart';
 
 Widget _wrap(Widget child) {
@@ -43,7 +42,6 @@ Widget _wrap(Widget child) {
         create: (_) => SettingsProvider(),
       ),
       ChangeNotifierProvider<SyncProvider>.value(value: sync),
-      Provider<SyncService>(create: (_) => SyncService(sync)),
       Provider<KeyGenService>(create: (_) => KeyGenService()),
       Provider<SshService>(create: (_) => SshService(storage)),
     ],

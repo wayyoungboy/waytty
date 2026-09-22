@@ -16,7 +16,6 @@ import '../services/port_forward_service.dart';
 import '../services/sftp_transfer_service.dart';
 import '../services/ssh_service.dart';
 import '../services/storage_service.dart';
-import '../services/sync_service.dart';
 import '../services/tab_metadata_service.dart';
 
 /// Constructs the platform-agnostic services/providers the Android app needs
@@ -32,7 +31,6 @@ class MobileBootstrap {
   late final KnownHostsProvider knownHosts;
   late final SessionProvider sessions;
   late final SyncProvider sync;
-  late final SyncService syncService;
   late final SnippetProvider snippets;
   late final SftpTransferService transfer;
   late final PortForwardProvider portForwardProvider;
@@ -43,12 +41,11 @@ class MobileBootstrap {
     storage = StorageService();
     ssh = SshService(storage);
     hostProvider = HostProvider(storage);
-    keyProvider = KeyProvider()..savePassphrase = storage.savePassphrase;
+    keyProvider = KeyProvider();
     settings = SettingsProvider();
     knownHosts = KnownHostsProvider(storage)..load();
     sessions = SessionProvider(ssh, TabMetadataService());
-    sync = SyncProvider(storage: storage);
-    syncService = SyncService(sync);
+    sync = SyncProvider();
     snippets = SnippetProvider();
     transfer = SftpTransferService(ssh);
     portForwardProvider = PortForwardProvider();
@@ -77,7 +74,6 @@ class MobileBootstrap {
     sessions.reconnectAttempts = () => settings.reconnectAttempts;
     sessions.tmuxEnabled = () => settings.tmuxEnabled;
     sessions.terminalType = () => settings.terminalType;
-    sessions.hostKeyVerifier = knownHosts.verifyHostKey;
     sessions.onOsDetected = (id, os) => hostProvider.updateDetectedOs(id, os);
 
     ssh.defaultHostKeyVerifier = knownHosts.verifyHostKey;
@@ -95,7 +91,6 @@ class MobileBootstrap {
         ChangeNotifierProvider.value(value: knownHosts),
         ChangeNotifierProvider.value(value: sessions),
         ChangeNotifierProvider.value(value: sync),
-        Provider.value(value: syncService),
         ChangeNotifierProvider.value(value: snippets),
         Provider.value(value: transfer),
         ChangeNotifierProvider.value(value: portForwardProvider),
@@ -104,10 +99,9 @@ class MobileBootstrap {
       ];
 
   /// Disposes the objects exposed via `Provider.value` (which does not dispose
-  /// them itself), most importantly [SessionProvider]'s reconnect timers and
-  /// [SyncService]'s retry timer. Called from the root widget's dispose.
+  /// them itself), including reconnect timers. Called from the root's dispose.
   void dispose() {
-    syncService.dispose();
+    storage.clearSessionSecrets();
     sessions.dispose();
     sync.dispose();
     snippets.dispose();

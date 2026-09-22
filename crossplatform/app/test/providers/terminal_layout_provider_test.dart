@@ -114,4 +114,19 @@ void main() {
     p.toggleSidePanel(SidePanel.terminalConfig);
     expect(notificationCount, 1);
   });
+  test('files are independent from the right panel and width is bounded', () {
+    final p = TerminalLayoutProvider();
+    expect(p.filesVisible, isTrue);
+    p.toggleSidePanel(SidePanel.monitor);
+    p.toggleFiles();
+    expect(p.monitorPanelVisible, isTrue);
+    expect(p.filesVisible, isFalse);
+    p.toggleFiles();
+    expect(p.filesVisible, isTrue);
+    p.resizeFiles(100);
+    expect(p.filesWidth, 240);
+    p.resizeFiles(999);
+    expect(p.filesWidth, 520);
+  });
+
 }

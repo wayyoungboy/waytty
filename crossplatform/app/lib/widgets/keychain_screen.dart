@@ -452,7 +452,7 @@ class _EmptyState extends StatelessWidget {
                     fontSize: 16,
                     fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
-            const LText("Keys from ~/.ssh are auto-discovered on startup",
+            const LText("Enter credentials manually. Private keys and passwords are not loaded from the system keychain or saved to disk.",
                 style: TextStyle(
                     color: AppColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 20),

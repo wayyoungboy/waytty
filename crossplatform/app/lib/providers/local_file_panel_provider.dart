@@ -10,6 +10,7 @@ class LocalFilePanelProvider extends ChangeNotifier {
   String _currentPath;
   List<LocalEntry> _entries = [];
   final Set<String> _selectedPaths = {};
+  final Map<String, LocalEntry> _selectedEntriesByPath = {};
   String _filterQuery = '';
   bool _filterVisible = false;
   bool _showHidden = false;
@@ -17,17 +18,20 @@ class LocalFilePanelProvider extends ChangeNotifier {
   int _historyIndex = -1;
   LocalFilePanelLoadState loadState = LocalFilePanelLoadState.idle;
   String? errorMessage;
+  int entriesRevision = 0;
 
   LocalFilePanelProvider() : _currentPath = _defaultPath() {
     _history.add(_currentPath);
     _historyIndex = 0;
   }
 
-  LocalFilePanelProvider.forTest(String initialPath)
-      : _currentPath = initialPath {
+  LocalFilePanelProvider.atPath(String initialPath)
+    : _currentPath = initialPath {
     _history.add(_currentPath);
     _historyIndex = 0;
   }
+
+  LocalFilePanelProvider.forTest(String initialPath) : this.atPath(initialPath);
 
   static String _defaultPath() {
     if (Platform.isWindows) {
@@ -52,7 +56,10 @@ class LocalFilePanelProvider extends ChangeNotifier {
   List<LocalEntry> get entries => List.unmodifiable(_entries);
 
   Set<LocalEntry> get selectedEntries {
-    return _entries.where((e) => _selectedPaths.contains(e.path)).toSet();
+    return {
+      for (final path in _selectedPaths)
+        if (_selectedEntriesByPath[path] != null) _selectedEntriesByPath[path]!,
+    };
   }
 
   /// True when every *visible* (filtered) entry is selected — drives the
@@ -82,6 +89,7 @@ class LocalFilePanelProvider extends ChangeNotifier {
     _historyIndex = _history.length - 1;
     _currentPath = path;
     _selectedPaths.clear();
+    _selectedEntriesByPath.clear();
     notifyListeners();
   }
 
@@ -90,6 +98,7 @@ class LocalFilePanelProvider extends ChangeNotifier {
     _historyIndex--;
     _currentPath = _history[_historyIndex];
     _selectedPaths.clear();
+    _selectedEntriesByPath.clear();
     notifyListeners();
     _fetchDirectory(_currentPath);
   }
@@ -99,6 +108,7 @@ class LocalFilePanelProvider extends ChangeNotifier {
     _historyIndex++;
     _currentPath = _history[_historyIndex];
     _selectedPaths.clear();
+    _selectedEntriesByPath.clear();
     notifyListeners();
     _fetchDirectory(_currentPath);
   }
@@ -127,21 +137,25 @@ class LocalFilePanelProvider extends ChangeNotifier {
         final name = p.basename(entity.path);
         if (!_showHidden && name.startsWith('.')) continue;
         final stat = await entity.stat();
-        entries.add(LocalEntry(
-          name: name,
-          path: entity.path,
-          isDirectory: entity is Directory,
-          size: stat.size,
-          modifiedAt: stat.modified,
-          permissions: (entity is Directory ? 'd' : '-') + stat.modeString(),
-          // notFound stats (entry raced a delete) report mode 0 — keep null
-          // so the permissions dialog treats it as unknown, not 000.
-          mode:
-              stat.type == FileSystemEntityType.notFound ? null : stat.mode,
-        ));
+        entries.add(
+          LocalEntry(
+            name: name,
+            path: entity.path,
+            isDirectory: entity is Directory,
+            size: stat.size,
+            modifiedAt: stat.modified,
+            permissions: (entity is Directory ? 'd' : '-') + stat.modeString(),
+            // notFound stats (entry raced a delete) report mode 0 — keep null
+            // so the permissions dialog treats it as unknown, not 000.
+            mode: stat.type == FileSystemEntityType.notFound ? null : stat.mode,
+          ),
+        );
       }
       if (token != _fetchToken) return;
       entries.sort((a, b) => a.sortKey.compareTo(b.sortKey));
+      _selectedPaths.clear();
+      _selectedEntriesByPath.clear();
+      entriesRevision++;
       _entries = entries;
       loadState = LocalFilePanelLoadState.loaded;
     } catch (e) {
@@ -157,13 +171,18 @@ class LocalFilePanelProvider extends ChangeNotifier {
   void toggleSelection(LocalEntry entry) {
     if (_selectedPaths.contains(entry.path)) {
       _selectedPaths.remove(entry.path);
+      _selectedEntriesByPath.remove(entry.path);
     } else {
       _selectedPaths.add(entry.path);
+      _selectedEntriesByPath[entry.path] = entry;
     }
     notifyListeners();
   }
 
   void selectOnly(LocalEntry entry) {
+    _selectedEntriesByPath
+      ..clear()
+      ..[entry.path] = entry;
     _selectedPaths
       ..clear()
       ..add(entry.path);
@@ -174,12 +193,14 @@ class LocalFilePanelProvider extends ChangeNotifier {
 
   void clearSelection() {
     _selectedPaths.clear();
+    _selectedEntriesByPath.clear();
     notifyListeners();
   }
 
   void selectAll() {
     for (final entry in filteredEntries) {
       _selectedPaths.add(entry.path);
+      _selectedEntriesByPath[entry.path] = entry;
     }
     notifyListeners();
   }
@@ -206,6 +227,9 @@ class LocalFilePanelProvider extends ChangeNotifier {
     if (query.isNotEmpty) {
       final visible = filteredEntries.map((e) => e.path).toSet();
       _selectedPaths.retainWhere(visible.contains);
+      _selectedEntriesByPath.removeWhere(
+        (path, _) => !_selectedPaths.contains(path),
+      );
     }
     notifyListeners();
   }
@@ -216,5 +240,11 @@ class LocalFilePanelProvider extends ChangeNotifier {
     _entries = List.of(entries);
     loadState = LocalFilePanelLoadState.loaded;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _fetchToken++;
+    super.dispose();
   }
 }

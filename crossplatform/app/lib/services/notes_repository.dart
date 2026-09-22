@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 import '../models/workspace_note.dart';
 
 class NotesRepository {
@@ -24,10 +23,7 @@ class NotesRepository {
       if (!await prefs.setString(storageKey, encoded)) {
         throw StateError('笔记保存失败');
       }
-      if ((prefs.getString('supabase_url') ?? '').isNotEmpty) {
-        await prefs.setString('sync_local_revision', const Uuid().v4());
-        await prefs.setBool('sync_pending_push', true);
-      }
+
     });
     _pending = result.catchError((Object _) {});
     return result;

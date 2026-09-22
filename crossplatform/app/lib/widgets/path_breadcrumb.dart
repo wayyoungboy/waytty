@@ -112,7 +112,8 @@ class _PathBreadcrumbState extends State<PathBreadcrumb> {
             onPressed: _startEditing,
             tooltip: tr(context, "Go to path"),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 24, height: 24),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
       ],
     );

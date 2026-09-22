@@ -17,17 +17,21 @@ import 'package:yourssh/services/ssh_service.dart';
 import 'package:yourssh/theme/app_theme.dart';
 import 'package:yourssh/widgets/broadcast_toolbar.dart';
 import 'package:yourssh/widgets/terminal_monitor_panel.dart';
+import 'package:yourssh/widgets/server_monitor_sheet.dart';
+import 'package:yourssh/widgets/keep_alive_offstage.dart';
 
 typedef _Result = ({String stdout, String stderr, int exitCode});
 
 class _Sessions extends ChangeNotifier implements SessionProvider {
   AppSession? active;
+  final all = <AppSession>[];
   @override
   AppSession? get activeSession => active;
   @override
   List<SshSession> get sshSessions =>
-      active is SshSession ? [active as SshSession] : [];
+      all.whereType<SshSession>().toList();
   void select(AppSession? value) {
+    if (value != null && !all.contains(value)) all.add(value);
     active = value;
     notifyListeners();
   }
@@ -111,6 +115,7 @@ void main() {
     Locale locale = const Locale('zh'),
     double width = 340,
     bool toolbar = false,
+    bool visible = true,
   }) => MultiProvider(
     providers: [
       ChangeNotifierProvider<SessionProvider>.value(value: sessions),
@@ -138,15 +143,124 @@ void main() {
                       ],
                     ),
                   )
-                : const RepaintBoundary(
-                    key: ValueKey('monitor-preview'),
-                    child: TerminalMonitorPanel(),
+                : KeepAliveOffstage(
+                    active: visible,
+                    child: const RepaintBoundary(
+                      key: ValueKey('monitor-preview'),
+                      child: TerminalMonitorPanel(),
+                    ),
                   ),
           ),
         ),
       ),
     ),
   );
+
+  testWidgets('tab switch retains readings and CPU view without new probes', (tester) async {
+    final a = _session('a');
+    final b = _session('b');
+    sessions.select(a);
+    await tester.pumpWidget(app());
+    await tester.pump();
+    final state = tester.state(find.byType(ServerMonitorSheet));
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('核心 1').last);
+    await tester.pumpAndSettle();
+    sessions.select(b);
+    await tester.pump();
+    await tester.pump();
+    final calls = ssh.calls.length;
+    sessions.select(a);
+    await tester.pump();
+    expect(tester.state(find.byType(ServerMonitorSheet)), same(state));
+    expect(find.text('30.0%'), findsOneWidget);
+    expect(ssh.calls.length, calls);
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump();
+    expect(ssh.calls.skip(calls), ['a']);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('hidden monitor pauses polling and restores its last reading', (tester) async {
+    sessions.select(_session('a'));
+    await tester.pumpWidget(app());
+    await tester.pump();
+    final state = tester.state(find.byType(ServerMonitorSheet));
+    final calls = ssh.calls.length;
+    await tester.pumpWidget(app(visible: false));
+    await tester.pump(const Duration(seconds: 31));
+    expect(ssh.calls.length, calls);
+    await tester.pumpWidget(app());
+    expect(tester.state(find.byType(ServerMonitorSheet)), same(state));
+    expect(find.text('50.0%'), findsWidgets);
+    expect(ssh.calls.length, calls);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('switching back during the first sample reuses the in-flight probe', (tester) async {
+    final a = _session('a');
+    sessions.select(a);
+    final pending = Completer<_Result>();
+    ssh.pending = pending;
+    await tester.pumpWidget(app());
+    await tester.pump();
+    ssh.pending = null;
+    sessions.select(_session('b'));
+    await tester.pump();
+    await tester.pump();
+    sessions.select(a);
+    await tester.pump();
+    expect(ssh.calls.where((id) => id == 'a'), hasLength(2),
+        reason: 'one metrics probe and one firewall probe, even while pending');
+    pending.complete((stdout: _sample(90), stderr: '', exitCode: 0));
+    await tester.pump();
+    expect(find.text('90.0%'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('pause survives switching and closed sessions release their monitor', (tester) async {
+    final a = _session('a');
+    final b = _session('b');
+    sessions.select(a);
+    await tester.pumpWidget(app());
+    await tester.pump();
+    final state = tester.state(find.byType(ServerMonitorSheet));
+    await tester.tap(find.byTooltip('暂停监控'));
+    await tester.pump();
+    sessions.select(b);
+    await tester.pump();
+    await tester.pump();
+    final calls = ssh.calls.length;
+    sessions.select(a);
+    await tester.pump();
+    expect(find.byTooltip('继续监控'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 31));
+    expect(ssh.calls.length, calls);
+    sessions.select(b);
+    sessions.all.remove(a);
+    sessions.notifyListeners();
+    await tester.pump();
+    expect(state.mounted, false);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('another connection to the same host cannot keep a disconnected session polling', (tester) async {
+    final a = _session('a');
+    final b = _session('a');
+    sessions.all.add(b);
+    sessions.select(a);
+    await tester.pumpWidget(app());
+    await tester.pump();
+    expect(ssh.calls.length, 2, reason: 'unvisited session stays lazy');
+    a.status = SessionStatus.disconnected;
+    sessions.notifyListeners();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 31));
+    expect(ssh.calls.length, 2);
+    expect(find.text('50.0%'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+  });
 
   testWidgets(
     'network rates use elapsed remote sampling time and render in a compact panel',

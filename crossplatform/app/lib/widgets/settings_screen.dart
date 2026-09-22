@@ -1,8 +1,6 @@
-import 'dart:io' show Platform;
 import 'package:waytty_l10n/waytty_l10n.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:path/path.dart' as path_util;
 import 'package:uuid/uuid.dart';
@@ -11,18 +9,14 @@ import '../models/shell_profile.dart';
 import '../providers/ai_chat_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/audit_provider.dart';
-import '../providers/sync_provider.dart';
 import '../services/sync_service.dart';
-import '../services/sync_code.dart';
 import '../providers/host_provider.dart';
-import '../services/storage_service.dart';
-import '../services/supabase_service.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import 'hotkey_settings_screen.dart';
 import 'terminal_appearance_controls.dart';
 import 'keyword_highlight_settings.dart';
 import 'confirm_dialog.dart';
+import 'account_vault_section.dart';
 import 'qr_export_dialog.dart';
 import 'qr_import_dialog.dart';
 import 'package:file_picker/file_picker.dart';
@@ -40,7 +34,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
-    final sync = context.watch<SyncProvider>();
     final update = context.watch<UpdateProvider>();
 
     return Material(
@@ -259,7 +252,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
                 const _SecuritySection(),
                 const SizedBox(height: 24),
-                _SyncSection(sync: sync),
+                const AccountVaultSection(),
+                const SizedBox(height: 12),
+                ExpansionTile(
+                  title: const LText('P2P Transfer'),
+                  children: [const _SyncSection()],
+                ),
                 const SizedBox(height: 24),
                 const _AiProvidersSection(),
                 const SizedBox(height: 24),
@@ -385,252 +383,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-class _SyncSection extends StatefulWidget {
-  final SyncProvider sync;
-  const _SyncSection({required this.sync});
-
-  @override
-  State<_SyncSection> createState() => _SyncSectionState();
-}
-
-enum _SyncMode { cloud, p2p }
-
-class _SyncSectionState extends State<_SyncSection> {
-  final _urlController = TextEditingController();
-  final _anonKeyController = TextEditingController();
-  final _syncCodeController = TextEditingController();
-  bool _showAnonKey = false;
-  bool _showSyncCode = false;
-  bool _urlHasText = false;
-  bool _testing = false;
-  bool _testOk = false;
-  String? _testError;
-  bool _needsServiceKey = false;
-  _SyncMode _syncMode = _SyncMode.cloud;
-
-
-  @override
-  void initState() {
-    super.initState();
-    _urlController.text = widget.sync.supabaseUrl;
-    _anonKeyController.text = widget.sync.supabaseAnonKey;
-    _syncCodeController.text = SyncCode.format(widget.sync.syncCode);
-    if (widget.sync.isSupabaseConfigured) _testOk = true;
-    _urlHasText = _urlController.text.isNotEmpty;
-    _urlController.addListener(() {
-      final has = _urlController.text.isNotEmpty;
-      if (has != _urlHasText) setState(() => _urlHasText = has);
-    });
-  }
-
-  @override
-  void didUpdateWidget(_SyncSection old) {
-    super.didUpdateWidget(old);
-    if (SyncCode.normalize(_syncCodeController.text) != widget.sync.syncCode) {
-      _syncCodeController.text = SyncCode.format(widget.sync.syncCode);
-    }
-  }
-
-  @override
-  void dispose() {
-    _urlController.dispose();
-    _anonKeyController.dispose();
-    _syncCodeController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _generateCode() async {
-    final code = await context.read<SyncProvider>().generateSyncCode();
-    if (!mounted) return;
-    setState(() => _syncCodeController.text = SyncCode.format(code));
-    await _pushNow();
-  }
-
-  Future<void> _saveCode() async {
-    if (!SyncCode.isValid(_syncCodeController.text)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: LText("Enter a valid 12-character sync code."),
-        backgroundColor: Colors.red,
-      ));
-      return;
-    }
-    final provider = context.read<SyncProvider>();
-    await provider.setSyncCode(_syncCodeController.text);
-    if (!mounted) return;
-    setState(() => _syncCodeController.text = SyncCode.format(provider.syncCode));
-    await _pushNow();
-  }
-
-  Future<void> _regenerate() async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: const LText("Regenerate sync code?",
-            style: TextStyle(color: AppColors.textPrimary, fontSize: 14)),
-        content: const LText(
-          "A new code creates a new cloud record. Data tied to the old code becomes unreachable until you re-enter the old code.",
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const LText("Cancel")),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const LText("Regenerate", style: TextStyle(color: Colors.orange))),
-        ],
-      ),
-    );
-    if (ok == true) await _generateCode();
-  }
-
-  Future<void> _pushNow() async {
-    final sync = context.read<SyncProvider>();
-    if (!sync.enabled || !sync.isSupabaseConfigured) return;
-    final syncService = context.read<SyncService>();
-    final hostProvider = context.read<HostProvider>();
-    await syncService.push(
-      hosts: hostProvider.allHosts,
-      loadPasswords: hostProvider.loadAllPasswords,
-    );
-    syncService.restartRetryTimer();
-  }
-
-  Future<void> _testAndSave() async {
-    final url = _urlController.text.trim();
-    final anonKey = _anonKeyController.text.trim();
-    if (url.isEmpty || anonKey.isEmpty) {
-      setState(() { _testError = 'URL and Anon key are required'; _testOk = false; });
-      return;
-    }
-    setState(() { _testing = true; _testError = null; _testOk = false; _needsServiceKey = false; });
-    try {
-      final svc = SupabaseService(url, anonKey, '');
-      final (outcome, error) = await svc.testConnection();
-      if (!mounted) return;
-
-      if (outcome == TestConnectionOutcome.connected) {
-        await context.read<SyncProvider>().setSupabaseConfig(url, anonKey);
-        if (!mounted) return;
-        await _pushNow();
-        if (!mounted) return;
-        setState(() { _testing = false; _testOk = true; });
-        return;
-      }
-
-      if (outcome == TestConnectionOutcome.tableNotFound) {
-        setState(() { _testing = false; _needsServiceKey = true; });
-        return;
-      }
-
-      setState(() { _testing = false; _testError = error ?? 'Connection failed'; });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() { _testing = false; _testError = e.toString(); });
-    }
-  }
-
-  Future<void> _disconnect() async {
-    await context.read<SyncProvider>().clearSupabaseConfig();
-    if (!mounted) return;
-    setState(() {
-      _testOk = false;
-      _urlController.clear();
-      _anonKeyController.clear();
-    });
-  }
-
-  Widget _buildTestStatus() {
-    if (_testing) return const SizedBox.shrink();
-    if (_testOk) {
-      return Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.check_circle, size: 12, color: Colors.green),
-        const SizedBox(width: 4),
-        const LText("Connected", style: TextStyle(color: Colors.green, fontSize: 11)),
-        const SizedBox(width: 12),
-        TextButton(
-          onPressed: _disconnect,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            foregroundColor: Colors.red,
-          ),
-          child: const LText("Disconnect", style: TextStyle(fontSize: 11)),
-        ),
-      ]);
-    }
-    if (_needsServiceKey) {
-      final projectRef = Uri.tryParse(_urlController.text.trim())?.host.split('.').first ?? '';
-      final sqlEditorUrl = projectRef.isNotEmpty
-          ? 'https://supabase.com/dashboard/project/$projectRef/sql/new'
-          : 'https://supabase.com/dashboard';
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(children: [
-            Icon(Icons.info_outline, size: 12, color: Colors.orange),
-            SizedBox(width: 4),
-            Flexible(child: LText(
-              "Table not found. Copy the SQL below and run it in Supabase SQL Editor, then click Save & Test again:",
-              style: TextStyle(color: Colors.orange, fontSize: 11),
-            )),
-          ]),
-          const SizedBox(height: 6),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.bg,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Text(
-              SupabaseService.migrationSql,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 10, fontFamily: 'monospace'),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: () {
-                  Clipboard.setData(const ClipboardData(text: SupabaseService.migrationSql));
-                },
-                icon: const Icon(Icons.copy, size: 12, color: AppColors.textSecondary),
-                label: const LText("Copy SQL", style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-              const SizedBox(width: 8),
-              TextButton.icon(
-                onPressed: () => launchUrl(Uri.parse(sqlEditorUrl)),
-                icon: const Icon(Icons.open_in_new, size: 12, color: AppColors.accent),
-                label: const LText("Open SQL Editor", style: TextStyle(color: AppColors.accent, fontSize: 11)),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-            ],
-          ),
-        ],
-      );
-    }
-    if (_testError != null) {
-      return Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.error_outline, size: 12, color: Colors.red),
-        const SizedBox(width: 4),
-        Flexible(child: Text(_testError!, style: const TextStyle(color: Colors.red, fontSize: 11), overflow: TextOverflow.ellipsis)),
-      ]);
-    }
-    return const SizedBox.shrink();
-  }
+class _SyncSection extends StatelessWidget {
+  const _SyncSection();
 
   Future<void> _showQrExport(BuildContext context) async {
     final hostProvider = context.read<HostProvider>();
@@ -647,249 +401,8 @@ class _SyncSectionState extends State<_SyncSection> {
     );
   }
 
-  Widget _buildModeTab(String label, IconData icon, _SyncMode mode) {
-    final selected = _syncMode == mode;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _syncMode = mode),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: selected ? AppColors.accent.withValues(alpha: 0.15) : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: selected ? AppColors.accent : Colors.transparent),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 14, color: selected ? AppColors.accent : AppColors.textSecondary),
-              const SizedBox(width: 6),
-              LText(label, style: TextStyle(fontSize: 12, color: selected ? AppColors.accent : AppColors.textSecondary, fontWeight: selected ? FontWeight.w600 : FontWeight.normal)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
-  /// Shared decoration for the sync text fields (URL / anon key / sync code).
-  InputDecoration _syncFieldDecoration({required String hint, Widget? suffixIcon}) {
-    OutlineInputBorder borderWith(Color color) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: BorderSide(color: color));
-    return InputDecoration(
-      hintText: tr(context, hint),
-      hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 12),
-      filled: true,
-      fillColor: AppColors.bg,
-      isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      border: borderWith(AppColors.border),
-      enabledBorder: borderWith(AppColors.border),
-      focusedBorder: borderWith(AppColors.accent),
-      suffixIcon: suffixIcon,
-    );
-  }
-
   @override
-  Widget build(BuildContext context) {
-    final sync = widget.sync;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const LText("SYNC", style: TextStyle(color: AppColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
-        const SizedBox(height: 8),
-        Material(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(10),
-          clipBehavior: Clip.antiAlias,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Column(
-              children: [
-                // ── Mode selector ────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    children: [
-                      _buildModeTab('Cloud Sync', Icons.cloud_sync, _SyncMode.cloud),
-                      const SizedBox(width: 8),
-                      _buildModeTab('P2P Transfer', Icons.wifi_tethering, _SyncMode.p2p),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1, color: AppColors.border),
-                if (_syncMode == _SyncMode.cloud)
-                  _buildCloudTab(sync)
-                else
-                  _buildP2pTab(context),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCloudTab(SyncProvider sync) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const LText("Supabase Backend", style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _urlController,
-            style: const TextStyle(color: AppColors.textPrimary, fontSize: 12),
-            decoration: _syncFieldDecoration(
-              hint: tr(context, "Project URL"),
-              suffixIcon: _urlHasText
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, size: 16, color: AppColors.textTertiary),
-                      onPressed: () => _urlController.clear(),
-                    )
-                  : const Icon(Icons.link, size: 16, color: AppColors.textTertiary),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _anonKeyController,
-                  obscureText: !_showAnonKey,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 12),
-                  decoration: _syncFieldDecoration(
-                    hint: tr(context, "Anon key"),
-                    suffixIcon: IconButton(
-                      icon: Icon(_showAnonKey ? Icons.visibility_off : Icons.visibility, size: 16, color: AppColors.textTertiary),
-                      onPressed: () => setState(() => _showAnonKey = !_showAnonKey),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 110,
-                height: 36,
-                child: ElevatedButton(
-                  onPressed: _testing ? null : _testAndSave,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size.zero,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                  ),
-                  child: _testing
-                      ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const LText("Save & Test", style: TextStyle(fontSize: 12)),
-                ),
-              ),
-            ],
-          ),
-          if (_testing || _testOk || _needsServiceKey || _testError != null) ...[
-            const SizedBox(height: 6),
-            _buildTestStatus(),
-          ],
-          if (sync.isSupabaseConfigured) ...[
-            const SizedBox(height: 16),
-            const Divider(height: 1, color: AppColors.border),
-            const SizedBox(height: 16),
-            const LText(
-              "Sync code",
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
-            ),
-            const SizedBox(height: 4),
-            LText(
-              sync.hasSyncCode ? "This 12-character code is the only key to your synced data. Enter it on another device to join." : "Generate a code on this device, or enter one from another device. It is the only key to your data — save it.",
-              style: TextStyle(
-                color: sync.hasSyncCode ? AppColors.textTertiary : Colors.orange,
-                fontSize: 11,
-              ),
-            ),
-            const SizedBox(height: 6),
-            TextField(
-              controller: _syncCodeController,
-              obscureText: !_showSyncCode,
-              style: const TextStyle(
-                  color: AppColors.textPrimary, fontSize: 13, letterSpacing: 1.5),
-              decoration: _syncFieldDecoration(
-                hint: tr(context, "XXXX-XXXX-XXXX"),
-                suffixIcon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(_showSyncCode ? Icons.visibility_off : Icons.visibility,
-                          size: 16, color: AppColors.textTertiary),
-                      onPressed: () => setState(() => _showSyncCode = !_showSyncCode),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.copy, size: 15, color: AppColors.textTertiary),
-                      tooltip: tr(context, "Copy"),
-                      onPressed: sync.hasSyncCode
-                          ? () {
-                              Clipboard.setData(ClipboardData(text: sync.syncCode));
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                  content: LText("Sync code copied"),
-                                  duration: Duration(seconds: 1)));
-                            }
-                          : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
-                    child: ElevatedButton(
-                      onPressed: _saveCode,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size.zero,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                      ),
-                      child: const LText("Save code", style: TextStyle(fontSize: 12)),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SizedBox(
-                    height: 36,
-                    child: OutlinedButton(
-                      onPressed: sync.hasSyncCode ? _regenerate : _generateCode,
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: Size.zero,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                      ),
-                      child: LText(sync.hasSyncCode ? "Regenerate" : "Generate",
-                          style: const TextStyle(fontSize: 12)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Divider(height: 1, color: AppColors.border),
-            const SizedBox(height: 16),
-            _SyncStatusRow(sync: sync),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => _buildP2pTab(context);
 
   Widget _buildP2pTab(BuildContext context) {
     return Padding(
@@ -935,45 +448,6 @@ class _SyncSectionState extends State<_SyncSection> {
         ],
       ),
     );
-  }
-}
-
-class _SyncStatusRow extends StatelessWidget {
-  final SyncProvider sync;
-  const _SyncStatusRow({required this.sync});
-
-  @override
-  Widget build(BuildContext context) {
-    switch (sync.status) {
-      case SyncStatus.syncing:
-        return const Row(children: [
-          SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 1.5)),
-          SizedBox(width: 6),
-          LText("Syncing…", style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-        ]);
-      case SyncStatus.synced:
-        final ago = sync.lastSynced == null ? '' : _ago(context, sync.lastSynced!);
-        return Row(children: [
-          const Icon(Icons.check_circle, size: 12, color: Colors.green),
-          const SizedBox(width: 6),
-          LText(LMessage("Synced{0}", [ago]), style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
-        ]);
-      case SyncStatus.error:
-        return Row(children: [
-          const Icon(Icons.error_outline, size: 12, color: Colors.red),
-          const SizedBox(width: 6),
-          Expanded(child: LText(LMessage("Sync error: {0}", [sync.error ?? '']), style: const TextStyle(color: Colors.red, fontSize: 11), overflow: TextOverflow.ellipsis)),
-        ]);
-      case SyncStatus.idle:
-        return const SizedBox.shrink();
-    }
-  }
-
-  String _ago(BuildContext context, DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inSeconds < 60) return tr(context, ' · just now');
-    if (diff.inMinutes < 60) return tr(context, LMessage(' · {0}m ago', [diff.inMinutes]));
-    return tr(context, LMessage(' · {0}h ago', [diff.inHours]));
   }
 }
 
@@ -1382,84 +856,21 @@ class _Section extends StatelessWidget {
   }
 }
 
-/// Settings → Security. Names the store host passwords and key passphrases
-/// actually live in, and — the point of the section — makes a downgrade to
-/// cleartext prefs visible instead of leaving it in the debug log (issue #91).
-class _SecuritySection extends StatefulWidget {
+/// Credentials are supplied manually and retained only in process memory.
+class _SecuritySection extends StatelessWidget {
   const _SecuritySection();
 
   @override
-  State<_SecuritySection> createState() => _SecuritySectionState();
-}
-
-class _SecuritySectionState extends State<_SecuritySection> {
-  bool _retrying = false;
-
-  static String get _storeName {
-    if (Platform.isMacOS) return 'macOS Keychain';
-    if (Platform.isWindows) return 'Windows Credential Manager';
-    return 'system keyring';
-  }
-
-  Future<void> _retry(StorageService storage) async {
-    setState(() => _retrying = true);
-    final moved = await storage.migratePlaintextSecrets();
-    if (!mounted) return;
-    setState(() => _retrying = false);
-    final left = storage.plaintextSecretKeys.length;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: LText(left == 0 ? LMessage("Moved {0} credential(s) into the {1}.", [moved, _storeName]) : LMessage("{0} credential(s) still could not be stored securely.", [left])),
-    ));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final storage = context.read<StorageService>();
-    return ListenableBuilder(
-      listenable: storage.secretStorageRevision,
-      builder: (context, _) {
-        final plaintext = storage.plaintextSecretKeys.length;
-        final secure = plaintext == 0;
-        return _Section(title: tr(context, "Security"), children: [
-          _Row(
-            label: tr(context, "Credential storage"),
-            subtitle: tr(context, LMessage("Host passwords, sudo passwords and key passphrases are kept in the {0}", [_storeName])),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(secure ? Icons.lock_outline : Icons.lock_open,
-                    size: 14,
-                    color: secure ? AppColors.accent : AppColors.red),
-                const SizedBox(width: 6),
-                LText(
-                  secure ? "Encrypted" : "Plain text",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: secure ? AppColors.accent : AppColors.red,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (!secure)
-            _Row(
-              label: tr(context, LMessage("{0} credential(s) stored without encryption", [plaintext])),
-              subtitle: tr(context, "The system keychain refused these, so they were written to the app preferences file as readable text — anything that can read your user account can read them."),
-              trailing: TextButton.icon(
-                icon: _retrying
-                    ? const SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.lock_reset, size: 14),
-                label: const LText("Retry", style: TextStyle(fontSize: 12)),
-                onPressed: _retrying ? null : () => _retry(storage),
-              ),
-            ),
-        ]);
-      },
-    );
-  }
+  Widget build(BuildContext context) => _Section(
+    title: tr(context, 'Security'),
+    children: [
+      _Row(
+        label: tr(context, 'Credential storage'),
+        subtitle: tr(context, 'Enter credentials manually. Private keys and passwords are not loaded from the system keychain or saved to disk.'),
+        trailing: const LText('Memory only'),
+      ),
+    ],
+  );
 }
 
 class _Row extends StatelessWidget {

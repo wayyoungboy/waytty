@@ -27,6 +27,11 @@ class FirewallStatusService {
 
   void stop() {
     _generation++;
+    pause();
+  }
+
+  /// Suspend future ticks without discarding an already requested reading.
+  void pause() {
     _timer?.cancel();
     _timer = null;
   }

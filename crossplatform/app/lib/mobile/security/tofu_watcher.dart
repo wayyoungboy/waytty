@@ -1,13 +1,12 @@
-import 'package:waytty_l10n/waytty_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/known_host.dart';
 import '../../providers/known_hosts_provider.dart';
-import '../../theme/app_theme.dart';
+import '../../widgets/ssh_host_key_dialog.dart';
 
 /// Watches [KnownHostsProvider.pendingChallenge] and shows a single TOFU
-/// host-key-mismatch dialog (Trust / Reject) when a key changes.
+/// first-trust or changed-key dialog before SSH authentication.
 class TofuWatcher extends StatefulWidget {
   final Widget child;
   const TofuWatcher({super.key, required this.child});
@@ -22,7 +21,7 @@ class _TofuWatcherState extends State<TofuWatcher> {
   @override
   Widget build(BuildContext context) {
     final challenge = context.watch<KnownHostsProvider>().pendingChallenge;
-    if (challenge != null && !_dialogOpen) {
+    if (challenge != null && !challenge.isResolved && !_dialogOpen) {
       _dialogOpen = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -35,45 +34,8 @@ class _TofuWatcherState extends State<TofuWatcher> {
     return widget.child;
   }
 
-  Future<void> _show(HostKeyChallenge c) async {
-    final accept = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: const LText("Host key changed"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LText(
-                LMessage("The host key for {0}:{1} has changed. This could be a server reinstall — or a man-in-the-middle attack.", [c.host, c.port]),
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 13)),
-            const SizedBox(height: 12),
-            LText(LMessage("Old: {0}", [c.oldFingerprint]),
-                style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 11,
-                    fontFamily: 'monospace')),
-            LText(LMessage("New: {0}", [c.newFingerprint]),
-                style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 11,
-                    fontFamily: 'monospace')),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const LText("Reject")),
-          FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const LText("Trust")),
-        ],
-      ),
-    );
-    c.resolve(accept == true);
-    _dialogOpen = false;
+  Future<void> _show(HostKeyChallenge challenge) async {
+    await showSshHostKeyDialog(context, challenge);
+    if (mounted) setState(() => _dialogOpen = false);
   }
 }

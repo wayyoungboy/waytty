@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:waytty_l10n/waytty_l10n.dart';
 
 import 'mobile_bootstrap.dart';
+import '../widgets/ssh_credentials_dialog.dart';
 import 'screens/mobile_home_shell.dart';
 import 'security/app_lock_gate.dart';
 import 'theme/mobile_theme.dart';
@@ -19,6 +20,19 @@ class WayttyMobileApp extends StatefulWidget {
 
 class _WayttyMobileAppState extends State<WayttyMobileApp> {
   final _bootstrap = MobileBootstrap();
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    final prompts = ManualCredentialPrompts(() => _navigatorKey.currentContext,
+      privateKeys: _bootstrap.storage.privateKeys,
+      canSaveKey: (host) async => (await _bootstrap.storage.loadHosts()).any((h) => h.id == host.id),
+    );
+    _bootstrap.ssh.privateKeyEditor = prompts.replace;
+    _bootstrap.ssh.credentialsPrompt = prompts.request;
+    _bootstrap.ssh.proxyPasswordPrompt = prompts.requestProxy;
+  }
 
   @override
   void dispose() {
@@ -33,6 +47,7 @@ class _WayttyMobileAppState extends State<WayttyMobileApp> {
       child: ValueListenableBuilder<Locale>(
         valueListenable: WayttyLanguage.instance,
         builder: (context, locale, _) => MaterialApp(
+        navigatorKey: _navigatorKey,
         locale: locale,
         supportedLocales: WayttyStrings.supportedLocales,
         localizationsDelegates: WayttyStrings.delegates,

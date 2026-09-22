@@ -8,6 +8,17 @@ void main() {
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  test('startup only loads saved metadata and does not discover local keys', () async {
+    await IOOverrides.runZoned(() async {
+      final provider = KeyProvider();
+      await Future.delayed(Duration.zero);
+      expect(provider.keys, isEmpty);
+      expect((await SharedPreferences.getInstance()).getString('yourssh.keys'), isNull);
+      provider.dispose();
+    }, createFile: (_) => throw StateError('No startup file access'),
+       createDirectory: (_) => throw StateError('No startup directory scan'));
+  });
+
   group('KeyProvider certificate methods', () {
     test('setCertificate persists certificatePath on the key entry', () async {
       final provider = KeyProvider();

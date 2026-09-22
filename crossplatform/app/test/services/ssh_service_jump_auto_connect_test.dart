@@ -49,11 +49,11 @@ void main() {
 
   _RecordingSshService makeService() {
     final svc = _RecordingSshService(StorageService());
-    svc.defaultHostKeyVerifier = (host, port, keyType, fp) async => true;
+    svc.defaultHostKeyVerifier = (host, port, keyType, fp, {attempt}) async => true;
     return svc;
   }
 
-  test('ensureClient resolves jumpHostId via defaultJumpHostLookup', () async {
+  test('background ensureClient cannot initiate jump-host authentication', () async {
     final svc = makeService();
     final bastion = Host(
         id: 'jump-id',
@@ -76,17 +76,16 @@ void main() {
         username: 'app',
         jumpHostIds: ['jump-id']);
 
-    await expectLater(svc.ensureClient(target), throwsA(isA<_Sentinel>()));
-    expect(svc.capturedChain.single.host.id, 'jump-id');
-    expect(svc.capturedChain.single.keyEntry?.id, 'k1');
+    await expectLater(svc.ensureClient(target), throwsStateError);
+    expect(svc.capturedChain, isEmpty);
   });
 
-  test('ensureClient passes an empty chain for a direct host', () async {
+  test('background ensureClient cannot initiate direct authentication', () async {
     final svc = makeService();
 
     final target = Host(label: 'direct', host: '10.0.0.3', username: 'app');
 
-    await expectLater(svc.ensureClient(target), throwsA(isA<_Sentinel>()));
+    await expectLater(svc.ensureClient(target), throwsStateError);
     expect(svc.capturedChain, isEmpty);
   });
 }

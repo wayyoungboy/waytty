@@ -31,20 +31,18 @@ import 'services/local_shell_service.dart';
 import 'services/shell_detection.dart';
 import 'services/notification_service.dart';
 import 'services/port_forward_service.dart';
-import 'services/agent_forwarding_handler.dart';
 import 'services/ssh_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'providers/audit_provider.dart';
 import 'services/audit_service.dart';
 import 'services/storage_service.dart';
-import 'services/sync_service.dart';
 import 'services/recording_service.dart';
-import 'services/sandbox_migration.dart';
 import 'services/recording_redaction_policy.dart';
 import 'services/tab_metadata_service.dart';
 import 'screens/main_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/sudo_password_dialog.dart';
+import 'widgets/ssh_credentials_dialog.dart';
 import 'providers/recording_provider.dart';
 import 'providers/share_provider.dart';
 import 'services/update_service.dart';
@@ -125,9 +123,7 @@ void main() async {
     return;
   }
 
-  // Before any provider reads prefs: carry data over from the old sandboxed
-  // container, which a previous release stored everything in.
-  await _migrateSandboxContainer(packageInfo.packageName);
+  // Legacy sandbox data may contain credentials; no automatic migration.
 
   await windowManager.ensureInitialized();
   final windowOptions = WindowOptions(
@@ -146,21 +142,6 @@ void main() async {
   runApp(const WayttyApp());
 }
 
-/// Fail-soft: a broken migration must never keep the app from starting — the
-/// worst case is a launch that looks like a fresh install.
-Future<void> _migrateSandboxContainer(String bundleId) async {
-  if (!Platform.isMacOS) return;
-  final home = Platform.environment['HOME'];
-  // A container HOME means this build is still sandboxed — nothing to move.
-  if (home == null || home.contains('/Library/Containers/')) return;
-  try {
-    await SandboxMigrationService(homeRoot: home, bundleId: bundleId)
-        .run(await SharedPreferences.getInstance());
-  } catch (e) {
-    debugPrint('[main] sandbox migration failed: $e');
-  }
-}
-
 class WayttyApp extends StatefulWidget {
   const WayttyApp({super.key});
 
@@ -177,7 +158,6 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
   late final SessionProvider _sessionProvider;
   late final LocalShellService _localShell;
   late final SyncProvider _syncProvider;
-  late final SyncService _syncService;
   late final KnownHostsProvider _knownHostsProvider;
   late final PluginProvider _pluginProvider;
   late final RecordingService _recordingService;
@@ -218,11 +198,17 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     _shellIntegrationProvider = ShellIntegrationProvider();
     _ssh = SshService(_storage,
         hookBus: _hookBus, shellIntegration: _shellIntegrationProvider);
+    final credentialPrompts = ManualCredentialPrompts(() => _navigatorKey.currentContext,
+      privateKeys: _storage.privateKeys,
+      canSaveKey: (host) async => (await _storage.loadHosts()).any((h) => h.id == host.id),
+    );
+    _ssh.privateKeyEditor = credentialPrompts.replace;
+    _ssh.credentialsPrompt = credentialPrompts.request;
+    _ssh.proxyPasswordPrompt = credentialPrompts.requestProxy;
     _ssh.recordingService = _recordingService;
     _hostProvider = HostProvider(_storage);
     _snippetProvider = SnippetProvider();
     _keyProvider = KeyProvider();
-    _keyProvider.savePassphrase = _storage.savePassphrase;
     _settingsProvider = SettingsProvider();
     _ssh.isShellIntegrationEnabled =
         () => _settingsProvider.shellIntegrationEnabled;
@@ -274,7 +260,6 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     )..start();
     _knownHostsProvider = KnownHostsProvider(_storage);
     _knownHostsProvider.load();
-    _sessionProvider.hostKeyVerifier = _knownHostsProvider.verifyHostKey;
     _ssh.defaultHostKeyVerifier = _knownHostsProvider.verifyHostKey;
     // Pinned fingerprint goes into the Rust engine, which verifies it
     // post-TLS / pre-CredSSP — a mismatch aborts before credentials are sent.
@@ -313,8 +298,6 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     _ssh.defaultKeyLookup = (id) => _keyProvider.findById(id);
     _ssh.defaultJumpHostLookup = (id) =>
         _hostProvider.allHosts.where((h) => h.id == id).firstOrNull;
-    _ssh.keychainIdentitiesLoader = () =>
-        loadKeychainKeyPairs(_keyProvider.keys, _storage.loadPassphrase);
     _portForwardProvider = PortForwardProvider();
     _portForwardService = PortForwardService(
       acquireTransport: (host) async =>
@@ -385,9 +368,8 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     );
     // External scripts load only when requested in the plugin manager.
 
-    _syncProvider = SyncProvider(storage: _storage);
-    _syncService = SyncService(_syncProvider);
-    _shareProvider = ShareProvider(syncProvider: _syncProvider);
+    _syncProvider = SyncProvider();
+    _shareProvider = ShareProvider();
     _updateService = UpdateService();
     _updateProvider = UpdateProvider(_updateService, currentVersion: kAppVersion, enabled: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -396,26 +378,6 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     _updateProvider.startPeriodicChecks();
     _notificationCenter = NotificationCenterProvider();
     _updateProvider.addListener(_pushUpdateNotification);
-    // A secret that could not reach the Keychain is sitting in prefs as
-    // readable text — the user has to know, not just the debug log (#91).
-    _storage.onPlaintextFallback = (key, _) {
-      _notificationCenter.add(AppNotification(
-        type: AppNotificationType.insecureStorage,
-        title: 'Secret stored without encryption',
-        body: 'The system keychain refused to store a credential, so it was '
-            'written to the app preferences file in plain text. '
-            'See Settings → Security.',
-        dedupeKey: 'insecure-storage',
-      ));
-    };
-    // Carry secrets that older releases could only write in cleartext over
-    // into the keychain. Retried on every launch; a no-op once prefs are
-    // clean.
-    _storage.migratePlaintextSecrets().then((moved) {
-      if (moved > 0) {
-        debugPrint('[main] moved $moved secret(s) into the keychain');
-      }
-    });
     // Informational by design: the disconnect item stays in the bell until
     // the user clears it, even if the session later reconnects (spec v1).
     // Covers SSH and RDP sessions alike (AppSession).
@@ -454,16 +416,6 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
       session?.terminal.textInput(data);
     };
 
-    _hostProvider.onMutation = () => _syncService.push(
-          hosts: _hostProvider.allHosts,
-          loadPasswords: _hostProvider.loadAllPasswords,
-        );
-
-    _syncService.startRetryTimer(
-      getHosts: () async => _hostProvider.allHosts,
-      loadPasswords: _hostProvider.loadAllPasswords,
-    );
-
     NotificationService.instance.enabled = _settingsProvider.commandNotificationsEnabled;
     _settingsProvider.addListener(_syncNotificationSetting);
     NotificationService.instance.onToast = (label) {
@@ -497,14 +449,7 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     NotificationService.instance.onWindowFocus();
     // Auto re-check on refocus (still debounced to 24h internally).
     _updateProvider.checkForUpdates();
-    if (_syncProvider.enabled) {
-      _syncService.pull().then((payload) async {
-        if (payload != null) {
-          await _hostProvider.replaceAll(payload.hosts, payload.passwords);
-          await _snippetProvider.reload();
-        }
-      }).catchError((Object error) => _syncProvider.setError('同步恢复失败：$error'));
-    }
+
   }
 
   @override
@@ -536,13 +481,13 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
     _recordingProvider.dispose();
     _healthMonitor.dispose();
     _sessionProvider.dispose();
-    _syncService.dispose();
     _syncProvider.dispose();
     _knownHostsProvider.dispose();
     _hostProvider.dispose();
     _snippetProvider.dispose();
     _keyProvider.dispose();
     _settingsProvider.dispose();
+    _storage.clearSessionSecrets();
     _shellIntegrationProvider.dispose();
     _updateProvider.dispose();
     super.dispose();
@@ -564,7 +509,6 @@ class _WayttyAppState extends State<WayttyApp> with WindowListener {
         ChangeNotifierProvider.value(value: _knownHostsProvider),
         ChangeNotifierProvider.value(value: _syncProvider),
         ChangeNotifierProvider.value(value: _shareProvider),
-        Provider.value(value: _syncService),
         ChangeNotifierProvider.value(value: _portForwardProvider),
         Provider.value(value: _portForwardService),
         ChangeNotifierProvider(create: (_) {

@@ -19,7 +19,6 @@ import '../providers/session_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/os_detection.dart';
 import '../services/ssh_service.dart';
-import '../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import 'protocol_badge.dart';
 import 'bulk/bulk_action_bar.dart';
@@ -983,17 +982,12 @@ class _HostCardState extends State<_HostCard> {
     setState(() { _testing = true; _testResult = null; });
 
     final sshService = context.read<SshService>();
-    final storage = context.read<StorageService>();
     final keyProvider = context.read<KeyProvider>();
     final keys = keyProvider.keys;
     // Read all providers before the first await (no BuildContext across gaps).
     final hostsById = {
       for (final h in context.read<HostProvider>().allHosts) h.id: h
     };
-
-    final password = widget.host.authType == AuthType.password
-        ? await storage.loadPassword(widget.host.id)
-        : null;
 
     SshKeyEntry? keyEntry;
     if (widget.host.authType == AuthType.privateKey && widget.host.keyId != null) {
@@ -1020,7 +1014,6 @@ class _HostCardState extends State<_HostCard> {
 
     final result = await sshService.testConnection(
       widget.host,
-      password: password,
       keyEntry: keyEntry,
       jumpChain: jumpChain,
     );

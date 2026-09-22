@@ -1,10 +1,8 @@
 import 'package:waytty_l10n/waytty_l10n.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/s3_bucket_config.dart';
 import '../models/s3_bucket_entry.dart';
@@ -19,8 +17,6 @@ class S3BrowserScreen extends StatefulWidget {
 }
 
 class _S3BrowserScreenState extends State<S3BrowserScreen> {
-  static const _storage = FlutterSecureStorage();
-
   List<S3BucketConfig> _configs = [];
   int _activeIndex = -1;
   S3Service? _service;
@@ -31,64 +27,13 @@ class _S3BrowserScreenState extends State<S3BrowserScreen> {
   List<S3BucketEntry> _entries = [];
   double? _uploadProgress;
 
+  // Bucket configuration and credentials belong to this screen session only.
+  // Never load or migrate previous system-keychain records.
   @override
-  void initState() {
-    super.initState();
-    _loadConfigs();
-  }
-
-  Future<void> _loadConfigs() async {
-    final oldEndpoint = await _storage.read(key: 's3_endpoint');
-    if (oldEndpoint != null) {
-      final id = DateTime.now().millisecondsSinceEpoch.toString();
-      final bucket = await _storage.read(key: 's3_bucket') ?? '';
-      final config = S3BucketConfig(
-        id: id,
-        name: bucket.isEmpty ? 'default' : bucket,
-        endpoint: oldEndpoint,
-        bucket: bucket,
-        region: await _storage.read(key: 's3_region') ?? 'us-east-1',
-        accessKey: await _storage.read(key: 's3_access_key') ?? '',
-        secretKey: await _storage.read(key: 's3_secret_key') ?? '',
-      );
-      await _saveConfigs([config]);
-      for (final k in ['s3_endpoint', 's3_bucket', 's3_region', 's3_access_key', 's3_secret_key']) {
-        await _storage.delete(key: k);
-      }
-      if (!mounted) return;
-      setState(() { _configs = [config]; _activeIndex = 0; });
-      _activateConfig(0);
-      return;
-    }
-
-    final raw = await _storage.read(key: 's3_configs');
-    if (raw == null) {
-      if (mounted) setState(() {});
-      return;
-    }
-    final jsonList = jsonDecode(raw) as List<dynamic>;
-    final configs = <S3BucketConfig>[];
-    for (final item in jsonList) {
-      final id = (item as Map<String, dynamic>)['id'] as String;
-      final secret = await _storage.read(key: 's3_secret_$id') ?? '';
-      configs.add(S3BucketConfig.fromJson(item, secretKey: secret));
-    }
-    if (!mounted) return;
-    setState(() {
-      _configs = configs;
-      _activeIndex = configs.isNotEmpty ? 0 : -1;
-    });
-    if (configs.isNotEmpty) _activateConfig(0);
-  }
-
-  Future<void> _saveConfigs(List<S3BucketConfig> configs) async {
-    await _storage.write(
-      key: 's3_configs',
-      value: jsonEncode(configs.map((c) => c.toJson()).toList()),
-    );
-    for (final c in configs) {
-      await _storage.write(key: 's3_secret_${c.id}', value: c.secretKey);
-    }
+  void dispose() {
+    _configs.clear();
+    _service = null;
+    super.dispose();
   }
 
   void _activateConfig(int index) {
@@ -133,6 +78,7 @@ class _S3BrowserScreenState extends State<S3BrowserScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  const LText('Memory only'),
                   _field(nameCtrl, 'Display Name', 'production'),
                   _field(endpointCtrl, 'Endpoint', 'https://s3.amazonaws.com'),
                   _field(bucketCtrl, 'Bucket', 'my-bucket'),
@@ -174,7 +120,6 @@ class _S3BrowserScreenState extends State<S3BrowserScreen> {
       } else {
         newConfigs.add(config);
       }
-      await _saveConfigs(newConfigs);
       setState(() => _configs = newConfigs);
       _activateConfig(newActive);
     } finally {
@@ -207,9 +152,7 @@ class _S3BrowserScreenState extends State<S3BrowserScreen> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    await _storage.delete(key: 's3_secret_${_configs[index].id}');
     final newConfigs = List<S3BucketConfig>.from(_configs)..removeAt(index);
-    await _saveConfigs(newConfigs);
     if (newConfigs.isEmpty) {
       setState(() {
         _configs = newConfigs;
@@ -703,6 +646,10 @@ class _S3BrowserScreenState extends State<S3BrowserScreen> {
           TextField(
             controller: ctrl,
             obscureText: obscure,
+            autocorrect: false,
+            enableSuggestions: false,
+            enableIMEPersonalizedLearning: false,
+            autofillHints: const [],
             style: const TextStyle(color: DevOpsColors.textPrimary, fontSize: 13),
             decoration: InputDecoration(
               hintText: tr(context, hint),

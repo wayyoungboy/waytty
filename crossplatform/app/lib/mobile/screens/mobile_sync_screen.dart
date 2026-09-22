@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../providers/host_provider.dart';
-import '../../providers/sync_provider.dart';
 import '../../services/p2p_sync_encryption.dart';
 import '../../services/p2p_sync_service.dart';
 import '../../services/sync_service.dart';
@@ -16,6 +15,7 @@ import '../theme/mobile_tokens.dart';
 import '../widgets/mobile_card.dart';
 import '../widgets/section_header.dart';
 import 'mobile_qr_scan_screen.dart';
+import '../../widgets/account_vault_section.dart';
 
 /// Screen 09 — Sync / QR pairing.
 ///
@@ -23,7 +23,7 @@ import 'mobile_qr_scan_screen.dart';
 /// - Heading + body copy about end-to-end encryption.
 /// - QR card: starts a P2P server and renders the transfer code as a QR.
 /// - Caption below QR.
-/// - Supabase status card with an E2E badge.
+/// - Email-account backup and local device transfer.
 /// - "Scan QR code" button → [MobileQrScanScreen].
 class MobileSyncScreen extends StatefulWidget {
   const MobileSyncScreen({super.key});
@@ -39,14 +39,6 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
   int _secondsLeft = 120;
   Timer? _countdown;
 
-  // ── Supabase config form state ────────────────────────────────────────────
-  final _url  = TextEditingController();
-  final _anon = TextEditingController();
-  final _code = TextEditingController();
-  bool _editingConfig = false;
-  bool _pulling = false;
-  String? _configError;
-
   @override
   void initState() {
     super.initState();
@@ -57,78 +49,7 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
   void dispose() {
     _countdown?.cancel();
     _p2p.stop();
-    _url.dispose();
-    _anon.dispose();
-    _code.dispose();
     super.dispose();
-  }
-
-  // ── Supabase config helpers ───────────────────────────────────────────────
-
-  void _prefillConfig() {
-    final sync = context.read<SyncProvider>();
-    _url.text  = sync.supabaseUrl;
-    _anon.text = sync.supabaseAnonKey;
-    _code.text = sync.syncCode;
-  }
-
-  Future<void> _saveConfig() async {
-    final url     = _url.text.trim();
-    final anonKey = _anon.text.trim();
-
-    // Validate URL — must be non-empty and parse as http/https.
-    if (url.isEmpty) {
-      setState(() => _configError = 'Supabase URL is required.');
-      return;
-    }
-    final uri = Uri.tryParse(url);
-    if (uri == null || (uri.scheme != 'http' && uri.scheme != 'https')) {
-      setState(() => _configError = 'URL must start with https:// (or http://).');
-      return;
-    }
-
-    // Validate anon key — must be non-empty.
-    if (anonKey.isEmpty) {
-      setState(() => _configError = 'Anon key is required.');
-      return;
-    }
-
-    // All valid — clear any previous error, persist and close the form.
-    setState(() => _configError = null);
-    final sync = context.read<SyncProvider>();
-    await sync.setSupabaseConfig(url, anonKey);
-    await sync.setSyncCode(_code.text);
-    if (mounted) {
-      setState(() => _editingConfig = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: LText("Sync settings saved")),
-      );
-    }
-  }
-
-  Future<void> _pullFromCloud() async {
-    setState(() => _pulling = true);
-    try {
-      final payload = await context.read<SyncService>().pull();
-      if (!mounted) return;
-      if (payload != null) {
-        await context
-            .read<HostProvider>()
-            .replaceAll(payload.hosts, payload.passwords);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: LText(LMessage("Imported {0} hosts from cloud", [payload.hosts.length])),
-          ));
-        }
-      } else if (mounted) {
-        final err = context.read<SyncProvider>().error;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(err ?? tr(context, 'Nothing new to pull'))),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _pulling = false);
-    }
   }
 
   // ── P2P server / QR build ─────────────────────────────────────────────────
@@ -195,21 +116,10 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
     return '$m:$s';
   }
 
-  String _formatLastSync(DateTime? t) {
-    if (t == null) return tr(context, 'Never');
-    final now = DateTime.now();
-    final diff = now.difference(t);
-    if (diff.inMinutes < 1) return tr(context, 'Just now');
-    if (diff.inHours < 1) return tr(context, LMessage('{0}m ago', [diff.inMinutes]));
-    if (diff.inDays < 1) return tr(context, LMessage('{0}h ago', [diff.inHours]));
-    return tr(context, LMessage('{0}d ago', [diff.inDays]));
-  }
-
   // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final sync = context.watch<SyncProvider>();
 
     return Scaffold(
       backgroundColor: MobileColors.bg,
@@ -222,13 +132,11 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
           bottom: MobileTokens.space5,
         ),
         children: [
+          const AccountVaultSection(),
+          const SizedBox(height: MobileTokens.space5),
           _buildHero(),
           const SizedBox(height: MobileTokens.space5),
           _buildQrSection(),
-          const SizedBox(height: MobileTokens.space5),
-          _buildStatusSection(sync),
-          const SizedBox(height: MobileTokens.space5),
-          _buildConfigSection(sync),
           const SizedBox(height: MobileTokens.space5),
           _buildScanButton(),
         ],
@@ -256,10 +164,10 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
   Widget _buildHero() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LText("Sync with Supabase", style: mobileHeading(size: 22)),
+          LText("P2P Transfer", style: mobileHeading(size: 22)),
           const SizedBox(height: MobileTokens.space2),
           LText(
-            "No account needed. Your hosts, keys & snippets stay end-to-end encrypted across devices.",
+            "Transfer all hosts and passwords to another device over LAN or Tailscale. No cloud required.",
             style: mobileBody(size: 14, color: MobileColors.textMuted),
           ),
         ],
@@ -356,162 +264,6 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
     );
   }
 
-  // ── Status section ────────────────────────────────────────────────────────
-
-  Widget _buildStatusSection(SyncProvider sync) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader('Cloud sync'),
-          MobileCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          LText(
-                            sync.isSupabaseConfigured ? "Supabase connected" : "Supabase not configured",
-                            style: mobileBody(
-                              size: 14,
-                              weight: FontWeight.w600,
-                              color: sync.isSupabaseConfigured
-                                  ? MobileColors.textPrimary
-                                  : MobileColors.textMuted,
-                            ),
-                          ),
-                          if (sync.isSupabaseConfigured) ...[
-                            const SizedBox(height: 4),
-                            LText(
-                              LMessage("Last sync · {0}", [_formatLastSync(sync.lastSynced)]),
-                              style: mobileBody(
-                                size: 12,
-                                color: MobileColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    if (sync.isSupabaseConfigured)
-                      _E2EBadge(),
-                  ],
-                ),
-                if (sync.isSupabaseConfigured) ...[
-                  const SizedBox(height: MobileTokens.space3),
-                  _SyncStatusRow(status: sync.status),
-                ],
-              ],
-            ),
-          ),
-        ],
-      );
-
-  // ── Supabase config section ───────────────────────────────────────────────
-
-  Widget _buildConfigSection(SyncProvider sync) {
-    final isConfigured = sync.isSupabaseConfigured;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHeader('Supabase credentials'),
-        if (!isConfigured || _editingConfig)
-          _buildConfigForm(sync)
-        else
-          MobileCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                LText(
-                  LMessage("URL: {0}", [sync.supabaseUrl]),
-                  style: mobileBody(size: 12, color: MobileColors.textMuted),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: MobileTokens.space2),
-                OutlinedButton(
-                  onPressed: () {
-                    _prefillConfig();
-                    setState(() => _editingConfig = true);
-                  },
-                  child: const LText("Edit credentials"),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildConfigForm(SyncProvider sync) => MobileCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LText(
-              "Enter your Supabase project URL, anon key, and 12-character sync code.",
-              style: mobileBody(size: 13, color: MobileColors.textMuted),
-            ),
-            const SizedBox(height: MobileTokens.space3),
-            _configField(_url, 'Supabase URL', 'sync-url'),
-            _configField(_anon, 'Anon key', 'sync-anon'),
-            _configField(_code, 'Sync code (12 chars)', 'sync-code'),
-            const SizedBox(height: MobileTokens.space3),
-            Row(
-              children: [
-                FilledButton(
-                  onPressed: _saveConfig,
-                  child: const LText("Save"),
-                ),
-                const SizedBox(width: MobileTokens.space3),
-                OutlinedButton(
-                  onPressed: _pulling ? null : _pullFromCloud,
-                  child: _pulling
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const LText("Pull from cloud"),
-                ),
-              ],
-            ),
-            if (_configError != null) ...[
-              const SizedBox(height: MobileTokens.space2),
-              LText(
-                _configError!,
-                key: const Key('sync-config-error'),
-                style: mobileBody(size: 12, color: MobileColors.red),
-              ),
-            ] else if (sync.error != null) ...[
-              const SizedBox(height: MobileTokens.space2),
-              Text(
-                sync.error!,
-                style: mobileBody(size: 12, color: MobileColors.red),
-              ),
-            ],
-          ],
-        ),
-      );
-
-  Widget _configField(
-    TextEditingController controller,
-    String label,
-    String key,
-  ) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: MobileTokens.space3),
-        child: TextField(
-          key: Key(key),
-          controller: controller,
-          style: const TextStyle(
-            color: MobileColors.textPrimary,
-            fontSize: 13,
-          ),
-          decoration: InputDecoration(labelText: tr(context, label)),
-        ),
-      );
-
   // ── Scan button ───────────────────────────────────────────────────────────
 
   Widget _buildScanButton() => SizedBox(
@@ -541,61 +293,4 @@ class _MobileSyncScreenState extends State<MobileSyncScreen> {
           },
         ),
       );
-}
-
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
-
-class _E2EBadge extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: MobileTokens.space2,
-        vertical: 3,
-      ),
-      decoration: BoxDecoration(
-        color: MobileColors.green.withAlpha(38),
-        borderRadius: BorderRadius.circular(MobileTokens.radiusPill),
-        border: Border.all(color: MobileColors.green.withAlpha(76)),
-      ),
-      child: LText(
-        "E2E",
-        style: mobileBody(
-          size: 11,
-          weight: FontWeight.w700,
-          color: MobileColors.green,
-        ),
-      ),
-    );
-  }
-}
-
-class _SyncStatusRow extends StatelessWidget {
-  final SyncStatus status;
-  const _SyncStatusRow({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, color) = switch (status) {
-      SyncStatus.synced  => ('Synced', MobileColors.green),
-      SyncStatus.syncing => ('Syncing…', MobileColors.yellow),
-      SyncStatus.error   => ('Sync error', MobileColors.red),
-      SyncStatus.idle    => ('Idle', MobileColors.textMuted),
-    };
-
-    return Row(
-      children: [
-        Container(
-          width: MobileTokens.statusDot,
-          height: MobileTokens.statusDot,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: MobileTokens.space2),
-        LText(label, style: mobileBody(size: 12, color: color)),
-      ],
-    );
-  }
 }

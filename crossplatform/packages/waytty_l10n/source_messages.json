@@ -4222,5 +4222,324 @@
   ],
   "CPU": [
     "manual"
+  ],
+  "Connection storage": [
+    "manual"
+  ],
+  "Local offline": [
+    "manual"
+  ],
+  "Cloud account": [
+    "manual"
+  ],
+  "Legacy sync code is active. Select Local offline to stop cloud requests.": [
+    "manual"
+  ],
+  "No account required. Connections stay on this device and cloud backup is disabled.": [
+    "manual"
+  ],
+  "Connections work offline too. Save and restore cloud backups manually.": [
+    "manual"
+  ],
+  "Cloud service is not configured in this build. Local mode is available.": [
+    "manual"
+  ],
+  "Account email": [
+    "manual"
+  ],
+  "Enter a valid email address.": [
+    "manual"
+  ],
+  "Login password (9–16 characters)": [
+    "manual"
+  ],
+  "Password must be 9–16 characters.": [
+    "manual"
+  ],
+  "Confirm login password": [
+    "manual"
+  ],
+  "Passwords do not match.": [
+    "manual"
+  ],
+  "Create account": [
+    "manual"
+  ],
+  "Sign in": [
+    "manual"
+  ],
+  "Already have an account? Sign in": [
+    "manual"
+  ],
+  "Create an email account": [
+    "manual"
+  ],
+  "Your separate vault password stays on this device. Keep it safe: resetting your login password cannot recover the vault password.": [
+    "manual"
+  ],
+  "Vault password (9–16 characters)": [
+    "manual"
+  ],
+  "Confirm vault password": [
+    "manual"
+  ],
+  "Unlock / create vault": [
+    "manual"
+  ],
+  "Save to cloud": [
+    "manual"
+  ],
+  "Restore to this device": [
+    "manual"
+  ],
+  "Backs up connection settings and login passwords. Private key files, sudo/proxy passwords and AI keys stay on this device.": [
+    "manual"
+  ],
+  "Sign out and use locally": [
+    "manual"
+  ],
+  "Replace cloud backup?": [
+    "manual"
+  ],
+  "Save this device’s connections and passwords over the cloud backup? Other devices are not changed automatically.": [
+    "manual"
+  ],
+  "Restore cloud connections?": [
+    "manual"
+  ],
+  "This replaces this device’s connection list and saved connection passwords. Local notes, private key files and other settings are kept.": [
+    "manual"
+  ],
+  "Restore": [
+    "manual"
+  ],
+  "Cloud data changed. Unlock again before saving.": [
+    "manual"
+  ],
+  "Sign-in failed. Check your email, password and email confirmation.": [
+    "manual"
+  ],
+  "Incorrect vault password or damaged data.": [
+    "manual"
+  ],
+  "Cloud request failed. Your local connections are unchanged. Please retry.": [
+    "manual"
+  ],
+  "Enter a valid email and a password of 9–16 characters.": [
+    "manual"
+  ],
+  "Signed in. Unlock your vault to continue.": [
+    "manual"
+  ],
+  "Use a vault password of 9–16 characters.": [
+    "manual"
+  ],
+  "No cloud backup yet. Save your local connections to create one.": [
+    "manual"
+  ],
+  "Vault unlocked. Choose Save or Restore.": [
+    "manual"
+  ],
+  "Encrypted connections saved to your cloud account.": [
+    "manual"
+  ],
+  "Cloud connections restored to this device.": [
+    "manual"
+  ],
+  "Restore stopped. Local data changed or could not be saved.": [
+    "manual"
+  ],
+  "Advanced: sync code and device transfer": [
+    "manual"
+  ],
+  "Verification failed or expired. Check the latest email or request a new code.": [
+    "manual"
+  ],
+  "Email verification must be enabled for this cloud service.": [
+    "manual"
+  ],
+  "Enter the verification code from your email to activate your account.": [
+    "manual"
+  ],
+  "Enter the 6-digit email verification code.": [
+    "manual"
+  ],
+  "Email verified. Unlock your vault to continue.": [
+    "manual"
+  ],
+  "If this email is awaiting verification, a new code has been sent. Check your spam folder too.": [
+    "manual"
+  ],
+  "Verify your email: {0}": [
+    "manual"
+  ],
+  "Enter the 6-digit code from your latest email. The code expires after 10 minutes.": [
+    "manual"
+  ],
+  "Email verification code": [
+    "manual"
+  ],
+  "Verify email": [
+    "manual"
+  ],
+  "Resend in {0}s": [
+    "manual"
+  ],
+  "Resend code": [
+    "manual"
+  ],
+  "Use another email": [
+    "manual"
+  ],
+  "Encrypted connection backup": [
+    "manual"
+  ],
+  "Realtime sharing is unavailable in this build.": [
+    "manual"
+  ],
+  "File workspace": [
+    "manual"
+  ],
+  "Close file workspace": [
+    "manual"
+  ],
+  "Go to terminal directory": [
+    "manual"
+  ],
+  "Expand folder": [
+    "manual"
+  ],
+  "Collapse folder": [
+    "manual"
+  ],
+  "Select a connected SSH or local terminal to browse files": [
+    "manual"
+  ],
+  "Enter credentials manually. Private keys and passwords are not loaded from the system keychain or saved to disk.": [
+    "manual"
+  ],
+  "Memory only": [
+    "manual"
+  ],
+  "Paste the private key when connecting. Saved key files and SSH agents are not read.": [
+    "manual"
+  ],
+  "Proxy authentication": [
+    "manual"
+  ],
+  "Manual SSH authentication": [
+    "manual"
+  ],
+  "Paste private key (PEM / OpenSSH)": [
+    "manual"
+  ],
+  "Private key passphrase (optional)": [
+    "manual"
+  ],
+  "Paste SSH certificate": [
+    "manual"
+  ],
+  "Enter credentials manually to connect.": [
+    "manual"
+  ],
+  "Authentication cancelled.": [
+    "manual"
+  ],
+  "Invalid private key, certificate, or passphrase.": [
+    "manual"
+  ],
+  "Connect manually before using files, monitoring, or tools.": [
+    "manual"
+  ],
+  "Save this device’s connections to the cloud? Existing cloud passwords are kept when not re-entered; removing a connection removes its password from the backup. Other devices are not changed automatically.": [
+    "lib/widgets/account_vault_section.dart"
+  ],
+  "Trust this SSH server?": [
+    "lib/widgets/ssh_host_key_dialog.dart"
+  ],
+  "Key type": [
+    "lib/widgets/ssh_host_key_dialog.dart"
+  ],
+  "Fingerprint (MD5)": [
+    "lib/widgets/ssh_host_key_dialog.dart"
+  ],
+  "This server is not yet trusted. Compare this fingerprint with one provided by the server administrator through a trusted channel before connecting.": [
+    "lib/widgets/ssh_host_key_dialog.dart"
+  ],
+  "I have verified this fingerprint.": [
+    "lib/widgets/ssh_host_key_dialog.dart"
+  ],
+  "Trust and connect": [
+    "lib/widgets/ssh_host_key_dialog.dart"
+  ],
+  "Enter credentials manually. Passwords are not saved to disk.": [
+    "lib/widgets/ssh_credentials_dialog.dart"
+  ],
+  "Paste your private key. Saved keys are encrypted locally and are not included in cloud sync.": [
+    "lib/widgets/ssh_credentials_dialog.dart"
+  ],
+  "Save private key with this connection": [
+    "lib/widgets/ssh_credentials_dialog.dart"
+  ],
+  "Save the connection before saving its private key.": [
+    "lib/widgets/ssh_credentials_dialog.dart"
+  ],
+  "Use at least 8 characters.": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Could not unlock saved keys. Check the password and try again.": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Protect saved private keys": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Unlock saved private keys": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Choose a local unlock password. Enter it once after restarting waytty. If you forget it, delete the saved keys and paste them again.": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Enter your local unlock password. Saved private keys stay available until you lock them or quit waytty.": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Local unlock password": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Confirm unlock password": [
+    "lib/widgets/ssh_key_unlock_dialog.dart"
+  ],
+  "Could not load saved private keys.": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Could not update saved private key.": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Delete saved private key?": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "The connection is kept. You will need to paste its private key again.": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Private key saved locally (encrypted)": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "No private key saved for this connection": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Replace saved private key": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Save private key": [
+    "lib/widgets/ssh_credentials_dialog.dart",
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Delete saved private key": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Lock saved private keys": [
+    "lib/widgets/saved_private_key_controls.dart"
+  ],
+  "Paste the private key when connecting and choose whether to save it with this connection.": [
+    "lib/widgets/host_detail_panel.dart"
   ]
 }

@@ -54,7 +54,7 @@ class PrivacyTests(unittest.TestCase):
                 site.build()
                 self.assertFalse((site.DEST / 'credentials.json').exists())
                 self.assertFalse((site.DEST / 'old-private.txt').exists())
-                self.assertEqual(len([p for p in site.DEST.rglob('*') if p.is_file()]), 10)
+                self.assertEqual(len([p for p in site.DEST.rglob('*') if p.is_file()]), 9)
         finally:
             site.ROOT, site.DEST = old_root, old_dest
 

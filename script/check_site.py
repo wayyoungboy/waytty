@@ -24,7 +24,8 @@ class Page(HTMLParser):
         for field in ('href', 'src'):
             if attrs.get(field):
                 self.links.append(attrs[field])
-        if tag == 'img' and not attrs.get('alt'):
+        # Empty alt is intentional for decorative images beside a wordmark.
+        if tag == 'img' and 'alt' not in attrs:
             self.errors.append('image missing alt text')
         if tag == 'script' and not attrs.get('src'):
             self.errors.append('inline script is not allowed')

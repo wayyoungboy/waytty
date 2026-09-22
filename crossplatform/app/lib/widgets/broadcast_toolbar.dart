@@ -22,6 +22,13 @@ class BroadcastToolbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
+          _LayoutButton(
+            icon: Icons.account_tree_outlined,
+            tooltip: tr(context, 'File workspace'),
+            selected: layout.filesVisible,
+            onTap: layout.toggleFiles,
+          ),
+          const SizedBox(width: 8),
           const LText("Layout:", style: TextStyle(color: Color(0xFF888888), fontSize: 12)),
           const SizedBox(width: 8),
           _LayoutButton(

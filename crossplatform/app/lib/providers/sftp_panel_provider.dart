@@ -17,6 +17,7 @@ class SftpPanelProvider extends ChangeNotifier {
   int _historyIndex = -1;
   SftpPanelLoadState loadState = SftpPanelLoadState.idle;
   String? errorMessage;
+  int entriesRevision = 0;
 
   String get currentPath => _currentPath;
   bool get canGoBack => _historyIndex > 0;
@@ -84,6 +85,7 @@ class SftpPanelProvider extends ChangeNotifier {
   }
 
   void setEntries(List<SftpEntry> entries) {
+    entriesRevision++;
     _entries = List.of(entries)..sort((a, b) => a.sortKey.compareTo(b.sortKey));
     notifyListeners();
   }

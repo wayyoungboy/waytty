@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/known_host.dart';
+import '../models/ssh_connection_attempt.dart';
 import '../services/storage_service.dart';
 
 export '../models/known_host.dart' show RdpCertVerdict, RdpCertChallenge;
@@ -7,29 +8,34 @@ export '../models/known_host.dart' show RdpCertVerdict, RdpCertChallenge;
 class KnownHostsProvider extends ChangeNotifier {
   final StorageService? _storage;
   List<KnownHost> _hosts;
-  HostKeyChallenge? _pendingChallenge;
+  final List<HostKeyChallenge> _sshChallenges = [];
+  bool _disposed = false;
   RdpCertChallenge? _pendingRdpChallenge;
 
-  KnownHostsProvider(StorageService storage)
-      : _storage = storage,
-        _hosts = [];
+  KnownHostsProvider(StorageService storage) : _storage = storage, _hosts = [];
 
   // For unit tests only — no storage, pre-loaded hosts.
   KnownHostsProvider.forTest(List<KnownHost> initial)
-      : _storage = null,
-        _hosts = List.of(initial);
+    : _storage = null,
+      _hosts = List.of(initial);
 
   List<KnownHost> get hosts => List.unmodifiable(_hosts);
-  HostKeyChallenge? get pendingChallenge => _pendingChallenge;
+  HostKeyChallenge? get pendingChallenge =>
+      _sshChallenges.where((c) => !c.isResolved).firstOrNull;
   RdpCertChallenge? get pendingRdpChallenge => _pendingRdpChallenge;
 
   /// Identity of an SSH host key entry: same endpoint + key type.
   bool _matches(KnownHost h, String host, int port, String keyType) =>
-      h.protocol == KnownHost.protocolSsh && h.host == host && h.port == port && h.keyType == keyType;
+      h.protocol == KnownHost.protocolSsh &&
+      h.host == host &&
+      h.port == port &&
+      h.keyType == keyType;
 
   Future<void> load() async {
     if (_storage == null) return;
-    _hosts = await _storage.loadKnownHosts();
+    final saved = await _storage.loadKnownHosts();
+    if (_disposed) return;
+    _hosts = saved;
     notifyListeners();
   }
 
@@ -41,7 +47,9 @@ class KnownHostsProvider extends ChangeNotifier {
   Future<int> importHosts(List<KnownHost> incoming) async {
     int added = 0;
     for (final entry in incoming) {
-      final exists = _hosts.any((h) => _matches(h, entry.host, entry.port, entry.keyType));
+      final exists = _hosts.any(
+        (h) => _matches(h, entry.host, entry.port, entry.keyType),
+      );
       if (!exists) {
         _hosts.add(entry);
         added++;
@@ -55,67 +63,85 @@ class KnownHostsProvider extends ChangeNotifier {
   }
 
   Future<void> remove(KnownHost entry) async {
-    _hosts.removeWhere((h) => entry.protocol == KnownHost.protocolRdp
-        ? h.protocol == KnownHost.protocolRdp &&
-            h.host == entry.host &&
-            h.port == entry.port
-        : _matches(h, entry.host, entry.port, entry.keyType));
+    _hosts.removeWhere(
+      (h) => entry.protocol == KnownHost.protocolRdp
+          ? h.protocol == KnownHost.protocolRdp &&
+                h.host == entry.host &&
+                h.port == entry.port
+          : _matches(h, entry.host, entry.port, entry.keyType),
+    );
     await _storage?.saveKnownHosts(_hosts);
     notifyListeners();
   }
 
   Future<bool> verifyHostKey(
-      String host, int port, String keyType, Uint8List fingerprint) async {
+    String host,
+    int port,
+    String keyType,
+    Uint8List fingerprint, {
+    SshConnectionAttempt? attempt,
+  }) async {
+    if (_disposed || attempt?.isCancelled == true) return false;
     final fp = KnownHost.bytesToFingerprint(fingerprint);
-    final existing =
-        _hosts.where((h) => _matches(h, host, port, keyType)).firstOrNull;
+    final existing = _hosts
+        .where((h) => _matches(h, host, port, keyType))
+        .firstOrNull;
+    if (existing?.fingerprint == fp) return true;
 
-    if (existing == null) {
-      _hosts.add(KnownHost(
-          host: host,
-          port: port,
-          keyType: keyType,
-          fingerprint: fp,
-          addedAt: DateTime.now()));
-      await _storage?.saveKnownHosts(_hosts);
-      notifyListeners();
-      return true;
-    }
-
-    if (existing.fingerprint == fp) return true;
-
-    // Key mismatch — raise challenge; block until UI resolves it.
-    // If a previous challenge is still pending (UI dialog stuck), reject it so
-    // the prior caller doesn't hang forever and gets a clear "rejected" answer.
-    _pendingChallenge?.reject();
-
+    // First use and changed keys both require an explicit user decision.
+    // Queue independent requests rather than rejecting a previous connection.
     final challenge = HostKeyChallenge(
       host: host,
       port: port,
       keyType: keyType,
-      oldFingerprint: existing.fingerprint,
+      oldFingerprint: existing?.fingerprint,
       newFingerprint: fp,
     );
-    _pendingChallenge = challenge;
-    notifyListeners();
-
-    final trusted = await challenge.result;
-    // Only clear if it's still ours — a newer challenge may have replaced us.
-    if (identical(_pendingChallenge, challenge)) _pendingChallenge = null;
-
-    if (trusted) {
+    _sshChallenges.add(challenge);
+    attempt?.addCancelListener(challenge.reject);
+    _advanceSshChallenge();
+    try {
+      final trusted = await challenge.result;
+      if (_disposed || attempt?.isCancelled == true || !trusted) return false;
       _hosts.removeWhere((h) => _matches(h, host, port, keyType));
-      _hosts.add(KnownHost(
+      _hosts.add(
+        KnownHost(
           host: host,
           port: port,
           keyType: keyType,
           fingerprint: fp,
-          addedAt: DateTime.now()));
+          addedAt: DateTime.now(),
+        ),
+      );
       await _storage?.saveKnownHosts(_hosts);
+      return !_disposed && attempt?.isCancelled != true;
+    } finally {
+      attempt?.removeCancelListener(challenge.reject);
+      _sshChallenges.remove(challenge);
+      if (!_disposed) _advanceSshChallenge();
     }
+  }
 
+  void _advanceSshChallenge() {
+    final next = pendingChallenge;
+    if (next != null) {
+      final pin = _hosts
+          .where((h) => _matches(h, next.host, next.port, next.keyType))
+          .firstOrNull;
+      next.oldFingerprint = pin?.fingerprint;
+      if (pin?.fingerprint == next.newFingerprint) next.resolve(true);
+    }
     notifyListeners();
-    return trusted;
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    for (final challenge in _sshChallenges) {
+      challenge.reject();
+    }
+    _pendingRdpChallenge?.reject();
+    super.dispose();
   }
 
   // ── RDP certificate pinning ────────────────────────────────────────────────
@@ -124,7 +150,12 @@ class KnownHostsProvider extends ChangeNotifier {
   /// Fed to the Rust engine as `expected_fingerprint` so a mismatch aborts
   /// the connection before credentials are transmitted.
   String? pinnedRdpFingerprint(String host, int port) => _hosts
-      .where((e) => e.protocol == KnownHost.protocolRdp && e.host == host && e.port == port)
+      .where(
+        (e) =>
+            e.protocol == KnownHost.protocolRdp &&
+            e.host == host &&
+            e.port == port,
+      )
       .firstOrNull
       ?.fingerprint;
 
@@ -134,7 +165,12 @@ class KnownHostsProvider extends ChangeNotifier {
     required String fingerprint,
   }) {
     final entry = _hosts
-        .where((e) => e.protocol == KnownHost.protocolRdp && e.host == host && e.port == port)
+        .where(
+          (e) =>
+              e.protocol == KnownHost.protocolRdp &&
+              e.host == host &&
+              e.port == port,
+        )
         .firstOrNull;
     if (entry == null) return RdpCertVerdict.unknown;
     return entry.fingerprint == fingerprint
@@ -148,15 +184,21 @@ class KnownHostsProvider extends ChangeNotifier {
     required String fingerprint,
   }) async {
     _hosts.removeWhere(
-        (e) => e.protocol == KnownHost.protocolRdp && e.host == host && e.port == port);
-    _hosts.add(KnownHost(
-      host: host,
-      port: port,
-      keyType: '',
-      fingerprint: fingerprint,
-      addedAt: DateTime.now(),
-      protocol: KnownHost.protocolRdp,
-    ));
+      (e) =>
+          e.protocol == KnownHost.protocolRdp &&
+          e.host == host &&
+          e.port == port,
+    );
+    _hosts.add(
+      KnownHost(
+        host: host,
+        port: port,
+        keyType: '',
+        fingerprint: fingerprint,
+        addedAt: DateTime.now(),
+        protocol: KnownHost.protocolRdp,
+      ),
+    );
     await _storage?.saveKnownHosts(_hosts);
     notifyListeners();
   }
@@ -182,6 +224,7 @@ class KnownHostsProvider extends ChangeNotifier {
     notifyListeners();
 
     final trusted = await challenge.result;
+    if (_disposed) return false;
     if (identical(_pendingRdpChallenge, challenge)) {
       _pendingRdpChallenge = null;
     }

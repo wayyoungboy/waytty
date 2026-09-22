@@ -35,16 +35,16 @@ void main() {
     return result;
   }
 
-  testWidgets('submits password and remember flag', (tester) async {
+  testWidgets('submits password for this attempt without a remember option', (tester) async {
     final result = await pumpAndOpen(tester);
 
     await tester.enterText(find.byType(TextField), 's3cret');
-    await tester.tap(find.byType(Checkbox));
+    expect(find.byType(Checkbox), findsNothing);
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
     expect(result.popped, isTrue);
-    expect(result.value, (password: 's3cret', remember: true));
+    expect(result.value, (password: 's3cret', remember: false));
   });
 
   testWidgets('OK with empty password does not pop', (tester) async {

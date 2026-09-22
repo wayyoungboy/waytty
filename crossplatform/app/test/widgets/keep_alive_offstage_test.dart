@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yourssh/widgets/keep_alive_offstage.dart';
 
@@ -84,5 +85,29 @@ void main() {
     await tester.tapAt(const Offset(10, 10));
     await tester.pumpWidget(_harness(true));
     expect(find.text('counter:0'), findsOneWidget);
+  });
+
+  testWidgets('hidden subtree cannot retain keyboard focus', (tester) async {
+    final focus = FocusNode();
+    addTearDown(focus.dispose);
+    var keys = 0;
+    Widget app(bool active) => MaterialApp(home: KeepAliveOffstage(
+      active: active,
+      child: Focus(focusNode: focus, autofocus: true,
+        onKeyEvent: (_, event) {
+          if (event is KeyDownEvent) keys++;
+          return KeyEventResult.handled;
+        }, child: const SizedBox()),
+    ));
+    await tester.pumpWidget(app(true));
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyA);
+    expect(keys, 1);
+    await tester.pumpWidget(app(false));
+    await tester.pump();
+    expect(focus.hasFocus, false);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyB);
+    expect(keys, 1);
+    await tester.pumpWidget(const SizedBox());
   });
 }

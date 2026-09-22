@@ -21,10 +21,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('constructor derives ready when the host has forwarding on, off '
-      'otherwise', () {
+  test('legacy forwarding flags never enable a new session', () {
     expect(SshSession(host: _host('a')).agentForwardingState,
-        AgentForwardingState.ready);
+        AgentForwardingState.off);
     expect(SshSession(host: _host('b', forwarding: false)).agentForwardingState,
         AgentForwardingState.off);
   });
@@ -56,7 +55,7 @@ void main() {
 
       expect(s1.agentForwardingState, AgentForwardingState.active);
       expect(s2.agentForwardingState, AgentForwardingState.active);
-      expect(other.agentForwardingState, AgentForwardingState.ready);
+      expect(other.agentForwardingState, AgentForwardingState.off);
     });
 
     test('session-scoped refused only touches that session', () {
@@ -67,7 +66,7 @@ void main() {
           'h1', s1.id, AgentForwardingState.refused);
 
       expect(s1.agentForwardingState, AgentForwardingState.refused);
-      expect(s2.agentForwardingState, AgentForwardingState.ready);
+      expect(s2.agentForwardingState, AgentForwardingState.off);
     });
 
     test('host-scoped event never overrides a per-shell refusal', () {

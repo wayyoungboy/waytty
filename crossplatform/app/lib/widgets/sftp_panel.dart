@@ -1,6 +1,7 @@
 import 'package:waytty_l10n/waytty_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/host.dart';
 import '../models/sftp_entry.dart';
 import '../providers/sftp_panel_provider.dart';
@@ -15,12 +16,15 @@ import 'code_editor_screen.dart';
 import 'path_breadcrumb.dart';
 import 'entry_context_menu.dart';
 import 'permissions_dialog.dart';
+import 'file_tree_view.dart';
 
 class SftpPanel extends StatefulWidget {
   final Host? host;
   final String panelId;
   final SftpPanelProvider provider;
   final VoidCallback onChangeHost;
+  final FileTreeCache<SftpEntry>? treeCache;
+  final String? terminalPath;
 
   /// Directory to load on mount. The dual-panel screen passes the last path
   /// browsed on this host so switching a slot's source away and back resumes
@@ -41,6 +45,8 @@ class SftpPanel extends StatefulWidget {
     required this.provider,
     required this.onChangeHost,
     this.initialPath = '/',
+    this.treeCache,
+    this.terminalPath,
     this.onCopyToTarget,
     this.copyToTargetBlockReason,
   });
@@ -50,6 +56,8 @@ class SftpPanel extends StatefulWidget {
 }
 
 class _SftpPanelState extends State<SftpPanel> {
+  int _loadGeneration = 0;
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +66,11 @@ class _SftpPanelState extends State<SftpPanel> {
       // (slot source switch recreates this panel mid-build), and provider
       // notifications during build are dropped by the framework.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _loadDirectory(widget.initialPath);
+        if (mounted &&
+            (widget.treeCache == null ||
+                widget.provider.loadState != SftpPanelLoadState.loaded)) {
+          _loadDirectory(widget.initialPath);
+        }
       });
     }
     // Wired once: the upload callbacks fire from the external-edit mtime
@@ -70,15 +82,21 @@ class _SftpPanelState extends State<SftpPanel> {
     final service = context.read<ExternalEditService>();
     service.onUploaded = (name) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: LText(LMessage("Uploaded {0} to server", [name])),
-          duration: const Duration(seconds: 2)));
+          duration: const Duration(seconds: 2),
+        ),
+      );
     };
     service.onUploadError = (name, e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: LText(LMessage("Upload of {0} failed: {1}", [name, e])),
-          backgroundColor: const Color(0xFF2A1A1A)));
+          backgroundColor: const Color(0xFF2A1A1A),
+        ),
+      );
     };
   }
 
@@ -115,15 +133,20 @@ class _SftpPanelState extends State<SftpPanel> {
   Future<void> _fetchEntries(String path) async {
     final host = widget.host;
     if (host == null) return;
+    final generation = ++_loadGeneration;
     widget.provider.setLoadState(SftpPanelLoadState.loading);
     try {
       final service = context.read<SftpTransferService>();
       final entries = await service.listDirectory(host, path);
+      if (!mounted || generation != _loadGeneration) return;
       widget.provider.setEntries(entries);
       widget.provider.setLoadState(SftpPanelLoadState.loaded);
     } catch (e) {
-      widget.provider.setLoadState(SftpPanelLoadState.error,
-          error: e.toString());
+      if (!mounted || generation != _loadGeneration) return;
+      widget.provider.setLoadState(
+        SftpPanelLoadState.error,
+        error: e.toString(),
+      );
     }
   }
 
@@ -152,7 +175,10 @@ class _SftpPanelState extends State<SftpPanel> {
             Provider<ExternalEditService>.value(value: externalEdit),
           ],
           child: CodeEditorScreen(
-              host: widget.host!, entry: entry, readOnly: true),
+            host: widget.host!,
+            entry: entry,
+            readOnly: true,
+          ),
         ),
       ),
     );
@@ -178,7 +204,9 @@ class _SftpPanelState extends State<SftpPanel> {
   /// File failed the pre-download check (binary extension / too large):
   /// offer to open it with the OS default application instead.
   Future<void> _confirmOpenExternal(
-      SftpEntry entry, EditBlockReason reason) async {
+    SftpEntry entry,
+    EditBlockReason reason,
+  ) async {
     final why = switch (reason) {
       EditBlockReason.binaryExtension => 'This looks like a binary file.',
       EditBlockReason.tooLarge =>
@@ -189,21 +217,32 @@ class _SftpPanelState extends State<SftpPanel> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const LText("Cannot edit in-app",
-            style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14)),
+        title: const LText(
+          "Cannot edit in-app",
+          style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14),
+        ),
         content: LText(
-          LMessage("{0}\nOpen \"{1}\" with an external application instead? Changes saved there are uploaded back automatically.", [why, entry.name]),
+          LMessage(
+            "{0}\nOpen \"{1}\" with an external application instead? Changes saved there are uploaded back automatically.",
+            [why, entry.name],
+          ),
           style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const LText("Cancel",
-                  style: TextStyle(color: Color(0xFF888888)))),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const LText(
+              "Cancel",
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const LText("Open externally",
-                  style: TextStyle(color: Color(0xFF22C55E)))),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const LText(
+              "Open externally",
+              style: TextStyle(color: Color(0xFF22C55E)),
+            ),
+          ),
         ],
       ),
     );
@@ -215,13 +254,21 @@ class _SftpPanelState extends State<SftpPanel> {
     final service = context.read<ExternalEditService>();
     try {
       await service.openExternal(widget.host!, entry);
-      messenger.showSnackBar(SnackBar(
-          content: LText(LMessage("Opened {0} — watching for changes", [entry.name])),
-          duration: const Duration(seconds: 2)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: LText(
+            LMessage("Opened {0} — watching for changes", [entry.name]),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
+      messenger.showSnackBar(
+        SnackBar(
           content: LText(LMessage("Open externally failed: {0}", [e])),
-          backgroundColor: const Color(0xFF2A1A1A)));
+          backgroundColor: const Color(0xFF2A1A1A),
+        ),
+      );
     }
   }
 
@@ -230,13 +277,21 @@ class _SftpPanelState extends State<SftpPanel> {
     final service = context.read<ExternalEditService>();
     try {
       await service.openExternalWith(widget.host!, entry, appPath);
-      messenger.showSnackBar(SnackBar(
-          content: LText(LMessage("Opened {0} — watching for changes", [entry.name])),
-          duration: const Duration(seconds: 2)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: LText(
+            LMessage("Opened {0} — watching for changes", [entry.name]),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(
+      messenger.showSnackBar(
+        SnackBar(
           content: LText(LMessage("Open with failed: {0}", [e])),
-          backgroundColor: const Color(0xFF2A1A1A)));
+          backgroundColor: const Color(0xFF2A1A1A),
+        ),
+      );
     }
   }
 
@@ -272,15 +327,21 @@ class _SftpPanelState extends State<SftpPanel> {
               color: const Color(0xFF1E1E1E),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.folder_outlined,
-                size: 32, color: Color(0xFF444444)),
+            child: const Icon(
+              Icons.folder_outlined,
+              size: 32,
+              color: Color(0xFF444444),
+            ),
           ),
           const SizedBox(height: 16),
-          const LText("Connect to host",
-              style: TextStyle(
-                  color: Color(0xFFD4D4D4),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600)),
+          const LText(
+            "Connect to host",
+            style: TextStyle(
+              color: Color(0xFFD4D4D4),
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 6),
           const LText(
             "Start by connecting to a saved host\nto manage your files with SFTP.",
@@ -291,18 +352,20 @@ class _SftpPanelState extends State<SftpPanel> {
           GestureDetector(
             onTap: widget.onChangeHost,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
               decoration: BoxDecoration(
                 color: const Color(0xFF1E1E1E),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: const Color(0xFF2A2A2A)),
               ),
-              child: const LText("Select host",
-                  style: TextStyle(
-                      color: Color(0xFFD4D4D4),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500)),
+              child: const LText(
+                "Select host",
+                style: TextStyle(
+                  color: Color(0xFFD4D4D4),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ],
@@ -330,9 +393,14 @@ class _SftpPanelState extends State<SftpPanel> {
               children: [
                 Flexible(
                   child: GestureDetector(
-                    onTap: widget.onChangeHost,
+                    onTap: widget.treeCache == null
+                        ? widget.onChangeHost
+                        : null,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E1E1E),
                         borderRadius: BorderRadius.circular(4),
@@ -341,16 +409,30 @@ class _SftpPanelState extends State<SftpPanel> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.dns, size: 11, color: Color(0xFF22C55E)),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(widget.host!.label,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    color: Color(0xFF22C55E), fontSize: 12)),
+                          const Icon(
+                            Icons.dns,
+                            size: 11,
+                            color: Color(0xFF22C55E),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.unfold_more, size: 11, color: Color(0xFF555555)),
+                          Flexible(
+                            child: Text(
+                              widget.host!.label,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Color(0xFF22C55E),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          if (widget.treeCache == null) ...[
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.unfold_more,
+                              size: 11,
+                              color: Color(0xFF555555),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -361,18 +443,23 @@ class _SftpPanelState extends State<SftpPanel> {
                   Tooltip(
                     message: tr(context, "SFTP runs elevated on this host"),
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFEF4444).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(3),
                       ),
-                      child: const LText("root",
-                          style: TextStyle(
-                              color: Color(0xFFEF4444),
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: 'monospace')),
+                      child: const LText(
+                        "root",
+                        style: TextStyle(
+                          color: Color(0xFFEF4444),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -388,23 +475,41 @@ class _SftpPanelState extends State<SftpPanel> {
           PopupMenuButton<String>(
             color: const Color(0xFF1E1E1E),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6),
-                side: const BorderSide(color: Color(0xFF2A2A2A))),
+              borderRadius: BorderRadius.circular(6),
+              side: const BorderSide(color: Color(0xFF2A2A2A)),
+            ),
             tooltip: tr(context, ""),
             offset: const Offset(0, 36),
             onSelected: (v) {
               if (v == 'new_file') _showNewFileDialog(prov);
               if (v == 'new_folder') _showNewFolderDialog(prov);
-              if (v == 'rename') _showRenameDialog(prov, prov.selectedEntries.first);
-              if (v == 'delete') _showDeleteConfirm(prov, prov.selectedEntries.toList());
+              if (v == 'rename') {
+                _showRenameDialog(prov, prov.selectedEntries.first);
+              }
+              if (v == 'delete') {
+                _showDeleteConfirm(prov, prov.selectedEntries.toList());
+              }
             },
             itemBuilder: (_) => [
               _menuItem('new_file', Icons.note_add_outlined, 'New File'),
-              _menuItem('new_folder', Icons.create_new_folder_outlined, 'New Folder'),
-              _menuItem('rename', Icons.drive_file_rename_outline, 'Rename',
-                  enabled: canRename),
-              _menuItem('delete', Icons.delete_outline, 'Delete',
-                  enabled: canDelete, isDestructive: true),
+              _menuItem(
+                'new_folder',
+                Icons.create_new_folder_outlined,
+                'New Folder',
+              ),
+              _menuItem(
+                'rename',
+                Icons.drive_file_rename_outline,
+                'Rename',
+                enabled: canRename,
+              ),
+              _menuItem(
+                'delete',
+                Icons.delete_outline,
+                'Delete',
+                enabled: canDelete,
+                isDestructive: true,
+              ),
             ],
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
@@ -413,12 +518,21 @@ class _SftpPanelState extends State<SftpPanel> {
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(color: const Color(0xFF2A2A2A)),
               ),
-              child: Row(mainAxisSize: MainAxisSize.min, children: const [
-                LText("Actions",
-                    style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 12)),
-                SizedBox(width: 4),
-                Icon(Icons.keyboard_arrow_down, size: 14, color: Color(0xFF888888)),
-              ]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  LText(
+                    "Actions",
+                    style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 12),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 14,
+                    color: Color(0xFF888888),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -426,29 +540,41 @@ class _SftpPanelState extends State<SftpPanel> {
     );
   }
 
-  PopupMenuItem<String> _menuItem(String value, IconData icon, String label,
-      {bool enabled = true, bool isDestructive = false}) {
+  PopupMenuItem<String> _menuItem(
+    String value,
+    IconData icon,
+    String label, {
+    bool enabled = true,
+    bool isDestructive = false,
+  }) {
     return PopupMenuItem<String>(
       value: value,
       enabled: enabled,
-      child: Row(children: [
-        Icon(icon,
+      child: Row(
+        children: [
+          Icon(
+            icon,
             size: 14,
             color: isDestructive
                 ? Colors.red
                 : enabled
-                    ? const Color(0xFFD4D4D4)
-                    : const Color(0xFF444444)),
-        const SizedBox(width: 8),
-        LText(label,
+                ? const Color(0xFFD4D4D4)
+                : const Color(0xFF444444),
+          ),
+          const SizedBox(width: 8),
+          LText(
+            label,
             style: TextStyle(
-                fontSize: 13,
-                color: isDestructive
-                    ? Colors.red
-                    : enabled
-                        ? const Color(0xFFD4D4D4)
-                        : const Color(0xFF444444))),
-      ]),
+              fontSize: 13,
+              color: isDestructive
+                  ? Colors.red
+                  : enabled
+                  ? const Color(0xFFD4D4D4)
+                  : const Color(0xFF444444),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -462,21 +588,29 @@ class _SftpPanelState extends State<SftpPanel> {
         decoration: InputDecoration(
           hintText: tr(context, "Filter by name…"),
           hintStyle: const TextStyle(color: Color(0xFF444444), fontSize: 13),
-          prefixIcon:
-              const Icon(Icons.search, size: 15, color: Color(0xFF555555)),
+          prefixIcon: const Icon(
+            Icons.search,
+            size: 15,
+            color: Color(0xFF555555),
+          ),
           filled: true,
           fillColor: const Color(0xFF1E1E1E),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 8,
+          ),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+            borderRadius: BorderRadius.circular(6),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFF2A2A2A))),
+            borderRadius: BorderRadius.circular(6),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFF22C55E))),
+            borderRadius: BorderRadius.circular(6),
+            borderSide: const BorderSide(color: Color(0xFF22C55E)),
+          ),
         ),
         onChanged: prov.setFilterQuery,
       ),
@@ -491,11 +625,13 @@ class _SftpPanelState extends State<SftpPanel> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.chevron_left,
-                size: 16,
-                color: prov.canGoBack
-                    ? const Color(0xFF888888)
-                    : const Color(0xFF333333)),
+            icon: Icon(
+              Icons.chevron_left,
+              size: 16,
+              color: prov.canGoBack
+                  ? const Color(0xFF888888)
+                  : const Color(0xFF333333),
+            ),
             onPressed: prov.canGoBack
                 ? () {
                     prov.goBack();
@@ -504,14 +640,17 @@ class _SftpPanelState extends State<SftpPanel> {
                 : null,
             tooltip: tr(context, "Back"),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
           IconButton(
-            icon: Icon(Icons.chevron_right,
-                size: 16,
-                color: prov.canGoForward
-                    ? const Color(0xFF888888)
-                    : const Color(0xFF333333)),
+            icon: Icon(
+              Icons.chevron_right,
+              size: 16,
+              color: prov.canGoForward
+                  ? const Color(0xFF888888)
+                  : const Color(0xFF333333),
+            ),
             onPressed: prov.canGoForward
                 ? () {
                     prov.goForward();
@@ -520,7 +659,8 @@ class _SftpPanelState extends State<SftpPanel> {
                 : null,
             tooltip: tr(context, "Forward"),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
           const SizedBox(width: 2),
           // Breadcrumb gets the remaining row width (it was squeezed to zero
@@ -532,12 +672,24 @@ class _SftpPanelState extends State<SftpPanel> {
               editablePath: prov.currentPath,
             ),
           ),
+          if (widget.treeCache != null)
+            IconButton(
+              tooltip: tr(context, 'Go to terminal directory'),
+              onPressed: widget.terminalPath == null
+                  ? null
+                  : () => _loadDirectory(widget.terminalPath!),
+              icon: const Icon(Icons.my_location, size: 14),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+            ),
           IconButton(
             icon: const Icon(Icons.refresh, size: 13, color: Color(0xFF555555)),
             onPressed: () => _loadDirectory(prov.currentPath),
             tooltip: tr(context, "Refresh"),
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+            constraints: const BoxConstraints.tightFor(width: 26, height: 26),
+            style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
           ),
         ],
       ),
@@ -546,16 +698,46 @@ class _SftpPanelState extends State<SftpPanel> {
 
   Widget _buildContent(SftpPanelProvider prov) {
     if (prov.loadState == SftpPanelLoadState.loading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF22C55E)));
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF22C55E)),
+      );
     }
     if (prov.loadState == SftpPanelLoadState.error) {
       return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 32),
-          const SizedBox(height: 8),
-          Text(prov.errorMessage ?? tr(context, 'Error'),
-              style: const TextStyle(color: Colors.red, fontSize: 12), textAlign: TextAlign.center),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, color: Colors.red, size: 32),
+            const SizedBox(height: 8),
+            Text(
+              prov.errorMessage ?? tr(context, 'Error'),
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+    if (widget.treeCache != null && prov.entries.isNotEmpty) {
+      return FileTreeView<SftpEntry>(
+        root: prov.currentPath,
+        revision: prov.entriesRevision,
+        entries: prov.entries,
+        cache: widget.treeCache!,
+        filter: prov.filterQuery,
+        pathOf: (e) => e.path,
+        nameOf: (e) => e.name,
+        isDirectory: (e) => e.isDirectory,
+        listDirectory: (path) => context
+            .read<SftpTransferService>()
+            .listDirectory(widget.host!, path),
+        onOpen: _onEntryTap,
+        onSelect: (entry) {
+          prov.clearSelection();
+          prov.toggleSelection(entry);
+        },
+        isSelected: (entry) => prov.selectedEntries.contains(entry),
+        wrapEntry: (entry, child) => _buildEntryTile(entry, prov, child: child),
       );
     }
     final entries = prov.filteredEntries;
@@ -579,14 +761,17 @@ class _SftpPanelState extends State<SftpPanel> {
               Checkbox(
                 value: prov.isAllSelected,
                 tristate: true,
-                onChanged: (_) => prov.isAllSelected ? prov.deselectAll() : prov.selectAll(),
+                onChanged: (_) =>
+                    prov.isAllSelected ? prov.deselectAll() : prov.selectAll(),
                 side: const BorderSide(color: Color(0xFF444444)),
                 activeColor: const Color(0xFF22C55E),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 visualDensity: VisualDensity.compact,
               ),
               LText(
-                prov.selectedEntries.isEmpty ? LMessage("{0} items", [entries.length]) : LMessage("{0} selected", [prov.selectedEntries.length]),
+                prov.selectedEntries.isEmpty
+                    ? LMessage("{0} items", [entries.length])
+                    : LMessage("{0} selected", [prov.selectedEntries.length]),
                 style: const TextStyle(color: Color(0xFF555555), fontSize: 11),
               ),
             ],
@@ -602,7 +787,11 @@ class _SftpPanelState extends State<SftpPanel> {
     );
   }
 
-  Widget _buildEntryTile(SftpEntry entry, SftpPanelProvider prov) {
+  Widget _buildEntryTile(
+    SftpEntry entry,
+    SftpPanelProvider prov, {
+    Widget? child,
+  }) {
     final isSelected = prov.selectedEntries.contains(entry);
     return EntryContextMenu(
       path: entry.path,
@@ -639,52 +828,79 @@ class _SftpPanelState extends State<SftpPanel> {
       onRefresh: () => _loadDirectory(prov.currentPath),
       onNewFolder: () => _showNewFolderDialog(prov),
       onEditPermissions: () => _showPermissionsDialog(prov, entry),
-      child: Draggable<SftpEntry>(
-        data: entry,
-        feedback: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF22C55E).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(6),
+      child:
+          child ??
+          Draggable<SftpEntry>(
+            data: entry,
+            feedback: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF22C55E).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  entry.name,
+                  style: const TextStyle(
+                    color: Color(0xFF22C55E),
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             ),
-            child: Text(entry.name, style: const TextStyle(color: Color(0xFF22C55E), fontSize: 13)),
-          ),
-        ),
-        child: InkWell(
-          onTap: () => _onEntryTap(entry),
-          child: Container(
-            color: isSelected ? const Color(0xFF22C55E).withValues(alpha: 0.1) : Colors.transparent,
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: isSelected,
-                  onChanged: (_) => prov.toggleSelection(entry),
-                  side: const BorderSide(color: Color(0xFF444444)),
-                  activeColor: const Color(0xFF22C55E),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
+            child: InkWell(
+              onTap: () => _onEntryTap(entry),
+              child: Container(
+                color: isSelected
+                    ? const Color(0xFF22C55E).withValues(alpha: 0.1)
+                    : Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: isSelected,
+                      onChanged: (_) => prov.toggleSelection(entry),
+                      side: const BorderSide(color: Color(0xFF444444)),
+                      activeColor: const Color(0xFF22C55E),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    Icon(
+                      entry.isDirectory
+                          ? Icons.folder
+                          : _fileIcon(entry.extension),
+                      size: 16,
+                      color: entry.isDirectory
+                          ? const Color(0xFFFBBF24)
+                          : const Color(0xFF60A5FA),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        entry.name,
+                        style: const TextStyle(
+                          color: Color(0xFFD4D4D4),
+                          fontSize: 13,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      entry.formattedSize,
+                      style: const TextStyle(
+                        color: Color(0xFF555555),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
-                Icon(
-                  entry.isDirectory ? Icons.folder : _fileIcon(entry.extension),
-                  size: 16,
-                  color: entry.isDirectory ? const Color(0xFFFBBF24) : const Color(0xFF60A5FA),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(entry.name,
-                      style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13),
-                      overflow: TextOverflow.ellipsis),
-                ),
-                Text(entry.formattedSize,
-                    style: const TextStyle(color: Color(0xFF555555), fontSize: 11)),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
     );
   }
 
@@ -697,8 +913,7 @@ class _SftpPanelState extends State<SftpPanel> {
       'go' ||
       'rs' ||
       'c' ||
-      'cpp' =>
-        Icons.code,
+      'cpp' => Icons.code,
       'json' || 'yaml' || 'yml' || 'toml' || 'xml' => Icons.data_object,
       'md' || 'txt' || 'log' => Icons.article,
       'sh' || 'bash' || 'zsh' => Icons.terminal,
@@ -712,32 +927,59 @@ class _SftpPanelState extends State<SftpPanel> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const LText("New Folder", style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14)),
+        title: const LText(
+          "New Folder",
+          style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14),
+        ),
         content: TextField(
-          controller: ctrl, autofocus: true,
+          controller: ctrl,
+          autofocus: true,
           style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13),
-          decoration:  InputDecoration(
-            hintText: tr(context, "Folder name"), hintStyle: TextStyle(color: Color(0xFF555555)),
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF2A2A2A))),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF22C55E))),
+          decoration: InputDecoration(
+            hintText: tr(context, "Folder name"),
+            hintStyle: TextStyle(color: Color(0xFF555555)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF2A2A2A)),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF22C55E)),
+            ),
           ),
           onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const LText("Cancel", style: TextStyle(color: Color(0xFF888888)))),
-          TextButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: const LText("Create", style: TextStyle(color: Color(0xFF22C55E)))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const LText(
+              "Cancel",
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: const LText(
+              "Create",
+              style: TextStyle(color: Color(0xFF22C55E)),
+            ),
+          ),
         ],
       ),
     );
     if (name == null || name.isEmpty || !mounted) return;
     try {
-      final newPath = prov.currentPath == '/' ? '/$name' : '${prov.currentPath}/$name';
+      final newPath = prov.currentPath == '/'
+          ? '/$name'
+          : '${prov.currentPath}/$name';
       await context.read<SftpFileOpsService>().mkdir(widget.host!, newPath);
       if (mounted) _loadDirectory(prov.currentPath);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: LText(LMessage("Create folder failed: {0}", [e])), backgroundColor: const Color(0xFF2A1A1A)));
+          SnackBar(
+            content: LText(LMessage("Create folder failed: {0}", [e])),
+            backgroundColor: const Color(0xFF2A1A1A),
+          ),
+        );
       }
     }
   }
@@ -748,27 +990,53 @@ class _SftpPanelState extends State<SftpPanel> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const LText("New File", style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14)),
+        title: const LText(
+          "New File",
+          style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14),
+        ),
         content: TextField(
-          controller: ctrl, autofocus: true,
+          controller: ctrl,
+          autofocus: true,
           style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13),
-          decoration:  InputDecoration(
-            hintText: tr(context, "File name"), hintStyle: TextStyle(color: Color(0xFF555555)),
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF2A2A2A))),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF22C55E))),
+          decoration: InputDecoration(
+            hintText: tr(context, "File name"),
+            hintStyle: TextStyle(color: Color(0xFF555555)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF2A2A2A)),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF22C55E)),
+            ),
           ),
           onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const LText("Cancel", style: TextStyle(color: Color(0xFF888888)))),
-          TextButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: const LText("Create", style: TextStyle(color: Color(0xFF22C55E)))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const LText(
+              "Cancel",
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: const LText(
+              "Create",
+              style: TextStyle(color: Color(0xFF22C55E)),
+            ),
+          ),
         ],
       ),
     );
     if (name == null || name.isEmpty || !mounted) return;
     try {
-      final remotePath = prov.currentPath == '/' ? '/$name' : '${prov.currentPath}/$name';
-      await context.read<SftpFileOpsService>().createFile(widget.host!, remotePath);
+      final remotePath = prov.currentPath == '/'
+          ? '/$name'
+          : '${prov.currentPath}/$name';
+      await context.read<SftpFileOpsService>().createFile(
+        widget.host!,
+        remotePath,
+      );
       final entry = SftpEntry(
         name: name,
         path: remotePath,
@@ -782,59 +1050,99 @@ class _SftpPanelState extends State<SftpPanel> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: LText(LMessage("Create file failed: {0}", [e])), backgroundColor: const Color(0xFF2A1A1A)));
+          SnackBar(
+            content: LText(LMessage("Create file failed: {0}", [e])),
+            backgroundColor: const Color(0xFF2A1A1A),
+          ),
+        );
       }
     }
   }
 
-  Future<void> _showRenameDialog(SftpPanelProvider prov, SftpEntry entry) async {
+  Future<void> _showRenameDialog(
+    SftpPanelProvider prov,
+    SftpEntry entry,
+  ) async {
     final ctrl = TextEditingController(text: entry.name);
     final newName = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const LText("Rename", style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14)),
+        title: const LText(
+          "Rename",
+          style: TextStyle(color: Color(0xFFD4D4D4), fontSize: 14),
+        ),
         content: TextField(
-          controller: ctrl, autofocus: true,
+          controller: ctrl,
+          autofocus: true,
           style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13),
           decoration: const InputDecoration(
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF2A2A2A))),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF22C55E))),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF2A2A2A)),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFF22C55E)),
+            ),
           ),
           onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const LText("Cancel", style: TextStyle(color: Color(0xFF888888)))),
-          TextButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: const LText("Rename", style: TextStyle(color: Color(0xFF22C55E)))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const LText(
+              "Cancel",
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+            child: const LText(
+              "Rename",
+              style: TextStyle(color: Color(0xFF22C55E)),
+            ),
+          ),
         ],
       ),
     );
-    if (newName == null || newName.isEmpty || newName == entry.name || !mounted) return;
+    if (newName == null || newName.isEmpty || newName == entry.name || !mounted) {
+      return;
+    }
     final slash = entry.path.lastIndexOf('/');
     final parent = slash <= 0 ? '/' : entry.path.substring(0, slash);
     try {
-      await context.read<SftpFileOpsService>().rename(widget.host!, entry.path, '$parent/$newName');
+      await context.read<SftpFileOpsService>().rename(
+        widget.host!,
+        entry.path,
+        '$parent/$newName',
+      );
       prov.clearSelection();
       if (mounted) _loadDirectory(prov.currentPath);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: LText(LMessage("Rename failed: {0}", [e])), backgroundColor: const Color(0xFF2A1A1A)));
+          SnackBar(
+            content: LText(LMessage("Rename failed: {0}", [e])),
+            backgroundColor: const Color(0xFF2A1A1A),
+          ),
+        );
       }
     }
   }
 
   Future<void> _showPermissionsDialog(
-      SftpPanelProvider prov, SftpEntry entry) async {
+    SftpPanelProvider prov,
+    SftpEntry entry,
+  ) async {
     // Listings may legally omit permissions (SFTP v3) — stat() as fallback;
     // if that fails too, pass null so the dialog warns and gates Apply
     // instead of silently opening at 000.
     var initialMode = entry.mode;
     if (initialMode == null) {
       try {
-        initialMode = await context
-            .read<SftpFileOpsService>()
-            .statMode(widget.host!, entry.path);
+        initialMode = await context.read<SftpFileOpsService>().statMode(
+          widget.host!,
+          entry.path,
+        );
       } catch (_) {}
       if (!mounted) return;
     }
@@ -849,46 +1157,78 @@ class _SftpPanelState extends State<SftpPanel> {
     if (result == null || !mounted) return;
     try {
       await context.read<SftpFileOpsService>().chmod(
-            widget.host!,
-            entry.path,
-            result.mode,
-            isDirectory: entry.isDirectory,
-            recursive: result.recursive,
-          );
+        widget.host!,
+        entry.path,
+        result.mode,
+        isDirectory: entry.isDirectory,
+        recursive: result.recursive,
+      );
       if (mounted) _loadDirectory(prov.currentPath);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: LText(LMessage("chmod {0} failed: {1}", [modeToOctal(result.mode), e])),
-            backgroundColor: const Color(0xFF2A1A1A)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: LText(
+              LMessage("chmod {0} failed: {1}", [modeToOctal(result.mode), e]),
+            ),
+            backgroundColor: const Color(0xFF2A1A1A),
+          ),
+        );
       }
     }
   }
 
-  Future<void> _showDeleteConfirm(SftpPanelProvider prov, List<SftpEntry> entries) async {
+  Future<void> _showDeleteConfirm(
+    SftpPanelProvider prov,
+    List<SftpEntry> entries,
+  ) async {
     final names = entries.map((e) => e.name).join(', ');
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1A1A1A),
-        title: const LText("Delete", style: TextStyle(color: Color(0xFFEF4444), fontSize: 14)),
-        content: LText(LMessage("Delete \"{0}\"?\nThis cannot be undone.", [names]), style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13)),
+        title: const LText(
+          "Delete",
+          style: TextStyle(color: Color(0xFFEF4444), fontSize: 14),
+        ),
+        content: LText(
+          LMessage("Delete \"{0}\"?\nThis cannot be undone.", [names]),
+          style: const TextStyle(color: Color(0xFFD4D4D4), fontSize: 13),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const LText("Cancel", style: TextStyle(color: Color(0xFF888888)))),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const LText("Delete", style: TextStyle(color: Color(0xFFEF4444)))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const LText(
+              "Cancel",
+              style: TextStyle(color: Color(0xFF888888)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const LText(
+              "Delete",
+              style: TextStyle(color: Color(0xFFEF4444)),
+            ),
+          ),
         ],
       ),
     );
     if (ok != true || !mounted) return;
     try {
       final ops = context.read<SftpFileOpsService>();
-      for (final e in entries) { await ops.delete(widget.host!, e.path, isDirectory: e.isDirectory); }
+      for (final e in entries) {
+        await ops.delete(widget.host!, e.path, isDirectory: e.isDirectory);
+      }
       prov.clearSelection();
       if (mounted) _loadDirectory(prov.currentPath);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: LText(LMessage("Delete failed: {0}", [e])), backgroundColor: const Color(0xFF2A1A1A)));
+          SnackBar(
+            content: LText(LMessage("Delete failed: {0}", [e])),
+            backgroundColor: const Color(0xFF2A1A1A),
+          ),
+        );
       }
     }
   }
@@ -899,8 +1239,11 @@ class _HeaderButton extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
 
-  const _HeaderButton(
-      {required this.label, required this.active, required this.onTap});
+  const _HeaderButton({
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -914,16 +1257,15 @@ class _HeaderButton extends StatelessWidget {
               : const Color(0xFF1E1E1E),
           borderRadius: BorderRadius.circular(5),
           border: Border.all(
-              color: active
-                  ? const Color(0xFF22C55E).withValues(alpha: 0.4)
-                  : const Color(0xFF2A2A2A)),
+            color: active
+                ? const Color(0xFF22C55E).withValues(alpha: 0.4)
+                : const Color(0xFF2A2A2A),
+          ),
         ),
         child: LText(
           label,
           style: TextStyle(
-            color: active
-                ? const Color(0xFF22C55E)
-                : const Color(0xFFD4D4D4),
+            color: active ? const Color(0xFF22C55E) : const Color(0xFFD4D4D4),
             fontSize: 12,
           ),
         ),
@@ -931,4 +1273,3 @@ class _HeaderButton extends StatelessWidget {
     );
   }
 }
-

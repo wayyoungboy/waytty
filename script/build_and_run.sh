@@ -11,7 +11,8 @@ if [[ "$MODE" == --release ]]; then CONFIG=Release; BUILD_FLAG=--release; fi
 cd "$ROOT_DIR/crossplatform/app"
 "$FLUTTER_BIN" pub get
 bash ../packages/yourssh_script_engine/native/build_macos.sh
-"$FLUTTER_BIN" build macos "$BUILD_FLAG" --no-pub
+"$FLUTTER_BIN" build macos "$BUILD_FLAG" --no-pub \
+  "--dart-define=WAYTTY_CLOUD_URL=${WAYTTY_CLOUD_URL:-}"
 APP_BUNDLE="$ROOT_DIR/dist/waytty.app"
 mkdir -p "$ROOT_DIR/dist"
 ditto "build/macos/Build/Products/$CONFIG/waytty.app" "$APP_BUNDLE"
@@ -37,10 +38,14 @@ if [[ "$MODE" == --release ]]; then
 fi
 if [[ "$MODE" != --build ]]; then
   pkill -x 'waytty' >/dev/null 2>&1 || true
-  open -n "$APP_BUNDLE"
+  # Launch the bundled executable from the authorized developer tool, as the
+  # Flutter macOS launcher does. LaunchServices may reject a local ad-hoc build.
+  # Separate standard streams so the app survives the build/debug session.
+  nohup "$APP_BUNDLE/Contents/MacOS/waytty" </dev/null >/dev/null 2>&1 &
+  APP_PID=$!
   if [[ "$MODE" == --verify ]]; then
     sleep 2
-    pgrep -x 'waytty' >/dev/null
+    kill -0 "$APP_PID"
     echo "Launch verified: $APP_BUNDLE"
   fi
 fi

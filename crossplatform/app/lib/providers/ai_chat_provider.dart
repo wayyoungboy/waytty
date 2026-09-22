@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ai_provider_config.dart';
-import '../services/storage_service.dart';
 import '../services/ai_completion_service.dart';
 import '../models/chat_message.dart';
 
@@ -28,7 +26,6 @@ class AiChatProvider extends ChangeNotifier {
     ],
   };
 
-  final FlutterSecureStorage _storage;
   final Map<AiProvider, AiProviderConfig> _configs = {};
   final List<ChatMessage> _messages = [];
   bool _loading = false;
@@ -52,14 +49,8 @@ class AiChatProvider extends ChangeNotifier {
       AiProvider.values.where(_isConfigured).toList();
 
   AiChatProvider({
-    FlutterSecureStorage? storage,
     AiCompletionService Function()? requestFactory,
-  }) : _storage =
-           storage ??
-           const FlutterSecureStorage(
-             mOptions: StorageService.macOsKeychainOptions,
-           ),
-       _requestFactory = requestFactory ?? AiCompletionService.new {
+  }) : _requestFactory = requestFactory ?? AiCompletionService.new {
     ready = _load().catchError((Object e) {
       loadError = '无法读取 AI 凭据：$e';
       if (!_disposed) notifyListeners();
@@ -77,22 +68,14 @@ class AiChatProvider extends ChangeNotifier {
       );
     }
 
-    // Migrate legacy single Anthropic key
-    final legacyKey = await _storage.read(key: 'ai_api_key');
-    if (legacyKey != null && legacyKey.isNotEmpty) {
-      await _storage.write(key: 'ai_config_anthropic_key', value: legacyKey);
-      await _storage.delete(key: 'ai_api_key');
-    }
-
     for (final p in AiProvider.values) {
-      final key = await _storage.read(key: 'ai_config_${p.name}_key');
       final model =
           prefs.getString('ai_config_${p.name}_model') ??
           presetModels[p]!.first;
       final endpoint = prefs.getString('ai_config_${p.name}_endpoint');
-      if (key?.isNotEmpty == true || endpoint?.isNotEmpty == true) {
+      if (endpoint?.isNotEmpty == true) {
         _configs[p] = AiProviderConfig(
-          apiKey: key ?? '',
+          apiKey: '', // API keys must be entered for this app run.
           model: model,
           endpoint: endpoint,
         );
@@ -124,12 +107,6 @@ class AiChatProvider extends ChangeNotifier {
     }
     final newModel = model ?? current?.model ?? presetModels[provider]!.first;
 
-    if (newKey.isNotEmpty) {
-      await _storage.write(
-        key: 'ai_config_${provider.name}_key',
-        value: newKey,
-      );
-    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('ai_config_${provider.name}_model', newModel);
     if (newEndpoint != null) {
@@ -154,7 +131,6 @@ class AiChatProvider extends ChangeNotifier {
 
   Future<void> clearProviderConfig(AiProvider provider) async {
     await ready;
-    await _storage.delete(key: 'ai_config_${provider.name}_key');
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('ai_config_${provider.name}_model');
     await prefs.remove('ai_config_${provider.name}_endpoint');
@@ -197,6 +173,7 @@ class AiChatProvider extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     stop();
+    _configs.clear();
     super.dispose();
   }
 

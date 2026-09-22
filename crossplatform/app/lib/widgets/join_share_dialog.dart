@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/share_provider.dart';
-import '../providers/sync_provider.dart';
 import '../theme/app_theme.dart';
 
 class JoinShareDialog extends StatefulWidget {
@@ -31,9 +30,9 @@ class _JoinShareDialogState extends State<JoinShareDialog> {
       return;
     }
 
-    final sync = context.read<SyncProvider>();
-    if (!sync.isSupabaseConfigured) {
-      setState(() => _error = 'Configure Supabase first (Settings → Sync)');
+    final share = context.read<ShareProvider>();
+    if (!share.canShare) {
+      setState(() => _error = 'Realtime sharing is unavailable in this build.');
       return;
     }
 
@@ -41,8 +40,6 @@ class _JoinShareDialogState extends State<JoinShareDialog> {
     try {
       await context.read<ShareProvider>().joinSession(
         code,
-        sync.supabaseUrl,
-        sync.supabaseAnonKey,
       );
       if (context.mounted) Navigator.pop(context);
     } catch (e) {

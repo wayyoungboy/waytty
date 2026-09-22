@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/host.dart';
+import '../../widgets/saved_private_key_controls.dart';
 import '../../models/ssh_key.dart';
 import '../../providers/host_provider.dart';
 import '../../providers/key_provider.dart';
@@ -303,6 +304,7 @@ class _MobileAddHostScreenState extends State<MobileAddHostScreen> {
         children: [
           usernameRow,
           _CertAgentNoteRow(authType: widget.existing!.authType),
+          SavedPrivateKeyControls(host: widget.existing!),
         ],
       );
     }
@@ -331,6 +333,7 @@ class _MobileAddHostScreenState extends State<MobileAddHostScreen> {
             hint: tr(context, _isEdit ? "Leave blank to keep current" : LRaw(null)),
             textInputAction: TextInputAction.done,
           ),
+        if (widget.existing != null) SavedPrivateKeyControls(host: widget.existing!),
         const _BiometricRow(),
       ],
     );
