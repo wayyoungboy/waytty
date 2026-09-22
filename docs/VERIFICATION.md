@@ -3,10 +3,12 @@
 ## v0.0.2 用户体验优化（2026-09-23）
 
 - 完成[用户体验分析](UX_REVIEW_0.0.2.md)，重点修复手动更新来源、Universal ZIP 匹配、下载完整性与生命周期，以及连接搜索、空状态恢复、批量选择反馈。
-- Flutter 静态分析无问题；1,460 条中英文资源完整性与占位符检查通过，321 个 Dart 文件本地化审计通过。完整测试 1,909 项通过、3 项本机串口原生夹具测试因未配置专用库跳过。随后增加窄窗口交互检查并复验；目标设备串口硬件未实测。
+- Flutter 静态分析无问题；1,460 条中英文资源完整性与占位符检查通过，321 个 Dart 文件本地化审计通过。远程完整测试 1,910 项通过、3 项串口原生夹具测试因未配置专用库跳过；包含真实本机 SSH/SFTP 和窄窗口交互回归。目标设备串口硬件未实测。
 - 7 项发布/隐私工具测试通过，源码扫描 38 处命中均为精确审核的公开夹具或翻译标识，无未处理发现。官网构建成功，40 项链接/资源检查通过，JavaScript 语法检查通过。
-- 本机 Xcode 27 首次许可尚未确认，Flutter 原生测试使用独立安装的 Command Line Tools SDK；不将测试成功等同于完整 Xcode 应用构建通过。macOS 发布包交由仓库 macos-26 工作流构建，构建结果在发布验证完成后补充。
-- 界面截图由真实 Flutter 控件和虚构连接资料渲染：中文首次使用、英文无结果与窄窗口。它们验证布局与文案，不代表已连接真实远程主机。
+- 本机 Flutter 原生测试使用独立安装的 Command Line Tools SDK。发布包在 GitHub macos-26 / Xcode 26.6 / Flutter 3.47.2 环境构建，[流水线所有步骤通过](https://github.com/wayyoungboy/waytty/actions/runs/35759848814)，不依赖本机 Xcode 27 的首次许可状态。
+- 界面截图由真实 Flutter 控件和虚构连接资料渲染：[中文首次使用](screenshots/0.0.2/connections-first-use-zh.png)、[英文无结果](screenshots/0.0.2/connections-no-results-en.png)、[760 像素窄窗口](screenshots/0.0.2/connections-compact-en.png)。它们验证布局与文案，不代表已连接真实远程主机。
+- `v0.0.2` 标签指向构建提交 `8af2d0339c7dcd000dd0e0cfa6c6c24bf7bba0f3`；源码 ZIP 注释与 `BUILD_INFO.txt` 记录一致。安装包版本 `0.0.2+3`、应用标识 `io.github.wayyoungboy.waytty`。下载回本机后再次核验所有附件 SHA-256、应用签名、包内路径和两种 CPU 架构，通过。
+- macOS ZIP SHA-256：`041d37b007e213b1c46577f92f3231722618e690ef388d3fa4c93f996e1d29d2`。安装包、完整源码、串口对应源码、构建信息与校验文件见 [v0.0.2 发布页](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2)。仍为 ad-hoc 签名、未公证；没有替换或重启用户正在使用的应用。
 
 ## 独立账号存储与版本文案（2026-09-17）
 
