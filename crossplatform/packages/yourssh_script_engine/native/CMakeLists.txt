@@ -3,7 +3,8 @@ project(qjsbridge C)
 
 set(CMAKE_C_STANDARD 11)
 # MSVC does not export symbols from SHARED libs by default; without this the
-# Dart FFI lookups for qjs_* fail at runtime on Windows.
+# Dart FFI lookups for qjs_* fail at runtime on Windows. Prefer build_windows.ps1
+# (Clang) on Windows — this CMake path is a fallback for non-MSVC toolchains.
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 set(QJS_SOURCES
@@ -24,12 +25,7 @@ target_compile_definitions(qjsbridge PRIVATE
   CONFIG_VERSION="2024-01-13"
   CONFIG_BIGNUM
 )
-
-# Keep the DLL / .so / .dylib name predictable for DynamicLibrary.open.
-set_target_properties(qjsbridge PROPERTIES
-  OUTPUT_NAME "qjsbridge"
-  PREFIX ""
-)
-if(NOT WIN32)
-  set_target_properties(qjsbridge PROPERTIES PREFIX "lib")
+if(MSVC)
+  message(FATAL_ERROR
+    "MSVC cannot compile QuickJS/libbf cleanly. Use native/build_windows.ps1 (Clang) instead.")
 endif()
