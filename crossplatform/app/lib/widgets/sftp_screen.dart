@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 import '../models/host.dart';
+import '../services/sftp_transfer_service.dart';
 import '../services/ssh_service.dart';
 import '../theme/app_theme.dart';
 
@@ -81,7 +82,7 @@ class _SftpScreenState extends State<SftpScreen> {
     if (saveDir == null) return;
 
     final remotePath = p.posix.join(_remotePath, entry.filename);
-    final localPath = p.join(saveDir, entry.filename);
+    final localPath = SftpTransferService.localPathUnder(saveDir, entry.filename);
 
     setState(() => _status = LMessage('Downloading {0}…', [entry.filename]));
     try {

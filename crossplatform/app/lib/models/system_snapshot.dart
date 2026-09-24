@@ -154,10 +154,9 @@ class SystemSnapshot {
   static List<NetworkStats> _parseNetwork(String section, DateTime timestamp) {
     final result = <NetworkStats>[];
     for (final line in section.split('\n')) {
-      final colon = line.indexOf(':');
-      if (colon < 0) continue;
-      final name = line.substring(0, colon).trim();
-      final counters = line.substring(colon + 1).trim().split(RegExp(r'\s+'));
+      final parsed = NetworkStats.parseProcNetDevLine(line);
+      if (parsed == null) continue;
+      final (name, counters) = parsed;
       if (name.isEmpty || name == 'lo' || counters.length < 16) continue;
       final rx = int.tryParse(counters[0]);
       final tx = int.tryParse(counters[8]);
@@ -205,7 +204,9 @@ class SystemSnapshot {
       final parts = line.trim().split(RegExp(r'\s+'));
       if (parts.length < 6) continue;
       final source = parts[0];
-      if (_kSkipFs.any((f) => source.startsWith(f))) continue;
+      // Exact match only: startsWith("run") previously hid real mounts whose
+      // device names began with a skip token (e.g. runtime, run0, nonexistent).
+      if (_kSkipFs.contains(source)) continue;
       final totalKb = int.tryParse(parts[1]) ?? 0;
       final usedKb = int.tryParse(parts[2]) ?? 0;
       final mount = parts.skip(5).join(' ');

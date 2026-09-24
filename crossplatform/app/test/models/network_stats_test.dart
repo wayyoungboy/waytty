@@ -18,6 +18,24 @@ Inter-|   Receive                                                |  Transmit
       expect(stats.interface, 'eth0');
     });
 
+
+    test('does not treat eth0:0 alias as eth0', () {
+      // Alias listed first — prefix matching would return wrong/zero counters.
+      const net = '''
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+    lo: 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+ eth0:0: 999 0 0 0 0 0 0 0 888 0 0 0 0 0 0 0
+  eth0: 100 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0
+''';
+      final eth0 = NetworkStats.fromProcNetDev(net, interface: 'eth0');
+      expect(eth0.rxBytes, 100);
+      expect(eth0.txBytes, 200);
+      final alias = NetworkStats.fromProcNetDev(net, interface: 'eth0:0');
+      expect(alias.rxBytes, 999);
+      expect(alias.txBytes, 888);
+    });
+
     test('returns zero stats when interface not found', () {
       final stats = NetworkStats.fromProcNetDev(linuxOutput, interface: 'wlan0');
       expect(stats.rxBytes, 0);

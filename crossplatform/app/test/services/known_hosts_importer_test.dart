@@ -98,6 +98,23 @@ example.com ssh-ed25519 $b64
       expect(result.first.host, 'example.com');
     });
 
+
+    test('IPv6 bracket without port defaults to 22 (no RangeError)', () {
+      final result =
+          KnownHostsImporter.parse('[2001:db8::1] ssh-ed25519 $b64\n');
+      expect(result.length, 1);
+      expect(result.first.host, '2001:db8::1');
+      expect(result.first.port, 22);
+    });
+
+    test('IPv6 bracket with explicit port', () {
+      final result =
+          KnownHostsImporter.parse('[2001:db8::2]:2222 ssh-ed25519 $b64\n');
+      expect(result.length, 1);
+      expect(result.first.host, '2001:db8::2');
+      expect(result.first.port, 2222);
+    });
+
     test('line with fewer than 3 fields is skipped', () {
       final result = KnownHostsImporter.parse('example.com ssh-ed25519\n');
       expect(result, isEmpty);
