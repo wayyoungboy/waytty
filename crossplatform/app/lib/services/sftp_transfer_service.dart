@@ -61,6 +61,31 @@ class SftpTransferService {
   /// like a plain file (e.g. /bin -> usr/bin on merged-usr distros). Follow
   /// the link via [stat] to get the target's real type; broken links keep
   /// file semantics.
+  /// Single path segment safe to join under a local directory.
+  /// Remote listings can return `../...` or separator-bearing names; joining
+  /// those raw would write outside the chosen download folder.
+  @visibleForTesting
+  static String safeLocalFileName(String remoteName) {
+    final name = p.basename(remoteName.replaceAll('\\', '/'));
+    if (name.isEmpty ||
+        name == '.' ||
+        name == '..' ||
+        name.contains('/') ||
+        name.contains('\\')) {
+      throw ArgumentError('Invalid remote file name');
+    }
+    return name;
+  }
+
+  /// Joins [remoteName] under [parent] and rejects any result that escapes.
+  static String localPathUnder(String parent, String remoteName) {
+    final full = p.normalize(p.join(parent, safeLocalFileName(remoteName)));
+    if (!p.isWithin(p.normalize(parent), full)) {
+      throw ArgumentError('Invalid remote file name');
+    }
+    return full;
+  }
+
   @visibleForTesting
   static Future<bool> resolveEntryIsDirectory({
     required SftpFileAttrs attr,
@@ -133,7 +158,15 @@ class SftpTransferService {
   Future<String?> downloadToTemp(Host host, SftpEntry entry) async {
     final sftp = await _sshService.openSftp(host);
     final tmpDir = await getTemporaryDirectory();
-    final localPath = p.join(tmpDir.path, entry.name);
+    // Unique subdirectory avoids colliding when two same-named remotes are
+    // opened at once (editor + external edit); basename blocks path escape.
+    final workDir = await Directory(
+      p.join(
+        tmpDir.path,
+        'waytty_dl_${DateTime.now().microsecondsSinceEpoch}',
+      ),
+    ).create(recursive: true);
+    final localPath = localPathUnder(workDir.path, entry.name);
     SftpFile? file;
     final sink = File(localPath).openWrite();
     try {
@@ -189,7 +222,7 @@ class SftpTransferService {
   }) async {
     final sftp = await _sshService.openSftp(remoteHost);
     SftpFile? remoteFile;
-    final sink = File(p.join(localDir, remoteEntry.name)).openWrite();
+    final sink = File(localPathUnder(localDir, remoteEntry.name)).openWrite();
     try {
       remoteFile = await sftp.open(remoteEntry.path);
       await _pipeToSink(remoteFile, sink);
@@ -336,7 +369,7 @@ class SftpTransferService {
     required void Function(String) onFileSkipped,
     required bool Function() isCancelled,
   }) async {
-    final dest = Directory(p.join(localDir, p.posix.basename(remotePath)));
+    final dest = Directory(localPathUnder(localDir, p.posix.basename(remotePath)));
     if (!await dest.exists()) await dest.create(recursive: true);
     final items = await sftp.listdir(remotePath);
     for (final item in items) {
@@ -357,7 +390,7 @@ class SftpTransferService {
           onProgress: onProgress, onFileSkipped: onFileSkipped, isCancelled: isCancelled,
         );
       } else {
-        final localPath = p.join(dest.path, item.filename);
+        final localPath = localPathUnder(dest.path, item.filename);
         if (await File(localPath).exists()) { onFileSkipped(childRemote); continue; }
         await _downloadFileWithProgress(sftp, childRemote, localPath, item.attr.size ?? 0, onProgress);
       }

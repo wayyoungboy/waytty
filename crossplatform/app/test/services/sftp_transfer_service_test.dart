@@ -195,4 +195,26 @@ void main() {
       expect(isDir, isFalse);
     });
   });
+
+  group('safeLocalFileName / localPathUnder', () {
+    test('strips directory components from remote names', () {
+      expect(SftpTransferService.safeLocalFileName('../../etc/passwd'), 'passwd');
+      expect(SftpTransferService.safeLocalFileName('a\\b\\c.txt'), 'c.txt');
+      expect(SftpTransferService.safeLocalFileName('notes.md'), 'notes.md');
+    });
+
+    test('rejects empty, dot, and double-dot names', () {
+      expect(() => SftpTransferService.safeLocalFileName(''), throwsArgumentError);
+      expect(() => SftpTransferService.safeLocalFileName('.'), throwsArgumentError);
+      expect(() => SftpTransferService.safeLocalFileName('..'), throwsArgumentError);
+      expect(() => SftpTransferService.safeLocalFileName('../..'), throwsArgumentError);
+    });
+
+    test('localPathUnder keeps the result inside the parent directory', () {
+      final path = SftpTransferService.localPathUnder('/tmp/dl', '../../etc/passwd');
+      expect(path, '/tmp/dl/passwd');
+      expect(() => SftpTransferService.localPathUnder('/tmp/dl', '..'),
+          throwsArgumentError);
+    });
+  });
 }

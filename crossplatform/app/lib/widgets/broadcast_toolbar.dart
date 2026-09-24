@@ -7,7 +7,16 @@ import '../providers/plugin_provider.dart';
 import '../providers/terminal_layout_provider.dart';
 
 class BroadcastToolbar extends StatelessWidget {
-  const BroadcastToolbar({super.key});
+  final VoidCallback? onSplitRight;
+  final VoidCallback? onSplitDown;
+  final VoidCallback? onClosePane;
+
+  const BroadcastToolbar({
+    super.key,
+    this.onSplitRight,
+    this.onSplitDown,
+    this.onClosePane,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +24,7 @@ class BroadcastToolbar extends StatelessWidget {
     final snippetsEnabled = context
         .watch<PluginProvider>()
         .isEnabled(YourSSHSnippetsPlugin.pluginId);
+    final paneCount = layout.paneCount;
 
     return Container(
       height: 36,
@@ -32,29 +42,29 @@ class BroadcastToolbar extends StatelessWidget {
           const LText("Layout:", style: TextStyle(color: Color(0xFF888888), fontSize: 12)),
           const SizedBox(width: 8),
           _LayoutButton(
-            icon: Icons.crop_square,
-            tooltip: tr(context, "Single"),
-            selected: layout.layout == SplitLayout.single,
-            onTap: () => layout.setLayout(SplitLayout.single),
+            icon: Icons.vertical_split,
+            tooltip: tr(context, "Split Right"),
+            selected: false,
+            onTap: () => onSplitRight?.call(),
           ),
           _LayoutButton(
-            icon: Icons.view_column,
-            tooltip: tr(context, "Split Horizontal"),
-            selected: layout.layout == SplitLayout.horizontal,
-            onTap: () => layout.setLayout(SplitLayout.horizontal),
+            icon: Icons.horizontal_split,
+            tooltip: tr(context, "Split Down"),
+            selected: false,
+            onTap: () => onSplitDown?.call(),
           ),
           _LayoutButton(
-            icon: Icons.table_rows,
-            tooltip: tr(context, "Split Vertical"),
-            selected: layout.layout == SplitLayout.vertical,
-            onTap: () => layout.setLayout(SplitLayout.vertical),
+            icon: Icons.close,
+            tooltip: tr(context, "Close Pane"),
+            selected: false,
+            onTap: () => onClosePane?.call(),
           ),
-          _LayoutButton(
-            icon: Icons.grid_view,
-            tooltip: tr(context, "Quad"),
-            selected: layout.layout == SplitLayout.quad,
-            onTap: () => layout.setLayout(SplitLayout.quad),
-          ),
+          const SizedBox(width: 8),
+          if (paneCount > 1)
+            LText(
+              LMessage("{0} panes", [paneCount]),
+              style: const TextStyle(color: Color(0xFF666666), fontSize: 11),
+            ),
           const SizedBox(width: 8),
           if (snippetsEnabled)
             _LayoutButton(
@@ -81,7 +91,7 @@ class BroadcastToolbar extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          if (layout.paneCount > 1)
+          if (paneCount > 1)
             InkWell(
               onTap: layout.toggleBroadcast,
               borderRadius: BorderRadius.circular(4),

@@ -53,16 +53,20 @@ class KnownHostsImporter {
     return results;
   }
 
-  /// Parses `hostname` or `[hostname]:port` into (host, port).
+  /// Parses `hostname`, `[hostname]`, or `[hostname]:port` into (host, port).
+  /// OpenSSH uses brackets for IPv6 (and optional non-default ports); a bare
+  /// `[2001:db8::1]` means port 22 and must not throw on the missing `:port`.
   static (String?, int) _parseHostToken(String token) {
     if (token.startsWith('[')) {
-      // [host]:port format
       final closeBracket = token.indexOf(']');
       if (closeBracket == -1) return (null, 22);
       final host = token.substring(1, closeBracket);
-      final portStr = token.substring(closeBracket + 2); // skip ]:
-      final port = int.tryParse(portStr) ?? 22;
-      return (host.isEmpty ? null : host, port);
+      if (host.isEmpty) return (null, 22);
+      var port = 22;
+      if (closeBracket + 1 < token.length && token[closeBracket + 1] == ':') {
+        port = int.tryParse(token.substring(closeBracket + 2)) ?? 22;
+      }
+      return (host, port);
     }
     // Plain hostname — strip negation marker (!) if present
     final host = token.startsWith('!') ? token.substring(1) : token;

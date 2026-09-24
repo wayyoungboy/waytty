@@ -11,12 +11,27 @@ class NetworkStats {
     required this.timestamp,
   });
 
+  /// Splits a `/proc/net/dev` data line into `(iface, counters)`.
+  ///
+  /// The colon that separates counters is the one followed by whitespace and a
+  /// digit, so aliases like `eth0:0` keep `:0` in the name instead of being
+  /// mistaken for `eth0` with a bogus leading counter field.
+  static (String, List<String>)? parseProcNetDevLine(String line) {
+    final trimmed = line.trim();
+    if (trimmed.isEmpty) return null;
+    final match = RegExp(r'^(.+?):\s+(\d.*)$').firstMatch(trimmed);
+    if (match == null) return null;
+    final name = match.group(1)!.trim();
+    if (name.isEmpty) return null;
+    return (name, match.group(2)!.trim().split(RegExp(r'\s+')));
+  }
+
   factory NetworkStats.fromProcNetDev(String output, {required String interface}) {
     for (final line in output.split('\n')) {
-      final trimmed = line.trim();
-      if (!trimmed.startsWith('$interface:')) continue;
-      final parts = trimmed.replaceFirst('$interface:', '').trim().split(RegExp(r'\s+'));
-      if (parts.length < 9) continue;
+      final parsed = parseProcNetDevLine(line);
+      if (parsed == null) continue;
+      final (name, parts) = parsed;
+      if (name != interface || parts.length < 9) continue;
       return NetworkStats(
         interface: interface,
         rxBytes: int.tryParse(parts[0]) ?? 0,

@@ -41,7 +41,7 @@ No account is needed for the local workspace. Choose English in Settings; your p
 | Workflow | Core capabilities |
 | --- | --- |
 | **Organize connections** | SSH / Telnet, nested groups, favorites, recent hosts, search and batch connections; manually entered passwords/private keys, jump chains and proxies; no automatic keychain, key-file or SSH Agent access |
-| **Work in terminals** | Tabs, split terminals, broadcast input, search, session recording and templates |
+| **Work in terminals** | Tabs, recursive split panes (left/right & top/bottom, nestable), broadcast input, search, session recording and templates |
 | **Handle files** | SFTP, local and remote panels, transfer queues, remote editing, permissions and resumable transfers |
 | **Inspect hosts** | Linux overall / all-core / single-core CPU trends, memory, disk, load and network rates |
 | **Debug devices** | Serial settings and profiles, text / HEX transfers, log export, timed / file sends and control signals |

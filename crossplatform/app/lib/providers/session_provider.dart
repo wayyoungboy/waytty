@@ -15,11 +15,11 @@ import '../models/shell_profile.dart';
 import '../models/ssh_key.dart';
 import '../models/ssh_session.dart';
 import '../models/ssh_credentials.dart';
-import '../models/app_session.dart';
 import '../models/serial_models.dart';
 import '../models/serial_session.dart';
 import '../services/serial/serial_backend.dart';
 import '../models/terminal_session.dart';
+import '../util/terminal_split_actions.dart' show kMaxTerminalSessions;
 import '../services/audit_service.dart';
 import '../services/local_shell_service.dart';
 import '../services/loopback_tunnel_proxy.dart';
@@ -832,10 +832,46 @@ class SessionProvider extends ChangeNotifier {
     _safeNotify();
   }
 
+
+  /// Open a new terminal session that mirrors [sourceSessionId] (same SSH
+  /// host / local shell profile / telnet host). Used when splitting a pane.
+  /// Returns the new session id, or null when the source cannot be mirrored.
+  Future<String?> openSiblingSession(String sourceSessionId) async {
+    final terminalCount =
+        _sessions.whereType<TerminalSession>().length;
+    if (terminalCount >= kMaxTerminalSessions) return null;
+    final source = _sessionById(sourceSessionId);
+    switch (source) {
+      case SshSession s:
+        if (s.isWatch) return null;
+        await connect(s.host);
+        return _activeSessionId;
+      case LocalSession s:
+        await newLocalSession(
+          profile: s.profile,
+          platformDefault: s.profile == null,
+        );
+        return _activeSessionId;
+      case TelnetSession s:
+        final created = await connectTelnet(s.host);
+        return created.id;
+      default:
+        return null;
+    }
+  }
+
+  /// Close every session in [sessionIds] (e.g. an entire split group).
+  void closeSessions(Iterable<String> sessionIds) {
+    for (final id in sessionIds.toList()) {
+      if (_sessions.any((s) => s.id == id)) closeSession(id);
+    }
+  }
+
   void closeActive() {
     final active = activeSession;
     if (active != null) closeSession(active.id);
   }
+
 
   void addWatchSession(SshSession session) {
     _sessions.add(session);

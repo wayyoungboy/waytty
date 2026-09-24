@@ -79,6 +79,9 @@ void main() {
     expect(find.text('Copy'), findsOneWidget);
     expect(find.text('Paste'), findsOneWidget);
     expect(find.text('Select All'), findsOneWidget);
+    expect(find.text('Split Right'), findsOneWidget);
+    expect(find.text('Split Down'), findsOneWidget);
+    expect(find.text('Close Pane'), findsOneWidget);
   });
 
   testWidgets('menu Copy puts the selection on the clipboard', (tester) async {

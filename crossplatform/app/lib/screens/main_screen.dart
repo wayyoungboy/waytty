@@ -47,6 +47,8 @@ import 'package:yourssh_plugin_api/yourssh_plugin_api.dart';
 import '../models/shell_profile.dart';
 import '../providers/settings_provider.dart';
 import '../providers/terminal_layout_provider.dart';
+import '../models/pane_tree.dart';
+import '../util/terminal_split_actions.dart';
 import '../services/hotkey_service.dart';
 import 'package:yourssh_script_engine/yourssh_script_engine.dart';
 import '../widgets/script_plugin_panel_screen.dart';
@@ -173,7 +175,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       case 'new_session':
         _openHostPanel();
       case 'close_session':
-        context.read<SessionProvider>().closeActive();
+        if (isTerminal && _closeFocusedPaneOrTab()) {
+          // Pane closed; tab remains.
+        } else {
+          _closeActiveTabOrSession();
+        }
       case 'next_session':
         context.read<SessionProvider>().activateNext();
       case 'prev_session':
@@ -183,16 +189,48 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           context.read<TerminalLayoutProvider>().toggleInputBar();
         }
       case 'split_horizontal':
-        if (isTerminal) {
-          context.read<TerminalLayoutProvider>().setLayout(SplitLayout.horizontal);
-        }
+        if (isTerminal) unawaited(_splitActivePane(SplitAxis.horizontal));
       case 'split_vertical':
-        if (isTerminal) {
-          context.read<TerminalLayoutProvider>().setLayout(SplitLayout.vertical);
-        }
+        if (isTerminal) unawaited(_splitActivePane(SplitAxis.vertical));
+      case 'focus_pane_left':
+        if (isTerminal) _focusPane('left');
+      case 'focus_pane_right':
+        if (isTerminal) _focusPane('right');
+      case 'focus_pane_up':
+        if (isTerminal) _focusPane('up');
+      case 'focus_pane_down':
+        if (isTerminal) _focusPane('down');
       case 'command_palette':
         _openCommandPalette();
     }
+  }
+
+  Future<void> _splitActivePane(SplitAxis axis) async {
+    await TerminalSplitActions.splitFocused(context, axis);
+  }
+
+  bool _closeFocusedPaneOrTab() =>
+      TerminalSplitActions.closeFocusedPane(context);
+
+  void _closeActiveTabOrSession() {
+    final layout = context.read<TerminalLayoutProvider>();
+    final sessions = context.read<SessionProvider>();
+    final active = sessions.activeSession;
+    if (active == null) return;
+    final group = layout.groupForSession(active.id);
+    if (group != null && group.paneCount >= 1) {
+      final ids = layout.removeGroup(group.id);
+      sessions.closeSessions(ids.isEmpty ? [active.id] : ids);
+      return;
+    }
+    sessions.closeActive();
+  }
+
+  void _focusPane(String direction) {
+    final layout = context.read<TerminalLayoutProvider>();
+    final sessions = context.read<SessionProvider>();
+    final sessionId = layout.focusNeighbor(direction);
+    if (sessionId != null) sessions.setActive(sessionId);
   }
 
   void _onSftpConnectionChanged() {
@@ -276,8 +314,15 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     if (!mounted) return;
     final sessions = _sessionProvider?.sessions ?? [];
     final ids = sessions.map((session) => session.id).toSet();
+    final removed = _observedSessionIds.difference(ids);
     final hasNewSession = ids.difference(_observedSessionIds).isNotEmpty;
     _observedSessionIds = ids;
+    final layout = _layoutProvider;
+    if (layout != null) {
+      for (final id in removed) {
+        layout.detachSession(id);
+      }
+    }
     if (hasNewSession && !_viewingTerminal) {
       setState(() => _viewingTerminal = true);
     } else if (sessions.isEmpty && _viewingTerminal) {
@@ -313,11 +358,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     final active = provider.activeSession;
     final snapshot = WorkspaceSnapshot(
       hostIds: provider.sessions
+          .where((s) => layout.isTabVisible(s.id))
           .map(_restorableHostId)
           .whereType<String>()
           .toList(),
       activeHostId: active == null ? null : _restorableHostId(active),
-      layout: layout.layout,
+      layout: SplitLayout.single, // pane trees are ephemeral per session
       inputBarVisible: layout.inputBarVisible,
     );
     _workspaceSvc.save(snapshot);
@@ -408,7 +454,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       return;
     }
 
-    layoutProvider.setLayout(snapshot.layout);
+    // Pane trees are per-tab and ephemeral; restored hosts each open as a
+    // single-pane tab. Keep input-bar preference only.
     if (snapshot.inputBarVisible != layoutProvider.inputBarVisible) {
       layoutProvider.toggleInputBar();
     }
@@ -648,7 +695,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       body: Column(
         children: [
           _TopTabBar(
-            sessions: sessions,
+            sessions: sessions
+                .where((s) => context.read<TerminalLayoutProvider>().isTabVisible(s.id))
+                .toList(),
             active: activeSession,
             nav: _nav,
             viewingTerminal: _viewingTerminal && sessions.isNotEmpty,
@@ -1327,12 +1376,19 @@ class _TopTabBar extends StatelessWidget {
               onReorderItem: provider.reorderSessionItem,
               itemBuilder: (context, index) {
                 final s = sessions[index];
+                final layout = context.read<TerminalLayoutProvider>();
+                final activeSession = active;
+                final activeGroupId = activeSession == null
+                    ? null
+                    : layout.groupForSession(activeSession.id)?.id;
+                final tabActive = viewingTerminal &&
+                    (s.id == activeSession?.id || s.id == activeGroupId);
                 return ReorderableDragStartListener(
                   key: ValueKey(s.id),
                   index: index,
                   child: SessionTab(
                     session: s,
-                    isActive: s.id == active?.id && viewingTerminal,
+                    isActive: tabActive,
                     provider: provider,
                     onTap: () => onSessionTap(s.id),
                   ),

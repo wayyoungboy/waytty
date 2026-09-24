@@ -1,16 +1,27 @@
 import 'package:waytty_l10n/waytty_l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:xterm/xterm.dart';
+import '../models/pane_tree.dart';
+import '../providers/session_provider.dart';
+import '../providers/terminal_layout_provider.dart';
+import '../util/terminal_split_actions.dart';
 
-/// Actions offered by the terminal right-click menu (issue #43).
-enum TerminalMenuAction { copy, paste, selectAll, resetTerminal }
+/// Actions offered by the terminal right-click menu (issue #43 + split panes).
+enum TerminalMenuAction {
+  copy,
+  paste,
+  selectAll,
+  resetTerminal,
+  splitRight,
+  splitDown,
+  closePane,
+}
 
-/// Shows the Copy / Paste / Select All context menu for a terminal at
-/// [globalPosition] and performs the chosen action.
+/// Shows the Copy / Paste / Select All / Split / Close context menu for a
+/// terminal at [globalPosition] and performs the chosen action.
 ///
-/// Shared by the SSH terminal and the local terminal panes. The actual
-/// clipboard/selection work delegates to the xterm fork's clipboard ops so
-/// the menu can never drift from the keyboard shortcuts and middle-click.
+/// Shared by the SSH, local, and telnet terminal panes.
 Future<void> showTerminalContextMenu({
   required BuildContext context,
   required Offset globalPosition,
@@ -44,6 +55,22 @@ Future<void> showTerminalContextMenu({
       ),
       const PopupMenuDivider(),
       PopupMenuItem(
+        value: TerminalMenuAction.splitRight,
+        height: 36,
+        child: const LText("Split Right"),
+      ),
+      PopupMenuItem(
+        value: TerminalMenuAction.splitDown,
+        height: 36,
+        child: const LText("Split Down"),
+      ),
+      PopupMenuItem(
+        value: TerminalMenuAction.closePane,
+        height: 36,
+        child: const LText("Close Pane"),
+      ),
+      const PopupMenuDivider(),
+      PopupMenuItem(
         value: TerminalMenuAction.resetTerminal,
         height: 36,
         child: const LText("Reset Terminal"),
@@ -68,11 +95,34 @@ Future<void> showTerminalContextMenu({
     case TerminalMenuAction.selectAll:
       terminalSelectAll(terminal, controller);
     case TerminalMenuAction.resetTerminal:
-      // A full-screen app that died uncleanly can leave the terminal stuck
-      // in the alternate screen with mouse reporting on — wheel scrolling
-      // goes dead until recovered (the `reset` command equivalent).
       terminal.recoverFromStuckState();
+    case TerminalMenuAction.splitRight:
+      await TerminalSplitActions.splitFocused(context, SplitAxis.horizontal);
+    case TerminalMenuAction.splitDown:
+      await TerminalSplitActions.splitFocused(context, SplitAxis.vertical);
+    case TerminalMenuAction.closePane:
+      _closePaneOrTab(context);
     case null:
       break;
+  }
+}
+
+void _closePaneOrTab(BuildContext context) {
+  try {
+    if (TerminalSplitActions.closeFocusedPane(context)) return;
+    // Singleton: close the whole group / session like Ctrl+W on a single pane.
+    final layout = context.read<TerminalLayoutProvider>();
+    final sessions = context.read<SessionProvider>();
+    final active = sessions.activeSession;
+    if (active == null) return;
+    final group = layout.groupForSession(active.id);
+    if (group != null) {
+      final ids = layout.removeGroup(group.id);
+      sessions.closeSessions(ids.isEmpty ? [active.id] : ids);
+      return;
+    }
+    sessions.closeActive();
+  } on ProviderNotFoundException {
+    // Tests that only exercise clipboard paths.
   }
 }
