@@ -141,6 +141,17 @@ jobs:
           # Enable Windows desktop embedding.
           "$RUNNER_TEMP/flutter/bin/flutter" config --enable-windows-desktop
 
+      - name: Install MinGW for QuickJS (qjsbridge.dll)
+        shell: pwsh
+        run: |
+          choco install mingw -y --no-progress
+          $mingwBin = 'C:\ProgramData\mingw64\mingw64\bin'
+          if (Test-Path $mingwBin) {
+            Add-Content -Path $env:GITHUB_PATH -Value $mingwBin
+            $env:Path = "$mingwBin;$env:Path"
+          }
+          gcc --version
+
       - name: Build Windows portable ZIP
         shell: pwsh
         run: |
