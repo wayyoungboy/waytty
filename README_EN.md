@@ -3,7 +3,7 @@
 <p align="center"><strong>Connect to your world. Stay in your flow.</strong></p>
 <p align="center">An open-source terminal workspace for developers and operations.<br>SSH, SFTP, host monitoring and serial debugging, together.</p>
 <p align="center">
-  <a href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2"><strong>Download for macOS</strong></a> ·
+  <a href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3"><strong>Download for macOS</strong></a> ·
   <a href="https://wayyoungboy.github.io/waytty/?lang=en">Explore the website</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="docs/PARITY.md">Feature status</a> ·
@@ -16,15 +16,15 @@
 
 ## Download
 
-The **public** release remains **v0.0.2** (macOS Universal). Source for draft **v0.0.3** includes split panes, bug fixes, and Windows/Android CI packages. Because v0.0.3 stays a draft (assets are not publicly downloadable), primary download links still point at v0.0.2.
+The current release is **v0.0.3**: a macOS Universal package (Apple Silicon / Intel), plus the first Windows and Android preview packages.
 
 | Platform | Support | Get the app |
 | --- | --- | --- |
-| **macOS** | 12+, Universal: Apple Silicon / Intel | [Download ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip) (public) |
-| **Windows** | CI builds a portable x64 ZIP; target-device validation pending; no installer yet | [Track progress](docs/PARITY.md); preview on draft [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) (collaborators) |
-| **Android tablets** | CI builds per-ABI / universal APKs and an AAB; **0.0.3 is a debug-signed preview** (not for production; cannot in-place upgrade to a future release-signed build; uninstall may be required later); device validation pending | [Track progress](docs/PARITY.md); preview on draft [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) (collaborators) |
+| **macOS** | 12+, Universal: Apple Silicon / Intel | [Download ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-macos-universal.zip) |
+| **Windows** | x64 portable ZIP (not an installer); **not yet validated on target devices** | [Download ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-windows-x64.zip) |
+| **Android tablets** | **Debug-signed preview**: not for production; cannot upgrade in place to a future release-signed build, which may require uninstalling first (export a connection backup beforehand); **not yet validated on target devices** | [universal APK](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-universal.apk) · [arm64-v8a](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-arm64-v8a.apk) · [armeabi-v7a](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-armeabi-v7a.apk) · [x86_64](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-x86_64.apk) |
 
-[v0.0.2 release notes](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [v0.0.2 SHA-256](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [Upgrading and migration](docs/UPGRADING.md)
+[Release notes](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) · [SHA-256 checksums](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/SHA256SUMS.txt) · [Upgrading and migration](docs/UPGRADING.md)
 
 > The macOS build is ad-hoc signed, without Developer ID signing or Apple notarization. If macOS blocks the first launch, verify the source and checksum, then follow its **System Settings → Privacy & Security** prompt. There is no need to disable system security. Keep a copy of your connections and files before upgrading.
 
@@ -78,7 +78,7 @@ See [feature status](docs/PARITY.md) for implementation and validation details. 
 | Mode | Availability |
 | --- | --- |
 | **Local & offline** | No registration. Manage local data and connect to remote hosts as needed. |
-| **Email-account cloud backup** | Development preview, **not in the v0.0.2 download**. Client and standalone server code are implemented; production service configuration and email delivery testing remain pending. |
+| **Email-account cloud backup** | Development preview, **not in the v0.0.3 download**. Client and standalone server code are implemented; production service configuration and email delivery testing remain pending. |
 | **Self-hosted account service** | Standalone API with SQLite by default and optional MySQL. Email verification and SMTP run on your server; clients only need its HTTPS URL. |
 
 The email-account flow uses an **email address and a 9–16 character login password**, followed by a **6-digit email verification code** at registration. Connection settings and connection passwords are encrypted on the client before an explicit cloud save. A separate vault password is required to restore them. Private key files, AI keys and device settings are not included in account backups.

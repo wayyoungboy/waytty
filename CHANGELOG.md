@@ -11,7 +11,7 @@
 - 新增 Windows CI 便携 x64 ZIP 打包（无安装包）。
 - 新增 Android CI 分 ABI / universal APK 与 AAB 打包。**本版 Android 为调试签名预览版**：不可用于生产；与未来正式签名包无法原地升级，届时可能需要先卸载再安装。目标设备尚未验收。
 
-macOS 仍为 ad-hoc 签名，尚未公证。Windows/Android 目标设备验收与正式 Android 签名仍待完成。公开发布前请继续使用已发布的 v0.0.2 macOS 下载链接；v0.0.3 附件见草稿 Release。
+macOS 仍为 ad-hoc 签名，尚未公证。Windows/Android 目标设备验收与正式 Android 签名仍待完成。安装包与 SHA-256 校验文件见 v0.0.3 发布页。
 
 ## 0.0.2 — 2026-09-23
 

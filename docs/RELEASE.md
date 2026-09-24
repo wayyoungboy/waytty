@@ -1,16 +1,31 @@
 # 发布与重新构建
 
-## 0.0.3（草稿）
+## 0.0.3
 
-应用版本 `0.0.3`，构建号 `4`（`crossplatform/app/pubspec.yaml`：`0.0.3+4`）。
+[v0.0.3 发布页](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) 已公开。标签 `v0.0.3` 指向构建提交 `d7e9cd1def78ca2b41b3f663d9b9cde8fa0e5fee`，应用版本 `0.0.3`，构建号 `4`（`crossplatform/app/pubspec.yaml`：`0.0.3+4`）。
 
-- **macOS**：`.github/workflows/macos-release.yml` 在标签/main 上验证并上传 `waytty-macos-release` 工件；草稿 Release 可手工挂上 `waytty-0.0.3-macos-universal.zip` 及配套源码、串口源码、`BUILD_INFO.txt`、`SHA256SUMS.txt`。安装包为 ad-hoc 签名，未做 Developer ID 签名或 Apple 公证。
-- **Windows**：CI 产出便携 `waytty-0.0.3-windows-x64.zip`（无 Inno Setup / MSIX）。
-- **Android**：**调试签名预览版**。未配置仓库密钥 `ANDROID_KEYSTORE_*` 时使用 debug 签名；**不可用于生产**；与未来正式签名包**无法原地升级**，用户日后可能需要先卸载再安装。目标设备尚未验收。
+- **macOS**：由 `.github/workflows/macos-release.yml` 在标签上验证并构建 Universal ZIP（macOS 12+，arm64 + x86_64），产出应用 ZIP、完整源码、串口对应源码和 `BUILD_INFO.txt`。ad-hoc 签名，未做 Developer ID 签名或 Apple 公证。
+- **Windows**：`windows-android.yml` 产出便携 `waytty-0.0.3-windows-x64.zip`（无 Inno Setup / MSIX），附 `BUILD_INFO-windows.txt`。**尚未完成目标设备验收。**
+- **Android**：**调试签名预览版**（`BUILD_INFO-android.txt` 记录 `signing=debug-keystore-fallback`）。**不可用于生产**；与未来正式签名包**无法原地升级**，届时可能需要先卸载再安装（卸载前请导出连接备份）。**尚未完成目标设备验收。**
 
-`v*` 标签触发 `windows-android.yml` 的 `draft-release` 任务，仅创建/更新**草稿** Release，不会自动公开。在公开发布前，README 与官网的主下载链接应继续指向已发布的 **v0.0.2** macOS 附件。
+标签触发的 `draft-release` 任务先把 Windows + Android 附件挂到草稿，macOS 工件随后手工上传；合并后的 `SHA256SUMS.txt` 覆盖全部其他附件。草稿经核对后由维护者公开。
 
-本地重建入口见下文「Windows / Android CI 打包」与 macOS 脚本说明。
+| 附件 | SHA-256 |
+| --- | --- |
+| `waytty-0.0.3-macos-universal.zip` | `b411ed642f13f96d0d63bd9673e887e187983622231a98c33aaf75a3bc9d0a7f` |
+| `waytty-0.0.3-source.zip` | `d1de2bd10d75e6f37a237274d3139e760c0a83d08e614fbfdf84411028da6406` |
+| `waytty-0.0.3-serial-sources.zip` | `f8793863f21a09cc8d62f3261ef09463991c7d798d472812c83c06eefe1484c4` |
+| `waytty-0.0.3-windows-x64.zip` | `f82d58057a6b6bca0caaeba66b6f40f3378749adcf7bec42999425b0989fc194` |
+| `waytty-0.0.3-android-universal.apk` | `28db6c3db7a4726b53d00a48b5d91c732ccd00c3740e66c2da33ac3a0d8f7755` |
+| `waytty-0.0.3-android-arm64-v8a.apk` | `745686a502da2a0c1e5f916590b97aac2263b6b378e634a5f55b904676c83def` |
+| `waytty-0.0.3-android-armeabi-v7a.apk` | `2ac6038c70a773f40f156f5cce4cb2b907a855d43b8b2a3bf21eae52027274b7` |
+| `waytty-0.0.3-android-x86_64.apk` | `bcf7ed5238d3dae3a37bfa831a7ee72b0b8f90b1598c87d7a5d8a79211e959b4` |
+| `waytty-0.0.3-android.aab` | `4402e9b9ffcd89cf954a2a01877a136d8e37548bbdcbc4d0827dd8b89aff28a7` |
+| `BUILD_INFO.txt` | `e2314163f1ac2ca6bc8c28c3405c810530301ff831c98bccf932cbe3c95aa08f` |
+| `BUILD_INFO-windows.txt` | `472942de3e133929c4096cdd8ac86f6a31a8e0fff7ac8bc5fdee3edc1e6a7a5d` |
+| `BUILD_INFO-android.txt` | `678c90ab8bf86088aef19078c578b01d96b9522e5efe6b470c61efaf72971657` |
+| `SHA256SUMS-windows.txt` | `abb0fa3360eb3c1b58d849d52fc68447f4a334a43bc1e3ed211239fcf3f60344` |
+| `SHA256SUMS-android.txt` | `767c45a6eeafc478bd932e61982cebf6b9d04da6c2626cdf0e53d78669fa9e74` |
 
 ## macOS 0.0.2
 
@@ -51,7 +66,7 @@ Release 附带 `waytty-0.0.2-serial-sources.zip`，包含 Dart libserialport 0.3
 `.github/workflows/windows-android.yml` 在拉取请求、`main` 推送、`workflow_dispatch` 以及 `v*` 标签上构建：
 
 - **Windows**（`windows-latest`）：固定 Flutter 3.47.2，先用 CMake 编译 `qjsbridge.dll`，再 `flutter build windows --release`，产出便携 ZIP `waytty-<ver>-windows-x64.zip` 与 `SHA256SUMS-windows.txt`。当前**不**自动生成 Inno Setup / MSIX 安装包。
-- **Android**（`ubuntu-latest`）：固定 Flutter 3.47.2，产出分 ABI APK（armeabi-v7a / arm64-v8a / x86_64）、universal APK 与 AAB，附 `SHA256SUMS-android.txt`。若配置了仓库密钥 `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`，则按 `android/key.properties` 做正式签名；否则回退 debug 签名，并在构建摘要中给出警告，**不得**当作生产发布物。0.0.3 草稿明确标注为**调试签名预览版**：不可用于生产；与未来正式签名包无法原地升级，届时可能需要先卸载再安装。0.0.3 草稿明确标注为**调试签名预览版**：不可用于生产，与未来正式签名包无法原地升级，可能需要先卸载再安装。
+- **Android**（`ubuntu-latest`）：固定 Flutter 3.47.2，产出分 ABI APK（armeabi-v7a / arm64-v8a / x86_64）、universal APK 与 AAB，附 `SHA256SUMS-android.txt`。若配置了仓库密钥 `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`，则按 `android/key.properties` 做正式签名；否则回退 debug 签名，并在构建摘要中给出警告，**不得**当作生产发布物。0.0.3 的 Android 包明确标注为**调试签名预览版**：不可用于生产；与未来正式签名包无法原地升级，届时可能需要先卸载再安装。
 
 本地入口：
 
