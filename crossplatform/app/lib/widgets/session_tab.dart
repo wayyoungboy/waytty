@@ -14,6 +14,8 @@ import '../providers/host_provider.dart';
 import '../providers/recording_provider.dart';
 import '../providers/session_provider.dart';
 import '../providers/terminal_layout_provider.dart';
+import '../models/pane_tree.dart';
+import '../util/terminal_split_actions.dart';
 import '../providers/shell_integration_provider.dart';
 import '../services/health_monitor_service.dart';
 import '../services/os_detection.dart';
@@ -143,6 +145,25 @@ class _SessionTabState extends State<SessionTab> {
             Icon(Icons.chevron_right, size: 14, color: Color(0xFF666666)),
           ]),
         ),
+        if (session is TerminalSession) ...[
+          const PopupMenuDivider(),
+          PopupMenuItem(
+            value: 'split_right',
+            child: const Row(children: [
+              Icon(Icons.vertical_split, size: 14, color: Color(0xFFAAAAAA)),
+              SizedBox(width: 8),
+              LText("Split Right", style: TextStyle(color: Color(0xFFCCCCCC), fontSize: 13)),
+            ]),
+          ),
+          PopupMenuItem(
+            value: 'split_down',
+            child: const Row(children: [
+              Icon(Icons.horizontal_split, size: 14, color: Color(0xFFAAAAAA)),
+              SizedBox(width: 8),
+              LText("Split Down", style: TextStyle(color: Color(0xFFCCCCCC), fontSize: 13)),
+            ]),
+          ),
+        ],
         const PopupMenuDivider(),
         PopupMenuItem(
           value: 'close',
@@ -164,6 +185,12 @@ class _SessionTabState extends State<SessionTab> {
         provider.togglePin(session.id);
       case 'color':
         await _showColorSubmenu(context, globalPos);
+      case 'split_right':
+        provider.setActive(session.id);
+        await TerminalSplitActions.splitFocused(context, SplitAxis.horizontal);
+      case 'split_down':
+        provider.setActive(session.id);
+        await TerminalSplitActions.splitFocused(context, SplitAxis.vertical);
       case 'close':
         _closeThisTab();
     }

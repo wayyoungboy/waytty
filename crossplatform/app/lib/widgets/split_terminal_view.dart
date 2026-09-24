@@ -5,6 +5,7 @@ import 'package:yourssh_snippets/yourssh_snippets.dart';
 import '../models/audit_event.dart';
 import '../models/local_session.dart';
 import '../models/pane_tree.dart';
+import '../util/terminal_split_actions.dart';
 import '../models/telnet_session.dart';
 import 'telnet_terminal_pane.dart';
 import '../models/ssh_session.dart';
@@ -229,41 +230,20 @@ class _SplitTerminalViewState extends State<SplitTerminalView> {
   }
 
   Future<void> _split(BuildContext context, SplitAxis axis) async {
-    final layout = context.read<TerminalLayoutProvider>();
-    final sessions = context.read<SessionProvider>();
-    final active = sessions.activeSession;
-    if (active is! TerminalSession) return;
-    layout.ensureGroup(active.id);
-    layout.activateSession(active.id);
-    final focused = layout.activeGroup?.focusedLeaf;
-    if (focused == null) return;
-    final newId = await sessions.openSiblingSession(focused.sessionId);
-    if (!context.mounted || newId == null) return;
-    layout.splitFocused(axis: axis, newSessionId: newId);
-    sessions.setActive(newId);
-    layout.activateSession(newId);
+    await TerminalSplitActions.splitFocused(context, axis);
   }
 
   void _closePane(BuildContext context) {
+    if (TerminalSplitActions.closeFocusedPane(context)) return;
     final layout = context.read<TerminalLayoutProvider>();
     final sessions = context.read<SessionProvider>();
-    final closed = layout.closeFocusedPane();
-    if (closed == null) {
-      // Last pane — close the whole tab/group.
-      final group = layout.activeGroup;
-      if (group == null) {
-        sessions.closeActive();
-        return;
-      }
-      final ids = layout.removeGroup(group.id);
-      sessions.closeSessions(ids.isEmpty ? [group.id] : ids);
+    final group = layout.activeGroup;
+    if (group == null) {
+      sessions.closeActive();
       return;
     }
-    sessions.closeSession(closed);
-    final focus = layout.activeGroup?.focusedLeaf;
-    if (focus != null) {
-      sessions.setActive(focus.sessionId);
-    }
+    final ids = layout.removeGroup(group.id);
+    sessions.closeSessions(ids.isEmpty ? [group.id] : ids);
   }
 
   bool _canRunSnippetTarget(BuildContext context) {
@@ -351,6 +331,7 @@ class _SplitTerminalViewState extends State<SplitTerminalView> {
     final showInput = layout.inputBarVisible &&
         (focused || layout.broadcastEnabled);
 
+    final multi = group.paneCount > 1;
     return Container(
       key: ValueKey('pane-${leaf.id}'),
       decoration: BoxDecoration(
@@ -361,6 +342,29 @@ class _SplitTerminalViewState extends State<SplitTerminalView> {
       ),
       child: Column(
         children: [
+          if (multi)
+            _PaneChrome(
+              title: session.tabLabel,
+              focused: focused,
+              onFocus: () {
+                layout.focusPane(leaf.id);
+                context.read<SessionProvider>().setActive(session.id);
+              },
+              onClose: () {
+                layout.focusPane(leaf.id);
+                context.read<SessionProvider>().setActive(session.id);
+                final closed = layout.closePane(leaf.id);
+                if (closed != null) {
+                  context.read<SessionProvider>().closeSession(closed);
+                  final focus = layout.activeGroup?.focusedLeaf;
+                  if (focus != null) {
+                    context.read<SessionProvider>().setActive(focus.sessionId);
+                  }
+                } else {
+                  _closePane(context);
+                }
+              },
+            ),
           if (session is SshSession && session.isWatch)
             _WatchBanner(session: session),
           Expanded(
@@ -512,6 +516,53 @@ class _BranchLayout extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+
+class _PaneChrome extends StatelessWidget {
+  final String title;
+  final bool focused;
+  final VoidCallback onFocus;
+  final VoidCallback onClose;
+  const _PaneChrome({
+    required this.title,
+    required this.focused,
+    required this.onFocus,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = focused ? const Color(0xFF22C55E) : const Color(0xFF888888);
+    return GestureDetector(
+      onTap: onFocus,
+      child: Container(
+        height: 24,
+        color: focused ? const Color(0xFF1A2A1A) : const Color(0xFF141414),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Row(
+          children: [
+            Icon(Icons.terminal, size: 12, color: fg),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: fg, fontSize: 11),
+              ),
+            ),
+            Tooltip(
+              message: tr(context, 'Close Pane'),
+              child: InkWell(
+                onTap: onClose,
+                child: Icon(Icons.close, size: 14, color: fg),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

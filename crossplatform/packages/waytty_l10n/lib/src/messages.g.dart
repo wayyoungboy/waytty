@@ -1469,7 +1469,8 @@ const wayttyMessages = <String, Map<String, String>>{
     "Focus Pane Right": "焦点移到右侧窗格",
     "Focus Pane Up": "焦点移到上方窗格",
     "Focus Pane Down": "焦点移到下方窗格",
-    "{0} panes": "{0} 个窗格"
+    "{0} panes": "{0} 个窗格",
+    "Too many terminals open (max {0}). Close some panes or tabs first.": "打开的终端过多（最多 {0} 个）。请先关闭部分窗格或标签。"
   },
   "en": {
     " · {0} cancelled": " · {0} cancelled",
@@ -2940,6 +2941,7 @@ const wayttyMessages = <String, Map<String, String>>{
     "Focus Pane Right": "Focus Pane Right",
     "Focus Pane Up": "Focus Pane Up",
     "Focus Pane Down": "Focus Pane Down",
-    "{0} panes": "{0} panes"
+    "{0} panes": "{0} panes",
+    "Too many terminals open (max {0}). Close some panes or tabs first.": "Too many terminals open (max {0}). Close some panes or tabs first."
   }
 };

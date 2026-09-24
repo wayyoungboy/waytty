@@ -48,6 +48,7 @@ import '../models/shell_profile.dart';
 import '../providers/settings_provider.dart';
 import '../providers/terminal_layout_provider.dart';
 import '../models/pane_tree.dart';
+import '../util/terminal_split_actions.dart';
 import '../services/hotkey_service.dart';
 import 'package:yourssh_script_engine/yourssh_script_engine.dart';
 import '../widgets/script_plugin_panel_screen.dart';
@@ -205,33 +206,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _splitActivePane(SplitAxis axis) async {
-    final layout = context.read<TerminalLayoutProvider>();
-    final sessions = context.read<SessionProvider>();
-    final active = sessions.activeSession;
-    if (active is! TerminalSession) return;
-    layout.ensureGroup(active.id);
-    layout.activateSession(active.id);
-    final focused = layout.activeGroup?.focusedLeaf;
-    if (focused == null) return;
-    final newId = await sessions.openSiblingSession(focused.sessionId);
-    if (!mounted || newId == null) return;
-    layout.splitFocused(axis: axis, newSessionId: newId);
-    sessions.setActive(newId);
-    layout.activateSession(newId);
+    await TerminalSplitActions.splitFocused(context, axis);
   }
 
-  bool _closeFocusedPaneOrTab() {
-    final layout = context.read<TerminalLayoutProvider>();
-    final sessions = context.read<SessionProvider>();
-    final group = layout.activeGroup;
-    if (group == null || group.paneCount <= 1) return false;
-    final closed = layout.closeFocusedPane();
-    if (closed == null) return false;
-    sessions.closeSession(closed);
-    final focus = layout.activeGroup?.focusedLeaf;
-    if (focus != null) sessions.setActive(focus.sessionId);
-    return true;
-  }
+  bool _closeFocusedPaneOrTab() =>
+      TerminalSplitActions.closeFocusedPane(context);
 
   void _closeActiveTabOrSession() {
     final layout = context.read<TerminalLayoutProvider>();

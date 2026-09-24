@@ -4586,5 +4586,8 @@
   ],
   "{0} panes": [
     "manual"
+  ],
+  "Too many terminals open (max {0}). Close some panes or tabs first.": [
+    "manual"
   ]
 }

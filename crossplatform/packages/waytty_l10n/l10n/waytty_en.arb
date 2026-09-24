@@ -1468,5 +1468,6 @@
   "m_2032a83bc8a9": "Focus Pane Right",
   "m_7712709ebab8": "Focus Pane Up",
   "m_a712d8a038e8": "Focus Pane Down",
-  "m_e5032ed0eb7e": "{0} panes"
+  "m_e5032ed0eb7e": "{0} panes",
+  "m_c34a4c63f49f": "Too many terminals open (max {0}). Close some panes or tabs first."
 }
