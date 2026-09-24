@@ -141,18 +141,6 @@ jobs:
           # Enable Windows desktop embedding.
           "$RUNNER_TEMP/flutter/bin/flutter" config --enable-windows-desktop
 
-      - name: Install Clang for QuickJS (qjsbridge.dll)
-        shell: pwsh
-        run: |
-          $clang = Get-Command clang -ErrorAction SilentlyContinue
-          if (-not $clang) {
-            choco install llvm -y --no-progress
-            $llvmBin = 'C:\Program Files\LLVM\bin'
-            Add-Content -Path $env:GITHUB_PATH -Value $llvmBin
-            $env:Path = "$llvmBin;$env:Path"
-          }
-          clang --version
-
       - name: Build Windows portable ZIP
         shell: pwsh
         run: |
