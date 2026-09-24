@@ -21,8 +21,8 @@ The current release is **v0.0.2**, available as a macOS Universal package for Ap
 | Platform | Support | Get the app |
 | --- | --- | --- |
 | **macOS** | 12+, Universal: Apple Silicon / Intel | [Download ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip) |
-| **Windows** | Project and build entry point available; platform validation pending | [Track progress](docs/PARITY.md); no package yet |
-| **Android tablets** | UI and USB integration available; device validation pending | [Track progress](docs/PARITY.md); no package yet |
+| **Windows** | CI builds a portable x64 ZIP; target-device validation pending; no installer yet | [Track progress](docs/PARITY.md); see Actions artifacts |
+| **Android tablets** | CI builds per-ABI / universal APKs and an AAB; device validation pending | [Track progress](docs/PARITY.md); see Actions artifacts |
 
 [Release notes](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [SHA-256 checksums](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [Upgrading and migration](docs/UPGRADING.md)
 
@@ -97,7 +97,7 @@ cd waytty
 ./script/check_crossplatform.sh    # Localization, static analysis and tests
 ```
 
-Use `./script/build_and_run.sh --release` to produce and launch a Release app and ZIP. Outputs: `dist/waytty.app` and `dist/waytty-macos.zip`. Windows and Android entry points are `script/build_windows.ps1` and `script/build_android.sh`; they need the corresponding platform or SDK. The root SwiftPM project is an earlier reference prototype.
+Use `./script/build_and_run.sh --release` to produce and launch a Release app and ZIP. Outputs: `dist/waytty.app` and `dist/waytty-macos.zip`. Windows and Android entry points are `script/build_windows.ps1` and `script/build_android.sh`; they need the corresponding platform or SDK. CI packaging lives in `.github/workflows/windows-android.yml` (portable ZIP / APK+AAB; not the same as target-device acceptance). The root SwiftPM project is an earlier reference prototype.
 
 <details>
 <summary>Isolated SSH / SFTP tests</summary>

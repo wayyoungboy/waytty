@@ -132,6 +132,12 @@ dependencies:
 
 
 dependency_overrides:
+  # Local fork of flutter_libserialport 0.6.0: upstream android/build.gradle
+  # still calls jcenter(), which Gradle 9 / AGP 9 removed. Desktop serial uses
+  # this package; Android runtime uses the app SerialChannel instead, but the
+  # plugin is still resolved for all platforms.
+  flutter_libserialport:
+    path: ../packages/flutter_libserialport
   dartssh2:
     path: ../packages/dartssh2
   # Local fork: fixes Windows argv duplication (upstream flutter_pty #19) that

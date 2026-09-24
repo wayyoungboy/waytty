@@ -21,8 +21,8 @@
 | 平台 | 支持情况 | 获取 |
 | --- | --- | --- |
 | **macOS** | 12+，Universal：Apple Silicon / Intel | [下载 ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip) |
-| **Windows** | 工程与构建入口已提供，目标平台待验收 | [查看进展](docs/PARITY.md)，暂无安装包 |
-| **Android 平板** | 界面与 USB 通道已提供，目标设备待验收 | [查看进展](docs/PARITY.md)，暂无安装包 |
+| **Windows** | CI 可构建便携 x64 ZIP；目标平台待验收，暂无正式安装包 | [查看进展](docs/PARITY.md)，CI 工件见 Actions |
+| **Android 平板** | CI 可构建分 ABI / universal APK 与 AAB；目标设备待验收 | [查看进展](docs/PARITY.md)，CI 工件见 Actions |
 
 [发布说明](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [SHA-256 校验文件](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [升级与数据迁移](docs/UPGRADING.md)
 
@@ -97,7 +97,7 @@ cd waytty
 ./script/check_crossplatform.sh    # 本地化、静态分析与测试
 ```
 
-使用 `./script/build_and_run.sh --release` 生成 Release 应用及 ZIP 并启动。产物为 `dist/waytty.app`、`dist/waytty-macos.zip`。Windows 与 Android 的入口分别为 `script/build_windows.ps1`、`script/build_android.sh`，需要对应系统或 SDK。根目录 SwiftPM 工程为早期参考原型。
+使用 `./script/build_and_run.sh --release` 生成 Release 应用及 ZIP 并启动。产物为 `dist/waytty.app`、`dist/waytty-macos.zip`。Windows 与 Android 的入口分别为 `script/build_windows.ps1`、`script/build_android.sh`，需要对应系统或 SDK；CI 工作流见 `.github/workflows/windows-android.yml`（产出便携 ZIP / APK+AAB，不等于目标设备已验收）。根目录 SwiftPM 工程为早期参考原型。
 
 <details>
 <summary>隔离的 SSH / SFTP 测试</summary>

@@ -11,3 +11,7 @@
 - 产品名、应用标识、插件目录及同步接口使用 waytty 命名；保留 YourSSH 内部 Dart 包名、上游存储键和第三方版权说明。
 
 当前工具链 Flutter 3.47.2 / Dart 3.13.2，SDK tag 对应提交 `d3b14c876900e553bc736ca19295fc09e3853e8e`。
+
+## flutter_libserialport (local override)
+
+`crossplatform/packages/flutter_libserialport` is upstream 0.6.0 with `jcenter()` replaced by `mavenCentral()` so Android builds work under Gradle 9 / AGP 9. See `WAYTTY_FORK.md` in that package. Desktop serial still uses this plugin; Android I/O uses the app `SerialChannel`.

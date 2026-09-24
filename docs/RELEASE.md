@@ -32,3 +32,26 @@ Release 附带 `waytty-0.0.2-serial-sources.zip`，包含 Dart libserialport 0.3
 `assemble_release.py` 核对包版本、应用标识、签名、两种架构、个人构建路径和包内符号链接，生成应用 ZIP、完整源码、串口对应源码、`BUILD_INFO.txt` 及 `SHA256SUMS.txt`。构建信息记录源码提交及工具版本，附件发布前仍需核对其提交与标签。
 
 从 v0.0.1 升级请在 GitHub 发布页手动下载 v0.0.2。v0.0.2 在“设置 → 更新”提供手动检查；检查只在用户操作时访问 GitHub。ZIP 下载和打开不代表替换安装已完成，请退出正在使用的 waytty 后将解压出的应用移入“应用程序”。不会关闭现有 SSH 会话或自动替换正在运行的应用。
+
+
+## Windows / Android CI 打包
+
+`.github/workflows/windows-android.yml` 在拉取请求、`main` 推送、`workflow_dispatch` 以及 `v*` 标签上构建：
+
+- **Windows**（`windows-latest`）：固定 Flutter 3.47.2，先用 CMake 编译 `qjsbridge.dll`，再 `flutter build windows --release`，产出便携 ZIP `waytty-<ver>-windows-x64.zip` 与 `SHA256SUMS-windows.txt`。当前**不**自动生成 Inno Setup / MSIX 安装包。
+- **Android**（`ubuntu-latest`）：固定 Flutter 3.47.2，产出分 ABI APK（armeabi-v7a / arm64-v8a / x86_64）、universal APK 与 AAB，附 `SHA256SUMS-android.txt`。若配置了仓库密钥 `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD`，则按 `android/key.properties` 做正式签名；否则回退 debug 签名，并在构建摘要中给出警告，**不得**当作生产发布物。
+
+本地入口：
+
+```powershell
+# Windows（需 VS 2022+ C++、CMake、Flutter 3.47.2）
+./script/build_windows.ps1
+```
+
+```sh
+# Android（需 Android SDK / NDK、JDK 17+、Flutter 3.47.2）
+./script/build_android.sh
+```
+
+`v*` 标签会额外跑 `draft-release` 任务，把 Windows + Android 工件挂到**草稿** Release；工作流不会自动公开 Release，也不会在 PR/`main` 上创建发布。目标设备验收、USB 串口实机验收与正式签名发布仍需人工确认。
+

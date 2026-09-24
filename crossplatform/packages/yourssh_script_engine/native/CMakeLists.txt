@@ -2,12 +2,16 @@ cmake_minimum_required(VERSION 3.14)
 project(qjsbridge C)
 
 set(CMAKE_C_STANDARD 11)
+# MSVC does not export symbols from SHARED libs by default; without this the
+# Dart FFI lookups for qjs_* fail at runtime on Windows.
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
-file(GLOB QJS_SOURCES
+set(QJS_SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/quickjs.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/libunicode.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/libregexp.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/cutils.c"
+  "${CMAKE_CURRENT_SOURCE_DIR}/quickjs/libbf.c"
   "${CMAKE_CURRENT_SOURCE_DIR}/bridge/qjs_bridge.c"
 )
 
@@ -20,3 +24,12 @@ target_compile_definitions(qjsbridge PRIVATE
   CONFIG_VERSION="2024-01-13"
   CONFIG_BIGNUM
 )
+
+# Keep the DLL / .so / .dylib name predictable for DynamicLibrary.open.
+set_target_properties(qjsbridge PROPERTIES
+  OUTPUT_NAME "qjsbridge"
+  PREFIX ""
+)
+if(NOT WIN32)
+  set_target_properties(qjsbridge PROPERTIES PREFIX "lib")
+endif()
