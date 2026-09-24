@@ -60,12 +60,26 @@ def main():
     run("git", "archive", "--format=zip", f"--prefix=waytty-{version}/",
         f"--output={attachments[1]}", "HEAD")
     cache = Path(os.environ.get("PUB_CACHE", str(Path.home() / ".pub-cache"))) / "hosted/pub.dev"
+    local_flutter_libserialport = ROOT / "crossplatform/packages/flutter_libserialport"
     with tempfile.TemporaryDirectory(prefix="waytty-serial-sources-") as temporary:
         sources = Path(temporary) / f"waytty-{version}-serial-sources"
         sources.mkdir()
-        for package in ("libserialport-0.3.0+1", "flutter_libserialport-0.6.0"):
-            shutil.copytree(cache / package, sources / package,
-                            ignore=shutil.ignore_patterns(".dart_tool", "build", ".git"))
+        package_roots = {
+            "libserialport-0.3.0+1": cache / "libserialport-0.3.0+1",
+            # Prefer the in-repo fork (jcenter→mavenCentral) when present; fall
+            # back to the hosted pub.dev copy for older checkouts.
+            "flutter_libserialport-0.6.0": (
+                local_flutter_libserialport
+                if local_flutter_libserialport.is_dir()
+                else cache / "flutter_libserialport-0.6.0"
+            ),
+        }
+        for package, root in package_roots.items():
+            if not root.is_dir():
+                raise ValueError(f"Missing serial package sources: {root}")
+            shutil.copytree(root, sources / package,
+                            ignore=shutil.ignore_patterns(
+                                ".dart_tool", "build", ".git", "android/.cxx", "example"))
         upstream = Path(temporary) / "libserialport-upstream"
         run("git", "clone", "--quiet", "--depth=1", "--branch=libserialport-0.1.1",
             "https://github.com/sigrokproject/libserialport.git", str(upstream))
