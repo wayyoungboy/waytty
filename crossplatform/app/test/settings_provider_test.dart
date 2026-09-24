@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yourssh/models/keyword_highlight_rule.dart';
@@ -92,7 +93,10 @@ void main() {
   test('split_vertical default avoids the terminal paste combo', () async {
     final provider = SettingsProvider();
     await Future<void>.delayed(Duration.zero);
-    expect(provider.hotkeys['split_vertical'], 'ctrl+alt+d');
+    final expected =
+        Platform.isMacOS ? 'meta+shift+d' : 'ctrl+alt+d';
+    expect(provider.hotkeys['split_vertical'], expected);
+    expect(provider.hotkeys['split_vertical'], isNot('ctrl+shift+v'));
   });
 
   test('migrates saved split_vertical off ctrl+shift+v', () async {
@@ -104,7 +108,9 @@ void main() {
     });
     final provider = SettingsProvider();
     await Future<void>.delayed(Duration.zero);
-    expect(provider.hotkeys['split_vertical'], 'ctrl+alt+d');
+    final expected =
+        Platform.isMacOS ? 'meta+shift+d' : 'ctrl+alt+d';
+    expect(provider.hotkeys['split_vertical'], expected);
     // Other saved hotkeys are untouched.
     expect(provider.hotkeys['new_session'], 'ctrl+t');
   });

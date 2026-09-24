@@ -6,12 +6,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:yourssh/models/pane_tree.dart';
 
 /// Renders a schematic of the recursive pane tree (no real PTY) and writes
-/// PNGs under /workspace/split-shots for the PR.
+/// PNGs for the PR (under /workspace/split-shots when available).
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  late Directory outDir;
+
   setUpAll(() {
-    Directory('/workspace/split-shots').createSync(recursive: true);
+    final preferred = Directory('/workspace/split-shots');
+    try {
+      preferred.createSync(recursive: true);
+      outDir = preferred;
+    } catch (_) {
+      outDir = Directory.systemTemp.createTempSync('waytty-split-shots-');
+    }
   });
 
   testWidgets('horizontal split schematic', (tester) async {
@@ -22,7 +30,7 @@ void main() {
       first: PaneLeaf(id: 'p1', sessionId: 's1'),
       second: PaneLeaf(id: 'p2', sessionId: 's2'),
     );
-    await _pumpAndSave(tester, root, 'p1', 'split-horizontal.png');
+    await _pumpAndSave(tester, root, 'p1', outDir, 'split-horizontal.png');
   });
 
   testWidgets('vertical split schematic', (tester) async {
@@ -33,7 +41,7 @@ void main() {
       first: PaneLeaf(id: 'p1', sessionId: 's1'),
       second: PaneLeaf(id: 'p2', sessionId: 's2'),
     );
-    await _pumpAndSave(tester, root, 'p2', 'split-vertical.png');
+    await _pumpAndSave(tester, root, 'p2', outDir, 'split-vertical.png');
   });
 
   testWidgets('nested L-shape schematic', (tester) async {
@@ -50,7 +58,7 @@ void main() {
         second: PaneLeaf(id: 'p3', sessionId: 's3'),
       ),
     );
-    await _pumpAndSave(tester, root, 'p3', 'split-nested.png');
+    await _pumpAndSave(tester, root, 'p3', outDir, 'split-nested.png');
   });
 }
 
@@ -60,6 +68,7 @@ Future<void> _pumpAndSave(
   WidgetTester tester,
   PaneNode root,
   String focusedPaneId,
+  Directory outDir,
   String filename,
 ) async {
   await tester.binding.setSurfaceSize(const Size(900, 560));
@@ -94,7 +103,7 @@ Future<void> _pumpAndSave(
   final byteData = await tester.runAsync(
     () => image!.toByteData(format: ui.ImageByteFormat.png),
   );
-  File('/workspace/split-shots/$filename')
+  File('${outDir.path}/$filename')
       .writeAsBytesSync(byteData!.buffer.asUint8List());
 }
 
@@ -132,7 +141,6 @@ class _PaneSchematic extends StatelessWidget {
                       ? const Color(0xFF22C55E)
                       : const Color(0xFFAAAAAA),
                   fontSize: 16,
-                  fontFamily: 'monospace',
                 ),
               ),
               if (leaf.id == focusedPaneId)
