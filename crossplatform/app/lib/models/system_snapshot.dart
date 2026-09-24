@@ -205,7 +205,9 @@ class SystemSnapshot {
       final parts = line.trim().split(RegExp(r'\s+'));
       if (parts.length < 6) continue;
       final source = parts[0];
-      if (_kSkipFs.any((f) => source.startsWith(f))) continue;
+      // Exact match only: startsWith("run") previously hid real mounts whose
+      // device names began with a skip token (e.g. runtime, run0, nonexistent).
+      if (_kSkipFs.contains(source)) continue;
       final totalKb = int.tryParse(parts[1]) ?? 0;
       final usedKb = int.tryParse(parts[2]) ?? 0;
       final mount = parts.skip(5).join(' ');

@@ -96,6 +96,33 @@ tcp6       0      0 :::22                   :::*                    LISTEN      
       expect(s.ports.first.localPort, 22);
     });
 
+
+    test('does not skip real devices whose names merely start with skip tokens', () {
+      const output = '''
+__CPU1__
+cpu  100 0 0 900 0 0 0 0
+__CPU2__
+cpu  101 0 0 901 0 0 0 0
+__MEM__
+MemTotal: 1024 kB
+MemAvailable: 512 kB
+__DISK__
+Filesystem     1K-blocks      Used Available Use% Mounted on
+/dev/sda1      100000  50000  50000  50% /
+runtime        200000  10000 190000   5% /opt/runtime
+run0           50000   1000  49000   2% /mnt/run0
+nonexistent    1000    0     1000    0% /mnt/x
+tmpfs          8192000 0 8192000 0% /dev/shm
+__UPTIME__
+10.0 5.0
+__PORTS__
+''';
+      final s = SystemSnapshot.fromShellOutput(output);
+      final mounts = s.disks.map((d) => d.mountPoint).toSet();
+      expect(mounts, containsAll(['/', '/opt/runtime', '/mnt/run0', '/mnt/x']));
+      expect(mounts, isNot(contains('/dev/shm')));
+    });
+
     test('DiskMount.usedPercent is clamped 0..1', () {
       final d = DiskMount(source: '/dev/sda1', mountPoint: '/', totalKb: 100, usedKb: 55);
       expect(d.usedPercent, closeTo(0.55, 0.01));
