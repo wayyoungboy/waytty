@@ -142,13 +142,15 @@ jobs:
           "$RUNNER_TEMP/flutter/bin/flutter" config --enable-windows-desktop
 
       - name: Install Clang for QuickJS (qjsbridge.dll)
-        shell: bash
+        shell: pwsh
         run: |
-          set -euo pipefail
-          if ! command -v clang >/dev/null 2>&1; then
+          $clang = Get-Command clang -ErrorAction SilentlyContinue
+          if (-not $clang) {
             choco install llvm -y --no-progress
-            echo "/c/Program Files/LLVM/bin" >> "$GITHUB_PATH"
-          fi
+            $llvmBin = 'C:\Program Files\LLVM\bin'
+            Add-Content -Path $env:GITHUB_PATH -Value $llvmBin
+            $env:Path = "$llvmBin;$env:Path"
+          }
           clang --version
 
       - name: Build Windows portable ZIP
