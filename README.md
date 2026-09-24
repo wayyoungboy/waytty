@@ -3,7 +3,7 @@
 <p align="center"><strong>连接远端，工作就在眼前。</strong></p>
 <p align="center">面向开发者与运维的开源终端工作区。<br>SSH、SFTP、主机监控与串口调试，收进一个顺手的工具。</p>
 <p align="center">
-  <a href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2"><strong>下载 macOS 版</strong></a> ·
+  <a href="https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3"><strong>下载 macOS 版</strong></a> ·
   <a href="https://wayyoungboy.github.io/waytty/">探索官网</a> ·
   <a href="#快速开始">快速开始</a> ·
   <a href="docs/PARITY.md">功能进展</a> ·
@@ -16,15 +16,15 @@
 
 ## 下载
 
-当前**公开发布**仍为 **v0.0.2**（macOS Universal）。源码与草稿 **v0.0.3** 已合入分屏、缺陷修复及 Windows/Android CI 打包；因 v0.0.3 保持草稿、附件对访客不可下载，主下载链接继续指向 v0.0.2。
+当前版本为 **v0.0.3**：macOS Universal 安装包（Apple Silicon / Intel），并首次提供 Windows 与 Android 预览包。
 
 | 平台 | 支持情况 | 获取 |
 | --- | --- | --- |
-| **macOS** | 12+，Universal：Apple Silicon / Intel | [下载 ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip)（公开发布） |
-| **Windows** | CI 可构建便携 x64 ZIP；目标平台待验收，暂无正式安装包 | [查看进展](docs/PARITY.md)；预览包见草稿 [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3)（协作者） |
-| **Android 平板** | CI 可构建分 ABI / universal APK 与 AAB；**0.0.3 为调试签名预览版**（不可用于生产，无法原地升级到未来正式签名包，可能需先卸载）；目标设备待验收 | [查看进展](docs/PARITY.md)；预览包见草稿 [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3)（协作者） |
+| **macOS** | 12+，Universal：Apple Silicon / Intel | [下载 ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-macos-universal.zip) |
+| **Windows** | x64 便携 ZIP（非安装包）；**尚未完成目标设备验收** | [下载 ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-windows-x64.zip) |
+| **Android 平板** | **调试签名预览版**：不可用于生产；无法原地升级到未来正式签名版本，届时可能需先卸载（请先导出连接备份）；**尚未完成目标设备验收** | [universal APK](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-universal.apk) · [arm64-v8a](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-arm64-v8a.apk) · [armeabi-v7a](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-armeabi-v7a.apk) · [x86_64](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/waytty-0.0.3-android-x86_64.apk) |
 
-[v0.0.2 发布说明](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [v0.0.2 SHA-256](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [升级与数据迁移](docs/UPGRADING.md)
+[发布说明](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) · [SHA-256 校验文件](https://github.com/wayyoungboy/waytty/releases/download/v0.0.3/SHA256SUMS.txt) · [升级与数据迁移](docs/UPGRADING.md)
 
 > macOS 版本目前为 ad-hoc 签名，尚未完成 Developer ID 签名与 Apple 公证。首次打开如被拦截，请先核对来源和校验值，再按「系统设置 → 隐私与安全性」中的提示操作。无需关闭系统安全机制。升级前请保留连接和文件副本。
 
@@ -78,7 +78,7 @@
 | 模式 | 状态与使用方式 |
 | --- | --- |
 | **本地离线** | 无需注册。管理本机资料，按需连接远端。 |
-| **邮箱账号云端备份** | 开发预览，**不在 v0.0.2 下载包中**。客户端与独立服务端代码已实现，生产服务与邮件投递尚待配置、联调。 |
+| **邮箱账号云端备份** | 开发预览，**不在 v0.0.3 下载包中**。客户端与独立服务端代码已实现，生产服务与邮件投递尚待配置、联调。 |
 | **自建账号服务** | 独立 API，默认 SQLite、可切换 MySQL。邮箱验证和 SMTP 由服务端配置；客户端仅需 HTTPS 服务地址。 |
 
 邮箱账号方案使用 **邮箱 + 9–16 位登录密码**，注册后通过 **6 位邮件验证码** 验证邮箱归属。连接设置与连接密码先在客户端加密，再显式保存到云端；恢复时需要独立的保险库密码。私钥文件、AI 密钥及设备设置不在账号备份范围内。

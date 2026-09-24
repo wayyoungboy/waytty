@@ -1,5 +1,13 @@
 # 本机构建与验收记录
 
+## v0.0.3 分屏、缺陷修复与 Windows/Android 预览包（2026-09-25）
+
+- 合并 #3（known_hosts IPv6 导入、监控磁盘过滤与网卡别名统计、SFTP 下载路径安全与临时文件冲突）、#4（终端递归分屏）和 #2（Windows/Android CI 打包），均为 squash 合并，`main` 保持线性历史。
+- 标签 `v0.0.3` 指向构建提交 `d7e9cd1def78ca2b41b3f663d9b9cde8fa0e5fee`，安装包版本 `0.0.3+4`。[macOS 发布流水线](https://github.com/wayyoungboy/waytty/actions/runs/36047291148) 全部通过：1,937 项自动化测试通过（含真实本机 SSH/SFTP，3 项串口原生夹具跳过）、7 项发布/隐私工具测试、源码与历史隐私检查（38/40 处命中均为精确审核的夹具，无未处理发现）、Universal 构建和签名检查。[Windows / Android 流水线](https://github.com/wayyoungboy/waytty/actions/runs/36047291395) 使用固定的 Flutter 3.47.2 完成构建和打包。
+- 隐私检查允许 GitHub 网页合并使用的提交者 `noreply@github.com`；其他非 noreply 身份仍会阻断。
+- 发布附件下载回本机后，按 `SHA256SUMS.txt` 逐一核验全部 14 个其他附件，通过。macOS ZIP SHA-256：`b411ed642f13f96d0d63bd9673e887e187983622231a98c33aaf75a3bc9d0a7f`；Windows ZIP：`f82d58057a6b6bca0caaeba66b6f40f3378749adcf7bec42999425b0989fc194`；Android universal APK：`28db6c3db7a4726b53d00a48b5d91c732ccd00c3740e66c2da33ac3a0d8f7755`。完整列表见 [RELEASE.md](RELEASE.md#003) 与 [v0.0.3 发布页](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3)。
+- macOS 仍为 ad-hoc 签名、未公证。Windows 与 Android 仅经 CI 构建，**尚未完成目标设备验收**；Android 为**调试签名预览版**，不可用于生产，未来正式签名版本可能需先卸载再安装。真实串口硬件未实测。
+
 ## v0.0.2 用户体验优化（2026-09-23）
 
 - 完成[用户体验分析](UX_REVIEW_0.0.2.md)，重点修复手动更新来源、Universal ZIP 匹配、下载完整性与生命周期，以及连接搜索、空状态恢复、批量选择反馈。
