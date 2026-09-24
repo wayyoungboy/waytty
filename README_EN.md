@@ -16,15 +16,15 @@
 
 ## Download
 
-The current release is **v0.0.2**, available as a macOS Universal package for Apple Silicon and Intel.
+The **public** release remains **v0.0.2** (macOS Universal). Source for draft **v0.0.3** includes split panes, bug fixes, and Windows/Android CI packages. Because v0.0.3 stays a draft (assets are not publicly downloadable), primary download links still point at v0.0.2.
 
 | Platform | Support | Get the app |
 | --- | --- | --- |
-| **macOS** | 12+, Universal: Apple Silicon / Intel | [Download ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip) |
-| **Windows** | CI builds a portable x64 ZIP; target-device validation pending; no installer yet | [Track progress](docs/PARITY.md); see Actions artifacts |
-| **Android tablets** | CI builds per-ABI / universal APKs and an AAB; device validation pending | [Track progress](docs/PARITY.md); see Actions artifacts |
+| **macOS** | 12+, Universal: Apple Silicon / Intel | [Download ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip) (public) |
+| **Windows** | CI builds a portable x64 ZIP; target-device validation pending; no installer yet | [Track progress](docs/PARITY.md); preview on draft [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) (collaborators) |
+| **Android tablets** | CI builds per-ABI / universal APKs and an AAB; **0.0.3 is a debug-signed preview** (not for production; cannot in-place upgrade to a future release-signed build; uninstall may be required later); device validation pending | [Track progress](docs/PARITY.md); preview on draft [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3) (collaborators) |
 
-[Release notes](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [SHA-256 checksums](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [Upgrading and migration](docs/UPGRADING.md)
+[v0.0.2 release notes](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [v0.0.2 SHA-256](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [Upgrading and migration](docs/UPGRADING.md)
 
 > The macOS build is ad-hoc signed, without Developer ID signing or Apple notarization. If macOS blocks the first launch, verify the source and checksum, then follow its **System Settings → Privacy & Security** prompt. There is no need to disable system security. Keep a copy of your connections and files before upgrading.
 

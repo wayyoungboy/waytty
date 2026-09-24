@@ -16,15 +16,15 @@
 
 ## 下载
 
-当前版本为 **v0.0.2**，提供 macOS Universal 安装包，支持 Apple Silicon 与 Intel。
+当前**公开发布**仍为 **v0.0.2**（macOS Universal）。源码与草稿 **v0.0.3** 已合入分屏、缺陷修复及 Windows/Android CI 打包；因 v0.0.3 保持草稿、附件对访客不可下载，主下载链接继续指向 v0.0.2。
 
 | 平台 | 支持情况 | 获取 |
 | --- | --- | --- |
-| **macOS** | 12+，Universal：Apple Silicon / Intel | [下载 ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip) |
-| **Windows** | CI 可构建便携 x64 ZIP；目标平台待验收，暂无正式安装包 | [查看进展](docs/PARITY.md)，CI 工件见 Actions |
-| **Android 平板** | CI 可构建分 ABI / universal APK 与 AAB；目标设备待验收 | [查看进展](docs/PARITY.md)，CI 工件见 Actions |
+| **macOS** | 12+，Universal：Apple Silicon / Intel | [下载 ZIP](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/waytty-0.0.2-macos-universal.zip)（公开发布） |
+| **Windows** | CI 可构建便携 x64 ZIP；目标平台待验收，暂无正式安装包 | [查看进展](docs/PARITY.md)；预览包见草稿 [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3)（协作者） |
+| **Android 平板** | CI 可构建分 ABI / universal APK 与 AAB；**0.0.3 为调试签名预览版**（不可用于生产，无法原地升级到未来正式签名包，可能需先卸载）；目标设备待验收 | [查看进展](docs/PARITY.md)；预览包见草稿 [v0.0.3](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.3)（协作者） |
 
-[发布说明](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [SHA-256 校验文件](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [升级与数据迁移](docs/UPGRADING.md)
+[v0.0.2 发布说明](https://github.com/wayyoungboy/waytty/releases/tag/v0.0.2) · [v0.0.2 SHA-256](https://github.com/wayyoungboy/waytty/releases/download/v0.0.2/SHA256SUMS.txt) · [升级与数据迁移](docs/UPGRADING.md)
 
 > macOS 版本目前为 ad-hoc 签名，尚未完成 Developer ID 签名与 Apple 公证。首次打开如被拦截，请先核对来源和校验值，再按「系统设置 → 隐私与安全性」中的提示操作。无需关闭系统安全机制。升级前请保留连接和文件副本。
 

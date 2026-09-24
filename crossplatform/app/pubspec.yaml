@@ -1,7 +1,7 @@
 name: yourssh
 description: waytty - Cross-platform SSH, SFTP, Telnet and terminal workspace for macOS, Windows and Android tablets.
 publish_to: 'none'
-version: 0.0.2+3
+version: 0.0.3+4
 
 environment:
   sdk: ^3.12.0

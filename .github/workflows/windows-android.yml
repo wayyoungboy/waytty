@@ -234,18 +234,20 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          TITLE="waytty ${TAG} (Windows + Android draft)"
+          TITLE="waytty ${TAG}（草稿）"
           NOTES="$(cat <<'MD'
-          ## Windows / Android CI packages (draft)
+          waytty 草稿发布：Windows 便携包与 Android 调试签名预览版。
 
-          These attachments come from the Windows and Android CI workflow.
-          They are **not** a substitute for target-device acceptance.
+          **Android 重要提示（调试签名预览版）：**
+          - 本附件为 **debug 签名**，**不可用于生产**。
+          - 与未来正式签名包 **无法原地升级**；用户日后安装正式版时可能需要先卸载本预览版。
+          - 目标设备尚未验收，不得当作正式发布物。
 
-          - Windows: portable x64 ZIP (no installer in this draft path).
-          - Android: per-ABI APKs, universal APK, and AAB.
-          - Signing: Android uses the release keystore only when `ANDROID_KEYSTORE_*` repository secrets are configured; otherwise artifacts are debug-signed and must not be treated as production.
+          **Windows：** 便携 x64 ZIP（本草稿路径不含安装包）。
+          **Android：** 分 ABI APK、universal APK 与 AAB。
+          **macOS：** 可由 macOS 验证流水线工件另行挂到本草稿；公开发布前请继续使用已发布的 v0.0.2 下载链接。
 
-          Publish this draft only after verifying checksums and (for Android) release signing.
+          仅在核对校验和（及正式 Android 签名）后，再考虑公开本草稿。
           MD
           )"
           if gh release view "$TAG" >/dev/null 2>&1; then
