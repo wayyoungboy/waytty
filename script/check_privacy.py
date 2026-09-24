@@ -99,7 +99,15 @@ def main():
         if args.history:
             problems += scan(binary, 'git', ROOT, Path(tmp) / 'history.json', allowlist, historical=True)
             identities = git('log', '--all', '--format=%ae%n%ce').decode().splitlines()
-            personal = {value for value in identities if not value.endswith('@users.noreply.github.com')}
+            # Allow GitHub noreply forms used by the web UI squash/rebase committer
+            # (noreply@github.com) and by users.noreply.github.com author emails.
+            def _is_github_noreply(value: str) -> bool:
+                lowered = value.strip().lower()
+                return (
+                    lowered.endswith('@users.noreply.github.com')
+                    or lowered == 'noreply@github.com'
+                )
+            personal = {value for value in identities if value.strip() and not _is_github_noreply(value)}
             if personal:
                 print(f'AUTHOR_PRIVACY: {len(personal)} non-noreply email identities in history; '
                       'review before publishing (addresses not printed)')
