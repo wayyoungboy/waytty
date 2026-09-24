@@ -4559,5 +4559,35 @@
   ],
   "搜索名称、地址、用户名、分组或标签": [
     "lib/widgets/connection_center.dart"
+  ],
+  "Split Right": [
+    "manual"
+  ],
+  "Split Down": [
+    "manual"
+  ],
+  "Close Pane": [
+    "manual"
+  ],
+  "Close Pane / Session": [
+    "manual"
+  ],
+  "Focus Pane Left": [
+    "manual"
+  ],
+  "Focus Pane Right": [
+    "manual"
+  ],
+  "Focus Pane Up": [
+    "manual"
+  ],
+  "Focus Pane Down": [
+    "manual"
+  ],
+  "{0} panes": [
+    "manual"
+  ],
+  "Too many terminals open (max {0}). Close some panes or tabs first.": [
+    "manual"
   ]
 }

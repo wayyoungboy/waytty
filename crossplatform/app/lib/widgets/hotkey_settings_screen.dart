@@ -20,12 +20,16 @@ class _HotkeySettingsScreenState extends State<HotkeySettingsScreen> {
   static const _labels = {
     'command_palette': 'Command Palette',
     'new_session': 'New Session',
-    'close_session': 'Close Session',
+    'close_session': 'Close Pane / Session',
     'next_session': 'Next Session',
     'prev_session': 'Previous Session',
     'toggle_input_bar': 'Toggle Input Bar',
-    'split_horizontal': 'Split Horizontal',
-    'split_vertical': 'Split Vertical',
+    'split_horizontal': 'Split Right',
+    'split_vertical': 'Split Down',
+    'focus_pane_left': 'Focus Pane Left',
+    'focus_pane_right': 'Focus Pane Right',
+    'focus_pane_up': 'Focus Pane Up',
+    'focus_pane_down': 'Focus Pane Down',
   };
 
   @override
