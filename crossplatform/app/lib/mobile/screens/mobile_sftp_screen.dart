@@ -195,7 +195,7 @@ class _MobileSftpScreenState extends State<MobileSftpScreen> {
   Future<void> _download(SftpName e) async {
     final dir = await FilePicker.platform.getDirectoryPath();
     if (dir == null) return;
-    final sink = io.File(p.join(dir, e.filename)).openWrite();
+    final sink = io.File(SftpTransferService.localPathUnder(dir, e.filename)).openWrite();
     try {
       final sftp = await _client();
       final file = await sftp.open(_join(e.filename));
