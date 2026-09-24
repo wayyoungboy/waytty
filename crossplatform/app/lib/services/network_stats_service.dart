@@ -65,15 +65,9 @@ class NetworkStatsService {
 
   static String? detectPrimaryInterface(String procNetDevOutput) {
     for (final line in procNetDevOutput.split('\n')) {
-      final trimmed = line.trim();
-      if (trimmed.isEmpty ||
-          trimmed.startsWith('Inter') ||
-          trimmed.startsWith('face')) {
-        continue;
-      }
-      final colonIdx = trimmed.indexOf(':');
-      if (colonIdx < 0) continue;
-      final name = trimmed.substring(0, colonIdx).trim();
+      final parsed = NetworkStats.parseProcNetDevLine(line);
+      if (parsed == null) continue;
+      final name = parsed.$1;
       if (name == 'lo') continue;
       return name;
     }

@@ -154,10 +154,9 @@ class SystemSnapshot {
   static List<NetworkStats> _parseNetwork(String section, DateTime timestamp) {
     final result = <NetworkStats>[];
     for (final line in section.split('\n')) {
-      final colon = line.indexOf(':');
-      if (colon < 0) continue;
-      final name = line.substring(0, colon).trim();
-      final counters = line.substring(colon + 1).trim().split(RegExp(r'\s+'));
+      final parsed = NetworkStats.parseProcNetDevLine(line);
+      if (parsed == null) continue;
+      final (name, counters) = parsed;
       if (name.isEmpty || name == 'lo' || counters.length < 16) continue;
       final rx = int.tryParse(counters[0]);
       final tx = int.tryParse(counters[8]);
