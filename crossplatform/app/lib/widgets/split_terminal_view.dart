@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:yourssh_snippets/yourssh_snippets.dart';
 import '../models/audit_event.dart';
 import '../models/local_session.dart';
+import '../models/pane_tree.dart';
 import '../models/telnet_session.dart';
 import 'telnet_terminal_pane.dart';
 import '../models/ssh_session.dart';
@@ -26,13 +27,19 @@ import 'terminal_file_workspace.dart';
 import 'workspace_side_panel.dart';
 import 'keep_alive_offstage.dart';
 
-class SplitTerminalView extends StatelessWidget {
-  // Keep pane boundaries visible against both dark and light terminal themes.
+class SplitTerminalView extends StatefulWidget {
   static const _dividerColor = Color(0xFF808080);
-  static const _dividerThickness = 2.0;
+  static const _dividerThickness = 4.0;
+  static const _focusBorder = Color(0xFF22C55E);
 
   final VoidCallback? onNavigateToSettings;
   const SplitTerminalView({super.key, this.onNavigateToSettings});
+
+  @override
+  State<SplitTerminalView> createState() => _SplitTerminalViewState();
+}
+
+class _SplitTerminalViewState extends State<SplitTerminalView> {
 
   void _sendCommand(TerminalSession session, String command) {
     session.terminal.textInput(command);
@@ -49,8 +56,6 @@ class SplitTerminalView extends StatelessWidget {
     for (final s in sessions) {
       s.terminal.textInput(command);
     }
-    // A broadcast to N hosts must show N audit rows, not 1: the focused
-    // pane's input bar audits itself; record every OTHER target here.
     try {
       final audit = context.read<AuditService>();
       final cmd = command.endsWith('\n')
@@ -88,7 +93,7 @@ class SplitTerminalView extends StatelessWidget {
         ? activeRaw
         : (termSessions.isNotEmpty ? termSessions[0] : null);
 
-    if (termSessions.isEmpty) {
+    if (termSessions.isEmpty || active == null) {
       return const Center(
         child: LText(
           "No active sessions",
@@ -97,9 +102,38 @@ class SplitTerminalView extends StatelessWidget {
       );
     }
 
+    // Bind the active terminal session into a pane group (singleton until split).
+    // Defer provider writes out of build to avoid notifyListeners-during-build.
+    final activeId = active.id;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final lp = context.read<TerminalLayoutProvider>();
+      lp.ensureGroup(activeId);
+      lp.activateSession(activeId);
+    });
+    layout.ensureGroup(activeId, notify: false); // first-frame bind without notify
+    final group = layout.groupForSession(activeId) ?? layout.activeGroup;
+    if (group == null) {
+      return const Center(
+        child: LText(
+          "No active sessions",
+          style: TextStyle(color: Color(0xFF555555)),
+        ),
+      );
+    }
+
+    final groupSessions = <TerminalSession>[
+      for (final id in group.sessionIds)
+        ...termSessions.where((s) => s.id == id),
+    ];
+
     return Column(
       children: [
-        const BroadcastToolbar(),
+        BroadcastToolbar(
+          onSplitRight: () => _split(context, SplitAxis.horizontal),
+          onSplitDown: () => _split(context, SplitAxis.vertical),
+          onClosePane: () => _closePane(context),
+        ),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -157,15 +191,14 @@ class SplitTerminalView extends StatelessWidget {
                           ),
                         ),
                       Expanded(
-                        child: _buildPanes(
+                        child: _buildNode(
                           context,
+                          group.root,
+                          group,
+                          groupSessions,
                           layout,
-                          termSessions,
-                          active,
                         ),
                       ),
-                      // Gated on the plugin too: the panel must vanish if the
-                      // snippets plugin is disabled while it is open.
                       if (snippetsEnabled && layout.snippetsPanelVisible)
                         TerminalSnippetsPanel(
                           canRun: _canRunSnippetTarget(context),
@@ -177,7 +210,7 @@ class SplitTerminalView extends StatelessWidget {
                         TerminalConfigPanel(
                           onClose: () =>
                               layout.toggleSidePanel(SidePanel.terminalConfig),
-                          onOpenSettings: onNavigateToSettings,
+                          onOpenSettings: widget.onNavigateToSettings,
                         ),
                       KeepAliveOffstage(
                         key: const ValueKey('terminal-monitor'),
@@ -193,6 +226,44 @@ class SplitTerminalView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _split(BuildContext context, SplitAxis axis) async {
+    final layout = context.read<TerminalLayoutProvider>();
+    final sessions = context.read<SessionProvider>();
+    final active = sessions.activeSession;
+    if (active is! TerminalSession) return;
+    layout.ensureGroup(active.id);
+    layout.activateSession(active.id);
+    final focused = layout.activeGroup?.focusedLeaf;
+    if (focused == null) return;
+    final newId = await sessions.openSiblingSession(focused.sessionId);
+    if (!context.mounted || newId == null) return;
+    layout.splitFocused(axis: axis, newSessionId: newId);
+    sessions.setActive(newId);
+    layout.activateSession(newId);
+  }
+
+  void _closePane(BuildContext context) {
+    final layout = context.read<TerminalLayoutProvider>();
+    final sessions = context.read<SessionProvider>();
+    final closed = layout.closeFocusedPane();
+    if (closed == null) {
+      // Last pane — close the whole tab/group.
+      final group = layout.activeGroup;
+      if (group == null) {
+        sessions.closeActive();
+        return;
+      }
+      final ids = layout.removeGroup(group.id);
+      sessions.closeSessions(ids.isEmpty ? [group.id] : ids);
+      return;
+    }
+    sessions.closeSession(closed);
+    final focus = layout.activeGroup?.focusedLeaf;
+    if (focus != null) {
+      sessions.setActive(focus.sessionId);
+    }
   }
 
   bool _canRunSnippetTarget(BuildContext context) {
@@ -211,112 +282,127 @@ class SplitTerminalView extends StatelessWidget {
         .textInput('$command\n');
   }
 
-  Widget _buildPanes(
+  Widget _buildNode(
     BuildContext context,
+    PaneNode node,
+    TerminalGroup group,
+    List<TerminalSession> groupSessions,
     TerminalLayoutProvider layout,
-    List<TerminalSession> sessions,
-    TerminalSession? active,
   ) {
-    final pane0 = active ?? sessions[0];
-    switch (layout.layout) {
-      case SplitLayout.single:
-        return _buildPane(context, 0, pane0, sessions, layout);
+    return switch (node) {
+      PaneLeaf leaf => _buildPane(
+          context,
+          leaf,
+          group,
+          groupSessions,
+          layout,
+        ),
+      PaneBranch branch => _buildBranch(
+          context,
+          branch,
+          group,
+          groupSessions,
+          layout,
+        ),
+    };
+  }
 
-      case SplitLayout.horizontal:
-        return Row(
-          children: [
-            Expanded(
-              child: _buildPane(context, 0, sessions[0], sessions, layout),
-            ),
-            const VerticalDivider(
-              width: _dividerThickness,
-              thickness: _dividerThickness,
-              color: _dividerColor,
-            ),
-            Expanded(
-              child: sessions.length > 1
-                  ? _buildPane(context, 1, sessions[1], sessions, layout)
-                  : _buildEmptyPane(),
-            ),
-          ],
-        );
+  Widget _buildBranch(
+    BuildContext context,
+    PaneBranch branch,
+    TerminalGroup group,
+    List<TerminalSession> groupSessions,
+    TerminalLayoutProvider layout,
+  ) {
+    return _BranchLayout(
+      axis: branch.axis,
+      ratio: branch.ratio,
+      thickness: SplitTerminalView._dividerThickness,
+      color: SplitTerminalView._dividerColor,
+      onResize: (newRatio) => layout.resizeBranch(branch.id, newRatio),
+      first: _buildNode(
+        context,
+        branch.first,
+        group,
+        groupSessions,
+        layout,
+      ),
+      second: _buildNode(
+        context,
+        branch.second,
+        group,
+        groupSessions,
+        layout,
+      ),
+    );
+  }
 
-      case SplitLayout.vertical:
-        return Column(
-          children: [
-            Expanded(
-              child: _buildPane(context, 0, sessions[0], sessions, layout),
-            ),
-            const Divider(
-              height: _dividerThickness,
-              thickness: _dividerThickness,
-              color: _dividerColor,
-            ),
-            Expanded(
-              child: sessions.length > 1
-                  ? _buildPane(context, 1, sessions[1], sessions, layout)
-                  : _buildEmptyPane(),
-            ),
-          ],
-        );
+  Widget _buildPane(
+    BuildContext context,
+    PaneLeaf leaf,
+    TerminalGroup group,
+    List<TerminalSession> groupSessions,
+    TerminalLayoutProvider layout,
+  ) {
+    final session = groupSessions.where((s) => s.id == leaf.sessionId).firstOrNull;
+    if (session == null) return _buildEmptyPane();
 
-      case SplitLayout.quad:
-        return Column(
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _buildPane(
-                      context,
-                      0,
-                      sessions[0],
-                      sessions,
-                      layout,
-                    ),
-                  ),
-                  const VerticalDivider(
-                    width: _dividerThickness,
-                    thickness: _dividerThickness,
-                    color: _dividerColor,
-                  ),
-                  Expanded(
-                    child: sessions.length > 1
-                        ? _buildPane(context, 1, sessions[1], sessions, layout)
-                        : _buildEmptyPane(),
-                  ),
-                ],
+    final focused = group.focusedPaneId == leaf.id;
+    final showInput = layout.inputBarVisible &&
+        (focused || layout.broadcastEnabled);
+
+    return Container(
+      key: ValueKey('pane-${leaf.id}'),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: focused ? SplitTerminalView._focusBorder : const Color(0xFF2A2A2A),
+          width: focused ? 2 : 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          if (session is SshSession && session.isWatch)
+            _WatchBanner(session: session),
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                layout.focusPane(leaf.id);
+                context.read<SessionProvider>().setActive(session.id);
+              },
+              child: _paneContent(context, session),
+            ),
+          ),
+          if (showInput)
+            TerminalInputBar(
+              sessionId: session.id,
+              cwd: context.select<ShellIntegrationProvider, String?>(
+                (p) => p.cwdFor(session.id),
               ),
+              listDir: session is SshSession
+                  ? (dir) => context.read<SshService>().listDirectory(
+                      session.host,
+                      dir,
+                    )
+                  : null,
+              onSubmit: (cmd) {
+                if (layout.broadcastEnabled) {
+                  _broadcastCommand(
+                    context,
+                    groupSessions,
+                    cmd,
+                    layout,
+                    sourceSessionId: session.id,
+                  );
+                } else {
+                  _sendCommand(session, cmd);
+                }
+              },
+              onDismiss: () => layout.toggleInputBar(),
             ),
-            const Divider(
-              height: _dividerThickness,
-              thickness: _dividerThickness,
-              color: _dividerColor,
-            ),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: sessions.length > 2
-                        ? _buildPane(context, 2, sessions[2], sessions, layout)
-                        : _buildEmptyPane(),
-                  ),
-                  const VerticalDivider(
-                    width: _dividerThickness,
-                    thickness: _dividerThickness,
-                    color: _dividerColor,
-                  ),
-                  Expanded(
-                    child: sessions.length > 3
-                        ? _buildPane(context, 3, sessions[3], sessions, layout)
-                        : _buildEmptyPane(),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-    }
+        ],
+      ),
+    );
   }
 
   Widget _buildEmptyPane() {
@@ -328,64 +414,7 @@ class SplitTerminalView extends StatelessWidget {
     );
   }
 
-  Widget _buildPane(
-    BuildContext context,
-    int paneIndex,
-    TerminalSession session,
-    List<TerminalSession> allSessions,
-    TerminalLayoutProvider layout,
-  ) {
-    // Pane 0 reflects the global inputBarVisible toggle; other panes use it too
-    // when broadcast is on, otherwise only pane 0 gets the bar from the hotkey
-    final showInput =
-        layout.inputBarVisible && paneIndex == 0 ||
-        (layout.inputBarVisible && layout.broadcastEnabled);
-
-    return Column(
-      children: [
-        if (session is SshSession && session.isWatch)
-          _WatchBanner(session: session),
-        Expanded(
-          child: GestureDetector(
-            onTap: () => context.read<SessionProvider>().setActive(session.id),
-            child: _paneContent(context, session),
-          ),
-        ),
-        if (showInput)
-          TerminalInputBar(
-            sessionId: session.id,
-            cwd: context.select<ShellIntegrationProvider, String?>(
-              (p) => p.cwdFor(session.id),
-            ),
-            // Path completion needs a remote lister — SSH only.
-            listDir: session is SshSession
-                ? (dir) => context.read<SshService>().listDirectory(
-                    session.host,
-                    dir,
-                  )
-                : null,
-            onSubmit: (cmd) {
-              if (layout.broadcastEnabled) {
-                _broadcastCommand(
-                  context,
-                  allSessions,
-                  cmd,
-                  layout,
-                  sourceSessionId: session.id,
-                );
-              } else {
-                _sendCommand(session, cmd);
-              }
-            },
-            onDismiss: () => layout.toggleInputBar(),
-          ),
-      ],
-    );
-  }
-
   Widget _paneContent(BuildContext context, TerminalSession session) {
-    // Exhaustive over the known session types — a future third type must
-    // fail loudly here instead of being silently treated as SSH.
     return switch (session) {
       TelnetSession() => TelnetTerminalPane(
         key: ValueKey(session.id),
@@ -405,6 +434,85 @@ class SplitTerminalView extends StatelessWidget {
         'Unknown TerminalSession type: ${session.runtimeType}',
       ),
     };
+  }
+}
+
+/// Renders a split with a draggable divider; reports ratio changes.
+class _BranchLayout extends StatelessWidget {
+  final SplitAxis axis;
+  final double ratio;
+  final double thickness;
+  final Color color;
+  final ValueChanged<double> onResize;
+  final Widget first;
+  final Widget second;
+
+  const _BranchLayout({
+    required this.axis,
+    required this.ratio,
+    required this.thickness,
+    required this.color,
+    required this.onResize,
+    required this.first,
+    required this.second,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isRow = axis == SplitAxis.horizontal;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxExtent =
+            (isRow ? constraints.maxWidth : constraints.maxHeight) - thickness;
+        final firstExtent = (maxExtent * ratio).clamp(maxExtent * 0.1, maxExtent * 0.9);
+        final secondExtent = maxExtent - firstExtent;
+
+        Widget divider = MouseRegion(
+          cursor: isRow
+              ? SystemMouseCursors.resizeColumn
+              : SystemMouseCursors.resizeRow,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragUpdate: isRow
+                ? (d) {
+                    final next = (firstExtent + d.delta.dx) / maxExtent;
+                    onResize(next);
+                  }
+                : null,
+            onVerticalDragUpdate: !isRow
+                ? (d) {
+                    final next = (firstExtent + d.delta.dy) / maxExtent;
+                    onResize(next);
+                  }
+                : null,
+            child: ColoredBox(
+              color: color.withValues(alpha: 0.35),
+              child: SizedBox(
+                width: isRow ? thickness : double.infinity,
+                height: isRow ? double.infinity : thickness,
+              ),
+            ),
+          ),
+        );
+
+        if (isRow) {
+          return Row(
+            children: [
+              SizedBox(width: firstExtent, child: first),
+              divider,
+              SizedBox(width: secondExtent, child: second),
+            ],
+          );
+        }
+        return Column(
+          children: [
+            SizedBox(height: firstExtent, child: first),
+            divider,
+            SizedBox(height: secondExtent, child: second),
+          ],
+        );
+      },
+    );
   }
 }
 

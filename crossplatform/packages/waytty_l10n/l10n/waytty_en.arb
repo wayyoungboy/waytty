@@ -1459,5 +1459,14 @@
   "m_4f494b22379b": "Download update",
   "m_1cb7b834dba5": "Update downloaded — open the package and move waytty to Applications",
   "m_fb075977f752": "Checks run only when you request them.",
-  "m_3b7ea51793e9": "Clear search"
+  "m_3b7ea51793e9": "Clear search",
+  "m_9879025c51e0": "Split Right",
+  "m_561ae7b90b9d": "Split Down",
+  "m_28d49f191099": "Close Pane",
+  "m_c7d2fd574d56": "Close Pane / Session",
+  "m_897ca548c044": "Focus Pane Left",
+  "m_2032a83bc8a9": "Focus Pane Right",
+  "m_7712709ebab8": "Focus Pane Up",
+  "m_a712d8a038e8": "Focus Pane Down",
+  "m_e5032ed0eb7e": "{0} panes"
 }

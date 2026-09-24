@@ -1460,7 +1460,16 @@ const wayttyMessages = <String, Map<String, String>>{
     "Download update": "下载更新",
     "Reset filters": "重置筛选",
     "Update downloaded — open the package and move waytty to Applications": "更新已下载，请打开安装包并将 waytty 移入“应用程序”",
-    "搜索名称、地址、用户名、分组或标签": "搜索名称、地址、用户名、分组或标签"
+    "搜索名称、地址、用户名、分组或标签": "搜索名称、地址、用户名、分组或标签",
+    "Split Right": "向右分屏",
+    "Split Down": "向下分屏",
+    "Close Pane": "关闭窗格",
+    "Close Pane / Session": "关闭窗格 / 会话",
+    "Focus Pane Left": "焦点移到左侧窗格",
+    "Focus Pane Right": "焦点移到右侧窗格",
+    "Focus Pane Up": "焦点移到上方窗格",
+    "Focus Pane Down": "焦点移到下方窗格",
+    "{0} panes": "{0} 个窗格"
   },
   "en": {
     " · {0} cancelled": " · {0} cancelled",
@@ -2922,6 +2931,15 @@ const wayttyMessages = <String, Map<String, String>>{
     "Download update": "Download update",
     "Reset filters": "Reset filters",
     "Update downloaded — open the package and move waytty to Applications": "Update downloaded — open the package and move waytty to Applications",
-    "搜索名称、地址、用户名、分组或标签": "Search name, address, user, group or tags"
+    "搜索名称、地址、用户名、分组或标签": "Search name, address, user, group or tags",
+    "Split Right": "Split Right",
+    "Split Down": "Split Down",
+    "Close Pane": "Close Pane",
+    "Close Pane / Session": "Close Pane / Session",
+    "Focus Pane Left": "Focus Pane Left",
+    "Focus Pane Right": "Focus Pane Right",
+    "Focus Pane Up": "Focus Pane Up",
+    "Focus Pane Down": "Focus Pane Down",
+    "{0} panes": "{0} panes"
   }
 };

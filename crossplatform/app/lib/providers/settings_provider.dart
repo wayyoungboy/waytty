@@ -90,9 +90,14 @@ class SettingsProvider extends ChangeNotifier {
     'next_session': 'ctrl+tab',
     'prev_session': 'ctrl+shift+tab',
     'toggle_input_bar': 'ctrl+shift+i',
-    'split_horizontal': 'ctrl+shift+h',
-    // Not ctrl+shift+v: that is terminal paste on Windows/Linux (issue #43).
-    'split_vertical': 'ctrl+shift+e',
+    // iTerm-style: Cmd+D / Cmd+Shift+D on macOS. Elsewhere avoid bare
+    // ctrl+d (EOF) — use ctrl+shift+d / ctrl+alt+d.
+    'split_horizontal': Platform.isMacOS ? 'meta+d' : 'ctrl+shift+d',
+    'split_vertical': Platform.isMacOS ? 'meta+shift+d' : 'ctrl+alt+d',
+    'focus_pane_left': Platform.isMacOS ? 'meta+alt+left' : 'ctrl+alt+left',
+    'focus_pane_right': Platform.isMacOS ? 'meta+alt+right' : 'ctrl+alt+right',
+    'focus_pane_up': Platform.isMacOS ? 'meta+alt+up' : 'ctrl+alt+up',
+    'focus_pane_down': Platform.isMacOS ? 'meta+alt+down' : 'ctrl+alt+down',
     'command_palette': Platform.isMacOS ? 'meta+k' : 'ctrl+k',
   };
 
@@ -145,7 +150,31 @@ class SettingsProvider extends ChangeNotifier {
         // now swallow their combo in terminal views, so leaving it would
         // shadow terminal paste on Windows/Linux (issues #43, #46).
         if (hotkeys['split_vertical'] == 'ctrl+shift+v') {
-          hotkeys['split_vertical'] = 'ctrl+shift+e';
+          hotkeys['split_vertical'] = Platform.isMacOS ? 'meta+shift+d' : 'ctrl+alt+d';
+        }
+        // Fill newly added pane-focus shortcuts for existing installs.
+        final focusDefaults = {
+          'focus_pane_left':
+              Platform.isMacOS ? 'meta+alt+left' : 'ctrl+alt+left',
+          'focus_pane_right':
+              Platform.isMacOS ? 'meta+alt+right' : 'ctrl+alt+right',
+          'focus_pane_up':
+              Platform.isMacOS ? 'meta+alt+up' : 'ctrl+alt+up',
+          'focus_pane_down':
+              Platform.isMacOS ? 'meta+alt+down' : 'ctrl+alt+down',
+        };
+        for (final e in focusDefaults.entries) {
+          hotkeys.putIfAbsent(e.key, () => e.value);
+        }
+        // Migrate previous built-in split combos to the new defaults only
+        // when the user never customized them.
+        if (hotkeys['split_horizontal'] == 'ctrl+shift+h') {
+          hotkeys['split_horizontal'] =
+              Platform.isMacOS ? 'meta+d' : 'ctrl+shift+d';
+        }
+        if (hotkeys['split_vertical'] == 'ctrl+shift+e') {
+          hotkeys['split_vertical'] =
+              Platform.isMacOS ? 'meta+shift+d' : 'ctrl+alt+d';
         }
       } catch (e) {
         // Corrupted prefs: keep the built-in defaults rather than crash boot.

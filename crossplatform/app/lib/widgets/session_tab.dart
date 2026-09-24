@@ -13,6 +13,7 @@ import '../models/terminal_session.dart';
 import '../providers/host_provider.dart';
 import '../providers/recording_provider.dart';
 import '../providers/session_provider.dart';
+import '../providers/terminal_layout_provider.dart';
 import '../providers/shell_integration_provider.dart';
 import '../services/health_monitor_service.dart';
 import '../services/os_detection.dart';
@@ -45,6 +46,25 @@ class _SessionTabState extends State<SessionTab> {
   void dispose() {
     _renameController.dispose();
     super.dispose();
+  }
+
+
+  void _closeThisTab() {
+    TerminalLayoutProvider? layout;
+    try {
+      layout = context.read<TerminalLayoutProvider>();
+    } on ProviderNotFoundException {
+      // Tests (and rare early-boot paths) may pump SessionTab without layout.
+      widget.provider.closeSession(widget.session.id);
+      return;
+    }
+    final group = layout.groupForSession(widget.session.id);
+    if (group != null) {
+      final ids = layout.removeGroup(group.id);
+      widget.provider.closeSessions(ids.isEmpty ? [widget.session.id] : ids);
+      return;
+    }
+    widget.provider.closeSession(widget.session.id);
   }
 
   void _startRename() {
@@ -145,7 +165,7 @@ class _SessionTabState extends State<SessionTab> {
       case 'color':
         await _showColorSubmenu(context, globalPos);
       case 'close':
-        provider.closeSession(session.id);
+        _closeThisTab();
     }
   }
 
@@ -214,7 +234,7 @@ class _SessionTabState extends State<SessionTab> {
         // with the hidden X button — close stays reachable via the menu).
         onTertiaryTapUp: widget.session.isPinned
             ? null
-            : (_) => widget.provider.closeSession(widget.session.id),
+            : (_) => _closeThisTab(),
         child: Container(
           height: 38,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -322,7 +342,7 @@ class _SessionTabState extends State<SessionTab> {
               // X close button — hidden when pinned
               if (!widget.session.isPinned)
                 GestureDetector(
-                  onTap: () => widget.provider.closeSession(widget.session.id),
+                  onTap: _closeThisTab,
                   child: Icon(
                     Icons.close,
                     size: 11,

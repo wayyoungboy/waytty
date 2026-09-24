@@ -92,7 +92,7 @@ void main() {
   test('split_vertical default avoids the terminal paste combo', () async {
     final provider = SettingsProvider();
     await Future<void>.delayed(Duration.zero);
-    expect(provider.hotkeys['split_vertical'], 'ctrl+shift+e');
+    expect(provider.hotkeys['split_vertical'], 'ctrl+alt+d');
   });
 
   test('migrates saved split_vertical off ctrl+shift+v', () async {
@@ -104,7 +104,7 @@ void main() {
     });
     final provider = SettingsProvider();
     await Future<void>.delayed(Duration.zero);
-    expect(provider.hotkeys['split_vertical'], 'ctrl+shift+e');
+    expect(provider.hotkeys['split_vertical'], 'ctrl+alt+d');
     // Other saved hotkeys are untouched.
     expect(provider.hotkeys['new_session'], 'ctrl+t');
   });
